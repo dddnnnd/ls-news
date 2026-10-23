@@ -8784,7 +8784,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const rawU = localStorage.getItem(USERS_DB_KEY);
     if (rawU) {
       const parsedU = JSON.parse(rawU);
-      if (Array.isArray(parsedU) && parsedU.length > 0) {
+      if (Array.isArray(parsedU)) {
         usersDb = parsedU;
       }
     }
@@ -9040,13 +9040,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   ];
 
-  const NEWS_STORAGE_KEY = 'lsn_news_store_v18';
+  const NEWS_STORAGE_KEY = 'lsn_news_store_v20';
   newsState = JSON.parse(JSON.stringify(DEFAULT_NEWS_DATA));
   try {
     const rawN = localStorage.getItem(NEWS_STORAGE_KEY);
     if (rawN) {
       const parsedN = JSON.parse(rawN);
-      if (Array.isArray(parsedN) && parsedN.length > 0) {
+      if (Array.isArray(parsedN)) {
         newsState = parsedN;
       }
     }
@@ -9114,13 +9114,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   ];
 
-  const ADS_STORAGE_KEY = 'lsn_ads_store_v12';
+  const ADS_STORAGE_KEY = 'lsn_ads_store_v20';
   adsState = JSON.parse(JSON.stringify(DEFAULT_ADS_DATA));
   try {
-    const rawAds = localStorage.getItem(ADS_STORAGE_KEY) || localStorage.getItem('lsn_ads_carousel_v10');
+    const rawAds = localStorage.getItem(ADS_STORAGE_KEY);
     if (rawAds) {
       const parsed = JSON.parse(rawAds);
-      if (Array.isArray(parsed) && parsed.length > 0) adsState = parsed;
+      if (Array.isArray(parsed)) adsState = parsed;
     }
   } catch (_) {}
   const saveAdsState = () => {
@@ -9146,13 +9146,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   ];
 
-  const COLUMNS_STORAGE_KEY = 'lsn_columns_store_v12';
+  const COLUMNS_STORAGE_KEY = 'lsn_columns_store_v20';
   columnsState = JSON.parse(JSON.stringify(DEFAULT_COLUMNS_DATA));
   try {
-    const rawC = localStorage.getItem(COLUMNS_STORAGE_KEY) || localStorage.getItem('lsn_editorial_columns_v11');
+    const rawC = localStorage.getItem(COLUMNS_STORAGE_KEY);
     if (rawC) {
       const parsed = JSON.parse(rawC);
-      if (Array.isArray(parsed) && parsed.length > 0) columnsState = parsed;
+      if (Array.isArray(parsed)) columnsState = parsed;
     }
   } catch (_) {}
   const saveColumnsState = () => {
@@ -9224,20 +9224,24 @@ document.addEventListener('DOMContentLoaded', () => {
     ]
   };
 
-  const STAFF_STORAGE_KEY = 'lsn_staff_roster_v12';
+  const STAFF_STORAGE_KEY = 'lsn_staff_roster_v20';
   staffState = JSON.parse(JSON.stringify(DEFAULT_STAFF_DATA));
   try {
-    const rawS = localStorage.getItem(STAFF_STORAGE_KEY) || localStorage.getItem('lsn_staff_roster_v11');
+    const rawS = localStorage.getItem(STAFF_STORAGE_KEY) || localStorage.getItem('lsn_staff_roster_v12');
     if (rawS) {
       const parsed = JSON.parse(rawS);
-      if (parsed && Array.isArray(parsed.members) && parsed.members.length > 0) staffState = parsed;
+      if (parsed && Array.isArray(parsed.members)) staffState = parsed;
     }
   } catch (_) {}
   if (!Array.isArray(staffState.stats) || staffState.stats.length < 4) {
     staffState.stats = JSON.parse(JSON.stringify(DEFAULT_STAFF_STATS));
   }
   const saveStaffState = () => {
-    try { localStorage.setItem(STAFF_STORAGE_KEY, JSON.stringify(staffState)); } catch (_) {}
+    try {
+      localStorage.setItem(STAFF_STORAGE_KEY, JSON.stringify(staffState));
+      localStorage.removeItem('lsn_staff_roster_v12');
+      localStorage.removeItem('lsn_staff_roster_v11');
+    } catch (_) {}
   };
 
   const makeShortPreview = (fullText, maxLen = 175) => {
@@ -9945,14 +9949,29 @@ document.addEventListener('DOMContentLoaded', () => {
     staffGridEl.innerHTML = '';
 
     const members = staffState.members || [];
+    const prevBtn = $('#staff-prev-btn');
+    const nextBtn = $('#staff-next-btn');
+    const counterEl = $('#staff-counter');
+
+    if (!members.length) {
+      if (counterEl) counterEl.textContent = '0 / 0';
+      if (prevBtn) prevBtn.disabled = true;
+      if (nextBtn) nextBtn.disabled = true;
+      staffGridEl.classList.remove('is-slider');
+      staffGridEl.innerHTML = `
+        <div style="grid-column: 1 / -1; text-align: center; padding: 48px 24px; color: #94a3b8; font-size: 15px; border: 1px dashed rgba(255,255,255,0.15); border-radius: 14px; width: 100%; background: rgba(15,23,42,0.45); backdrop-filter: blur(8px);">
+          <div style="font-size: 32px; margin-bottom: 12px;">👥</div>
+          <b style="color:#f1f5f9; display:block; margin-bottom:6px; font-size:16px;">Список сотрудников пуст</b>
+          <span>Состав редакции формируется. Добавьте сотрудников через Кабинет журналиста или подайте заявку в разделе «Трудоустройство».</span>
+        </div>
+      `;
+      return;
+    }
+
     const getStaffPerPage = () => window.innerWidth >= 1100 ? 3 : (window.innerWidth >= 700 ? 2 : 1);
     const per = getStaffPerPage();
     const pages = Math.max(1, Math.ceil(members.length / per));
     staffPage = ((staffPage % pages) + pages) % pages;
-
-    const prevBtn = $('#staff-prev-btn');
-    const nextBtn = $('#staff-next-btn');
-    const counterEl = $('#staff-counter');
 
     if (counterEl) counterEl.textContent = `${staffPage + 1} / ${pages}`;
     if (prevBtn) prevBtn.disabled = pages < 2;
@@ -10808,6 +10827,13 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
       listEl.appendChild(card);
     });
+
+    if (listEl.children.length === 0) {
+      const emptyDiv = document.createElement('div');
+      emptyDiv.style.cssText = 'padding:32px 16px; text-align:center; color:#94a3b8; font-size:13px; border:1px dashed rgba(255,255,255,0.1); border-radius:10px; margin:8px;';
+      emptyDiv.innerHTML = '📭 Список пуст. Нажмите «Добавить» выше, чтобы создать запись.';
+      listEl.appendChild(emptyDiv);
+    }
   };
 
   const loadItemIntoUniFormBase = (itemId) => {
@@ -11029,6 +11055,13 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
       listEl.appendChild(card);
     });
+
+    if (listEl.children.length === 0) {
+      const emptyDiv = document.createElement('div');
+      emptyDiv.style.cssText = 'padding:32px 16px; text-align:center; color:#94a3b8; font-size:13px; border:1px dashed rgba(255,255,255,0.1); border-radius:10px; margin:8px;';
+      emptyDiv.innerHTML = '📭 Список пуст. Нажмите «Добавить» выше, чтобы создать запись.';
+      listEl.appendChild(emptyDiv);
+    }
   };
 
   // Sync registered user selection dropdown with input fields
@@ -11289,6 +11322,13 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
       listEl.appendChild(card);
     });
+
+    if (listEl.children.length === 0) {
+      const emptyDiv = document.createElement('div');
+      emptyDiv.style.cssText = 'padding:32px 16px; text-align:center; color:#94a3b8; font-size:13px; border:1px dashed rgba(255,255,255,0.1); border-radius:10px; margin:8px;';
+      emptyDiv.innerHTML = '📭 Список пуст. Нажмите «Добавить» выше, чтобы создать запись.';
+      listEl.appendChild(emptyDiv);
+    }
   };
 
   // Filter clicks
@@ -11475,7 +11515,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!btn.classList.contains('is-confirming')) {
       btn.classList.add('is-confirming');
       btn.dataset.origHtml = btn.innerHTML;
-      btn.innerHTML = 'вљ пёЏ РўРѕС‡РЅРѕ СѓРґР°Р»РёС‚СЊ?';
+      btn.innerHTML = '⚠️ Точно удалить?';
       btn.style.background = '#dc2626';
       btn.style.borderColor = '#ef4444';
       btn.style.color = '#fff';
@@ -11505,6 +11545,10 @@ document.addEventListener('DOMContentLoaded', () => {
       columnsState = columnsState.filter(x => x.id !== id);
       saveColumnsState();
       renderEditorialColumns();
+    } else if (type === 'staff') {
+      staffState.members = staffState.members.filter(x => x.id !== id);
+      saveStaffState();
+      renderStaffSection();
     }
 
     if (sb) {
@@ -11666,14 +11710,14 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!delBtn.classList.contains('is-confirming')) {
         delBtn.classList.add('is-confirming');
         delBtn.dataset.origHtml = delBtn.innerHTML;
-        delBtn.innerHTML = 'вљ пёЏ РўРѕС‡РЅРѕ СѓРґР°Р»РёС‚СЊ?';
+        delBtn.innerHTML = '⚠️ Точно удалить?';
         delBtn.style.background = '#dc2626';
         delBtn.style.borderColor = '#ef4444';
         delBtn.style.color = '#fff';
         const tId = setTimeout(() => {
           if (delBtn && delBtn.isConnected) {
             delBtn.classList.remove('is-confirming');
-            delBtn.innerHTML = delBtn.dataset.origHtml || 'РЈРґР°Р»РёС‚СЊ';
+            delBtn.innerHTML = delBtn.dataset.origHtml || 'Удалить';
             delBtn.style.background = '';
             delBtn.style.borderColor = '';
             delBtn.style.color = '';
