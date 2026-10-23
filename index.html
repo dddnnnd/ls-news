@@ -9040,19 +9040,60 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   ];
 
+  // Persistent Deleted Items Registry & Section Cleared State
+  const DELETED_ITEMS_KEY = 'lsn_deleted_item_ids_v20';
+  const getDeletedIds = () => {
+    try {
+      const raw = localStorage.getItem(DELETED_ITEMS_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch (_) { return []; }
+  };
+  const markIdAsDeleted = (id) => {
+    if (!id) return;
+    try {
+      const list = getDeletedIds();
+      if (!list.includes(id)) {
+        list.push(id);
+        localStorage.setItem(DELETED_ITEMS_KEY, JSON.stringify(list));
+      }
+    } catch (_) {}
+  };
+  const isItemDeleted = (id) => {
+    if (!id) return false;
+    return getDeletedIds().includes(id);
+  };
+  const markSectionCleared = (type, cleared = true) => {
+    try {
+      if (cleared) {
+        localStorage.setItem('lsn_cleared_' + type, 'true');
+      } else {
+        localStorage.removeItem('lsn_cleared_' + type);
+      }
+    } catch (_) {}
+  };
+  const isSectionCleared = (type) => {
+    try {
+      return localStorage.getItem('lsn_cleared_' + type) === 'true';
+    } catch (_) { return false; }
+  };
+
   const NEWS_STORAGE_KEY = 'lsn_news_store_v20';
-  newsState = JSON.parse(JSON.stringify(DEFAULT_NEWS_DATA));
+  newsState = isSectionCleared('news') ? [] : JSON.parse(JSON.stringify(DEFAULT_NEWS_DATA)).filter(x => !isItemDeleted(x.id));
   try {
-    const rawN = localStorage.getItem(NEWS_STORAGE_KEY);
+    const rawN = localStorage.getItem(NEWS_STORAGE_KEY) || localStorage.getItem('lsn_news_store_v16') || localStorage.getItem('lsn_news_store_v12');
     if (rawN) {
       const parsedN = JSON.parse(rawN);
       if (Array.isArray(parsedN)) {
-        newsState = parsedN;
+        newsState = (isSectionCleared('news') && parsedN.length === 0) ? [] : parsedN.filter(x => !isItemDeleted(x.id));
       }
     }
   } catch (_) {}
   const saveNewsState = () => {
-    try { localStorage.setItem(NEWS_STORAGE_KEY, JSON.stringify(newsState)); } catch (_) {}
+    try {
+      localStorage.setItem(NEWS_STORAGE_KEY, JSON.stringify(newsState));
+      localStorage.removeItem('lsn_news_store_v16');
+      localStorage.removeItem('lsn_news_store_v12');
+    } catch (_) {}
   };
 
   // Clean atmospheric Los Santos night skyline backdrop (NO Maze Bank icons, NO cartoon cars, NO text boxes)
@@ -9115,16 +9156,21 @@ document.addEventListener('DOMContentLoaded', () => {
   ];
 
   const ADS_STORAGE_KEY = 'lsn_ads_store_v20';
-  adsState = JSON.parse(JSON.stringify(DEFAULT_ADS_DATA));
+  adsState = isSectionCleared('ad') ? [] : JSON.parse(JSON.stringify(DEFAULT_ADS_DATA)).filter(x => !isItemDeleted(x.id));
   try {
-    const rawAds = localStorage.getItem(ADS_STORAGE_KEY);
+    const rawAds = localStorage.getItem(ADS_STORAGE_KEY) || localStorage.getItem('lsn_ads_store_v12');
     if (rawAds) {
       const parsed = JSON.parse(rawAds);
-      if (Array.isArray(parsed)) adsState = parsed;
+      if (Array.isArray(parsed)) {
+        adsState = (isSectionCleared('ad') && parsed.length === 0) ? [] : parsed.filter(x => !isItemDeleted(x.id));
+      }
     }
   } catch (_) {}
   const saveAdsState = () => {
-    try { localStorage.setItem(ADS_STORAGE_KEY, JSON.stringify(adsState)); } catch (_) {}
+    try {
+      localStorage.setItem(ADS_STORAGE_KEY, JSON.stringify(adsState));
+      localStorage.removeItem('lsn_ads_store_v12');
+    } catch (_) {}
   };
 
   const DEFAULT_COLUMNS_DATA = [
@@ -9147,16 +9193,21 @@ document.addEventListener('DOMContentLoaded', () => {
   ];
 
   const COLUMNS_STORAGE_KEY = 'lsn_columns_store_v20';
-  columnsState = JSON.parse(JSON.stringify(DEFAULT_COLUMNS_DATA));
+  columnsState = isSectionCleared('column') ? [] : JSON.parse(JSON.stringify(DEFAULT_COLUMNS_DATA)).filter(x => !isItemDeleted(x.id));
   try {
-    const rawC = localStorage.getItem(COLUMNS_STORAGE_KEY);
+    const rawC = localStorage.getItem(COLUMNS_STORAGE_KEY) || localStorage.getItem('lsn_columns_store_v12');
     if (rawC) {
       const parsed = JSON.parse(rawC);
-      if (Array.isArray(parsed)) columnsState = parsed;
+      if (Array.isArray(parsed)) {
+        columnsState = (isSectionCleared('column') && parsed.length === 0) ? [] : parsed.filter(x => !isItemDeleted(x.id));
+      }
     }
   } catch (_) {}
   const saveColumnsState = () => {
-    try { localStorage.setItem(COLUMNS_STORAGE_KEY, JSON.stringify(columnsState)); } catch (_) {}
+    try {
+      localStorage.setItem(COLUMNS_STORAGE_KEY, JSON.stringify(columnsState));
+      localStorage.removeItem('lsn_columns_store_v12');
+    } catch (_) {}
   };
 
   const DEFAULT_STAFF_STATS = [
@@ -9225,12 +9276,21 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const STAFF_STORAGE_KEY = 'lsn_staff_roster_v20';
-  staffState = JSON.parse(JSON.stringify(DEFAULT_STAFF_DATA));
+  const defaultStaffMembers = isSectionCleared('staff') ? [] : DEFAULT_STAFF_DATA.members.filter(x => !isItemDeleted(x.id));
+  staffState = {
+    ...JSON.parse(JSON.stringify(DEFAULT_STAFF_DATA)),
+    members: defaultStaffMembers
+  };
   try {
     const rawS = localStorage.getItem(STAFF_STORAGE_KEY) || localStorage.getItem('lsn_staff_roster_v12');
     if (rawS) {
       const parsed = JSON.parse(rawS);
-      if (parsed && Array.isArray(parsed.members)) staffState = parsed;
+      if (parsed && Array.isArray(parsed.members)) {
+        staffState = parsed;
+        staffState.members = (isSectionCleared('staff') && staffState.members.length === 0)
+          ? []
+          : staffState.members.filter(x => !isItemDeleted(x.id));
+      }
     }
   } catch (_) {}
   if (!Array.isArray(staffState.stats) || staffState.stats.length < 4) {
@@ -9785,6 +9845,18 @@ document.addEventListener('DOMContentLoaded', () => {
     slidesHost.innerHTML = '';
     dotsHost.innerHTML = '';
 
+    if (!adsState.length) {
+      slidesHost.innerHTML = `
+        <div class="lsn-ad-slide is-active" style="display:flex; align-items:center; justify-content:center; padding:40px; text-align:center;">
+          <div style="color:#94a3b8; font-size:15px;">
+            📢 Рекламный эфир свободен. Подайте коммерческое объявление через Кабинет редакции.
+          </div>
+        </div>
+      `;
+      if (progressEl) progressEl.style.width = '0%';
+      return;
+    }
+
     if (activeAdIdx >= adsState.length) activeAdIdx = 0;
 
     adsState.forEach((ad, idx) => {
@@ -9846,6 +9918,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const renderEditorialColumns = () => {
     if (!columnsHostEl) return;
     columnsHostEl.innerHTML = '';
+    if (!columnsState.length) {
+      columnsHostEl.innerHTML = `
+        <div style="grid-column: 1 / -1; text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 14px; border: 1px dashed rgba(255,255,255,0.15); border-radius: 14px; width: 100%; background: rgba(15,23,42,0.45);">
+          ✍️ Колонок пока нет. Добавьте первую авторскую колонку через Кабинет журналиста.
+        </div>
+      `;
+      return;
+    }
     columnsState.forEach((col, idx) => {
       const card = document.createElement('div');
       const accent = col.accent || (idx % 2 === 0 ? 'red' : 'cyan');
@@ -11376,16 +11456,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (delBtn._resetTimer) clearTimeout(delBtn._resetTimer);
 
+      markIdAsDeleted(id);
       if (type === 'news') {
         newsState = newsState.filter(x => x.id !== id);
+        if (newsState.length === 0) markSectionCleared('news', true);
         saveNewsState();
         renderNewsSections();
       } else if (type === 'ad') {
         adsState = adsState.filter(x => x.id !== id);
+        if (adsState.length === 0) markSectionCleared('ad', true);
         saveAdsState();
         renderAdsCarousel();
       } else if (type === 'column') {
         columnsState = columnsState.filter(x => x.id !== id);
+        if (columnsState.length === 0) markSectionCleared('column', true);
         saveColumnsState();
         renderEditorialColumns();
       }
@@ -11531,22 +11615,34 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    btn.classList.remove('is-confirming');
+    btn.innerHTML = btn.dataset.origHtml || '🗑️ Удалить новость';
+    btn.style.background = '';
+    btn.style.borderColor = '';
+    btn.style.color = '';
+
     const type = lastOpenedModalItem.type || 'news';
     const id = lastOpenedModalItem.id;
+    markIdAsDeleted(id);
+
     if (type === 'news') {
       newsState = newsState.filter(x => x.id !== id);
+      if (newsState.length === 0) markSectionCleared('news', true);
       saveNewsState();
       renderNewsSections();
     } else if (type === 'ad') {
       adsState = adsState.filter(x => x.id !== id);
+      if (adsState.length === 0) markSectionCleared('ad', true);
       saveAdsState();
       renderAdsCarousel();
     } else if (type === 'column') {
       columnsState = columnsState.filter(x => x.id !== id);
+      if (columnsState.length === 0) markSectionCleared('column', true);
       saveColumnsState();
       renderEditorialColumns();
     } else if (type === 'staff') {
       staffState.members = staffState.members.filter(x => x.id !== id);
+      if (staffState.members.length === 0) markSectionCleared('staff', true);
       saveStaffState();
       renderStaffSection();
     }
@@ -11599,19 +11695,31 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.style.color = '';
 
     if (currentUniType === 'news') {
+      newsState.forEach(x => markIdAsDeleted(x.id));
+      DEFAULT_NEWS_DATA.forEach(x => markIdAsDeleted(x.id));
       newsState = [];
+      markSectionCleared('news', true);
       saveNewsState();
       renderNewsSections();
     } else if (currentUniType === 'ad') {
+      adsState.forEach(x => markIdAsDeleted(x.id));
+      DEFAULT_ADS_DATA.forEach(x => markIdAsDeleted(x.id));
       adsState = [];
+      markSectionCleared('ad', true);
       saveAdsState();
       renderAdsCarousel();
     } else if (currentUniType === 'column') {
+      columnsState.forEach(x => markIdAsDeleted(x.id));
+      DEFAULT_COLUMNS_DATA.forEach(x => markIdAsDeleted(x.id));
       columnsState = [];
+      markSectionCleared('column', true);
       saveColumnsState();
       renderEditorialColumns();
     } else if (currentUniType === 'staff') {
+      staffState.members.forEach(x => markIdAsDeleted(x.id));
+      DEFAULT_STAFF_DATA.members.forEach(x => markIdAsDeleted(x.id));
       staffState.members = [];
+      markSectionCleared('staff', true);
       saveStaffState();
       renderStaffSection();
     }
@@ -11667,26 +11775,33 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    markIdAsDeleted(id);
+
     if (currentUniType === 'news') {
       newsState = newsState.filter(x => x.id !== id);
+      if (newsState.length === 0) markSectionCleared('news', true);
       saveNewsState();
       renderNewsSections();
     } else if (currentUniType === 'ad') {
       adsState = adsState.filter(x => x.id !== id);
+      if (adsState.length === 0) markSectionCleared('ad', true);
       saveAdsState();
       renderAdsCarousel();
     } else if (currentUniType === 'column') {
       columnsState = columnsState.filter(x => x.id !== id);
+      if (columnsState.length === 0) markSectionCleared('column', true);
       saveColumnsState();
       renderEditorialColumns();
     } else if (currentUniType === 'staff') {
       staffState.members = staffState.members.filter(x => x.id !== id);
+      if (staffState.members.length === 0) markSectionCleared('staff', true);
       saveStaffState();
       renderStaffSection();
       if (typeof renderSanRatingTableUI === 'function') renderSanRatingTableUI();
       if (typeof checkSundayMondaySync === 'function') checkSundayMondaySync();
     }
-        if (sb) {
+
+    if (sb) {
       sb.from('lsn_articles')
         .delete()
         .eq('id', id)
@@ -11696,6 +11811,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     const updatedStore = getStoreForType(currentUniType);
     loadItemIntoUniForm(updatedStore[0]?.id || null);
+    renderUniItemsList();
     flashUniSaved('Удалено');
   };
 
@@ -11765,6 +11881,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const sub = $('#uni-field-sub').value.trim();
     const body = $('#uni-field-body').value.trim();
     if (!title || !body) return;
+    markSectionCleared(currentUniType, false);
 
     if (currentUniType === 'news') {
       let item = newsState.find(x => x.id === id);
@@ -12458,7 +12575,11 @@ document.addEventListener('DOMContentLoaded', () => {
         .select('*')
         .order('created_at', { ascending: false });
       if (!error && data && data.length > 0) {
-        const cloudNews = data.map(row => ({
+        const validRows = data.filter(row => !isItemDeleted(row.id));
+        if (isSectionCleared('news') && validRows.length === 0) {
+          return;
+        }
+        const cloudNews = validRows.map(row => ({
           id: row.id,
           title: row.title,
           category: row.category || 'Город',
@@ -12485,9 +12606,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!refreshBtn) return;
     refreshBtn.textContent = '⏳ Обновляем...';
     try {
-      localStorage.removeItem(NEWS_STORAGE_KEY);
+      const rawN = localStorage.getItem(NEWS_STORAGE_KEY);
+      if (rawN) {
+        const parsed = JSON.parse(rawN);
+        if (Array.isArray(parsed)) newsState = parsed.filter(x => !isItemDeleted(x.id));
+      }
     } catch (_) {}
-    newsState = JSON.parse(JSON.stringify(DEFAULT_NEWS_DATA));
     renderNewsSections();
     syncArticlesFromCloud().finally(() => {
       refreshBtn.textContent = '🔄 Обновлено!';
