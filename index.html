@@ -6,6 +6,22 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
+  <script>
+    (function() {
+      var LSN_APP_VER = '20261023_v22';
+      try {
+        var lastVer = localStorage.getItem('lsn_app_ver');
+        if (lastVer && lastVer !== LSN_APP_VER) {
+          localStorage.setItem('lsn_app_ver', LSN_APP_VER);
+          if (!window.location.search.includes('v=')) {
+            window.location.replace(window.location.pathname + '?v=' + Date.now() + window.location.hash);
+          }
+        } else {
+          localStorage.setItem('lsn_app_ver', LSN_APP_VER);
+        }
+      } catch (_) {}
+    })();
+  </script>
 
 <meta charset="utf-8">
 
