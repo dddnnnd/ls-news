@@ -1,8 +1,13 @@
-﻿-- =========================================================
+-- =========================================================
 -- LOS SANTOS NEWS — ПОЛНАЯ СХЕМА SUPABASE ДЛЯ ПОРТАЛА
 -- Проект: https://kahtjjlnivxkyynfjtyd.supabase.co
 -- Администратор: deeeenchik80@gmail.com
 -- =========================================================
+
+-- 0. ОЧИСТКА СТАРЫХ КОНФЛИКТУЮЩИХ ТРИГГЕРОВ
+drop trigger if exists lsn_create_user_profile on auth.users;
+drop function if exists public.lsn_create_user_profile();
+drop trigger if exists on_auth_user_created on auth.users;
 
 -- 1. ТАБЛИЦА ПРОФИЛЕЙ ПОЛЬЗОВАТЕЛЕЙ
 -- Хранит игровые никнеймы (без _), персональный ID (USR-101...) и роли
