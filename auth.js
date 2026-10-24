@@ -19,7 +19,7 @@ function report(text, kind = 'info') {
 }
 
 function authPageUrl(mode) {
-  const url = new URL('auth.html', PUBLIC_SITE_URL);
+  const url = new URL('/auth.html', PUBLIC_SITE_URL);
   if (mode) url.searchParams.set('mode', mode);
   return url.toString();
 }
