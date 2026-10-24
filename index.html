@@ -8840,9 +8840,17 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!item) return false;
 
     // Capability-based checks. Rank alone is never sufficient.
-    if (item.actType === 'ad' && !role.canManageAds) return false;
-    if (item.actType === 'column' && !role.canManageColumns) return false;
-    if (item.actType !== 'ad' && item.actType !== 'column' && !role.canCreateNews) return false;
+    // Some legacy local items do not carry actType, so fall back to the
+    // currently opened cabinet section.
+    const itemType = item.actType || (
+      currentUniType === 'ad' ? 'ad' :
+      currentUniType === 'column' ? 'column' :
+      currentUniType === 'staff' ? 'staff' : 'news'
+    );
+    if (itemType === 'ad' && !role.canManageAds) return false;
+    if (itemType === 'column' && !role.canManageColumns) return false;
+    if (itemType === 'staff' && !role.canManageStaff) return false;
+    if (itemType === 'news' && !role.canCreateNews) return false;
 
     // Check by authorLogin / login
     const aLogin = (item.authorLogin || item.login || '').trim().toLowerCase();
@@ -11393,6 +11401,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const type = lastOpenedModalItem.type || 'news';
     const id = lastOpenedModalItem.id;
+    const modalStore = type === 'ad' ? adsState : type === 'column' ? columnsState : newsState;
+    const modalItem = modalStore.find(x => x.id === id) || { id, actType: type };
+    if (!canUserEditOrDeleteItem(modalItem)) {
+      btn.classList.remove('is-confirming');
+      btn.innerHTML = btn.dataset.origHtml || '🗑️ Удалить новость';
+      btn.style.background = '';
+      btn.style.borderColor = '';
+      btn.style.color = '';
+      flashUniSaved(type === 'ad'
+        ? '🔒 Удалять объявления может только руководство'
+        : type === 'column'
+          ? '🔒 Удалять колонки может только руководство'
+          : '🔒 У вас нет права удалять эту публикацию');
+      return;
+    }
     if (type === 'news') {
       newsState = newsState.filter(x => x.id !== id);
       saveNewsState();
@@ -11523,14 +11546,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const deleteUniItemById = (id) => {
     if (!id) return;
-    markIdAsDeleted(id);
     if (id === 'staff-intro') return;
     const store = getStoreForType(currentUniType);
     const item = store.find(x => x.id === id);
     if (item && !canUserEditOrDeleteItem(item)) {
-      alert('🔒 Доступ запрещен: журналисты могут удалять только свои собственные активности.');
+      alert(currentUniType === 'ad'
+        ? '🔒 Удалять объявления может только руководство.'
+        : currentUniType === 'column'
+          ? '🔒 Удалять колонки может только руководство.'
+          : '🔒 Доступ запрещен для этой роли.');
       return;
     }
+    markIdAsDeleted(id);
 
     if (currentUniType === 'news') {
       newsState = newsState.filter(x => x.id !== id);
