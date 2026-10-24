@@ -8893,37 +8893,79 @@ document.addEventListener('DOMContentLoaded', () => {
   const isUserAuthorizedJournalist = (user) => getUserRoleInfo(user).isJournalist;
 
   // Centralized client-side RBAC. Server-side RLS/triggers remain the final authority.
-  const canUserEditOrDeleteItem = (item) => {
+  const getCurrentUserStaffDossier = (user = currentUser) => {
+    if (!user || !Array.isArray(staffState?.members)) return null;
+    const uLogin = String(user.username || '').trim().toLowerCase();
+    const uId = String(user.uuid || '').trim();
+    const uName = String(user.fullName || user.username || '').trim().toLowerCase();
+    return staffState.members.find(m => {
+      const aLogin = String(m.authorLogin || m.login || '').trim().toLowerCase();
+      const aId = String(m.author_id || m.authorId || '').trim();
+      const mName = String(m.name || '').trim().toLowerCase();
+      return (uId && aId && uId === aId) ||
+        (uLogin && aLogin && uLogin === aLogin) ||
+        (uName && mName && mName === uName);
+    }) || null;
+  };
+
+  const isOwnStaffDossier = (item, user = currentUser) => {
+    if (!item || !user) return false;
+    const uLogin = String(user.username || '').trim().toLowerCase();
+    const uId = String(user.uuid || '').trim();
+    const uName = String(user.fullName || user.username || '').trim().toLowerCase();
+    const aLogin = String(item.authorLogin || item.login || '').trim().toLowerCase();
+    const aId = String(item.author_id || item.authorId || '').trim();
+    const mName = String(item.name || '').trim().toLowerCase();
+    return (uId && aId && uId === aId) ||
+      (uLogin && aLogin && uLogin === aLogin) ||
+      (uName && mName && uName === mName);
+  };
+
+  const resolveItemType = (item) => item?.actType || (
+    currentUniType === 'ad' ? 'ad' :
+    currentUniType === 'column' ? 'column' :
+    currentUniType === 'staff' ? 'staff' : 'news'
+  );
+
+  const canUserEditItem = (item) => {
     if (!currentUser || !item) return false;
     const role = getUserRoleInfo(currentUser);
-    const itemType = item.actType || (
-      currentUniType === 'ad' ? 'ad' :
-      currentUniType === 'column' ? 'column' :
-      currentUniType === 'staff' ? 'staff' : 'news'
-    );
-
-    // Users have no editorial rights.
+    const itemType = resolveItemType(item);
     if (role.level === 'user') return false;
-
-    // Management/admin can manage all editorial content.
     if (role.canEditAll) return true;
 
-    // Journalists: only their own NEWS drafts. No ads, columns, staff or published news.
     if (role.level === 'journalist') {
+      if (itemType === 'staff') return isOwnStaffDossier(item);
       if (itemType !== 'news') return false;
-      // Journalists can edit their own drafts, but destructive deletion is management-only.
-      if (item.status === 'published' || item.published_at) return false;
-      if (item.__deleteCheck === true) return false;
-
-      const aLogin = (item.authorLogin || item.login || '').trim().toLowerCase();
-      const uLogin = (currentUser.username || '').trim().toLowerCase();
-      const aId = item.author_id || item.authorId || '';
-      const uId = currentUser.uuid || '';
-
+      // A journalist may edit ONLY an explicitly saved draft they own.
+      // Legacy/public items without status are treated as non-editable.
+      if (item.status !== 'draft' || item.published_at) return false;
+      const aLogin = String(item.authorLogin || item.login || '').trim().toLowerCase();
+      const uLogin = String(currentUser.username || '').trim().toLowerCase();
+      const aId = String(item.author_id || item.authorId || '').trim();
+      const uId = String(currentUser.uuid || '').trim();
       return (aId && uId && aId === uId) || (aLogin && uLogin && aLogin === uLogin);
     }
-
     return false;
+  };
+
+  const canUserDeleteItem = (item) => {
+    if (!currentUser || !item) return false;
+    const role = getUserRoleInfo(currentUser);
+    const itemType = resolveItemType(item);
+    if (role.level === 'user') return false;
+    if (role.canEditAll) return true;
+    // Journalists cannot delete news, ads, columns or staff records.
+    return false;
+  };
+
+  // Backward-compatible helper: callers that only need a generic permission
+  // should require BOTH an actual edit/delete capability, never infer it from role alone.
+  const canUserEditOrDeleteItem = (item) => canUserEditItem(item) || canUserDeleteItem(item);
+
+  const canCreateOwnStaffDossier = (role = getUserRoleInfo(currentUser), user = currentUser) => {
+    if (!role || role.level !== 'journalist' || !user) return false;
+    return !getCurrentUserStaffDossier(user);
   };
 
   const canCreateEditorialType = (type, role = getUserRoleInfo(currentUser)) => {
@@ -8931,13 +8973,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (type === 'news') return !!role.canCreateNews;
     if (type === 'ad') return !!role.canManageAds;
     if (type === 'column') return !!role.canManageColumns;
-    if (type === 'staff') return !!role.canManageStaff;
+    if (type === 'staff') return !!role.canManageStaff || canCreateOwnStaffDossier(role, currentUser);
     return false;
   };
 
   const canOpenEditorialType = (type, role = getUserRoleInfo(currentUser)) => {
     return canCreateEditorialType(type, role) ||
-      (type === 'news' && role.level === 'journalist');
+      (type === 'news' && role.level === 'journalist') ||
+      (type === 'staff' && role.level === 'journalist');
   };
 
   window.ROLE_HIERARCHY = ROLE_HIERARCHY; window.UNASSIGNED_USER_ROLE = UNASSIGNED_USER_ROLE; window.matchUser = matchUser;
@@ -8951,6 +8994,8 @@ document.addEventListener('DOMContentLoaded', () => {
   window.getUserRoleInfo = getUserRoleInfo;
   window.isUserAuthorizedJournalist = isUserAuthorizedJournalist;
   window.canUserEditOrDeleteItem = canUserEditOrDeleteItem;
+  window.canUserEditItem = canUserEditItem;
+  window.canUserDeleteItem = canUserDeleteItem;
   Object.defineProperty(window, 'currentUser', {
     get: () => currentUser,
     set: (v) => { currentUser = v; },
@@ -9320,11 +9365,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Never expose destructive actions to users/journalists for published content.
     const modalStore = type === 'ad' ? adsState : type === 'column' ? columnsState : type === 'staff' ? staffState.members : newsState;
     const modalItem = (Array.isArray(modalStore) ? modalStore.find(x => x.id === id) : null) || { id, actType: type };
-    const canManageItem = !!currentUser && canUserEditOrDeleteItem(modalItem);
+    const canEditModalItem = !!currentUser && canUserEditItem(modalItem);
+    const canDeleteModalItem = !!currentUser && canUserDeleteItem(modalItem);
     const modalEditBtn = $('#modal-article-edit-btn');
     const modalDelBtn = $('#modal-article-del-btn');
-    if (modalEditBtn) modalEditBtn.hidden = !canManageItem;
-    if (modalDelBtn) modalDelBtn.hidden = !canManageItem || getUserRoleInfo(currentUser).level === 'journalist';
+    if (modalEditBtn) modalEditBtn.hidden = !canEditModalItem;
+    if (modalDelBtn) modalDelBtn.hidden = !canDeleteModalItem;
 
     const catEl = $('#modal-article-category');
     const titleEl = $('#modal-article-title');
@@ -10306,8 +10352,8 @@ document.addEventListener('DOMContentLoaded', () => {
       if (qCol) qCol.hidden = !isManagement;
 
       if (qStaff) {
-        qStaff.hidden = !roleInfo.canManageStaff;
-        qStaff.textContent = '+ Сотрудник';
+        qStaff.hidden = !(roleInfo.canManageStaff || canCreateOwnStaffDossier(roleInfo, currentUser));
+        qStaff.textContent = roleInfo.level === 'journalist' ? '+ Моя анкета' : '+ Сотрудник';
       }
     }
   };
@@ -10692,18 +10738,17 @@ document.addEventListener('DOMContentLoaded', () => {
         listEl.appendChild(introCard);
       }
 
-      // New button behavior for staff:
+      // New button behavior for staff: management may add anyone; a journalist
+      // may create exactly one personal dossier and then edit that dossier.
       if (newBtn) {
-        if (roleInfo.rank < 3) {
-          if (myDossier) {
-            newBtn.hidden = true; // Journalist already has their 1 dossier
-          } else {
-            newBtn.hidden = false;
-            newBtn.textContent = '+ Моя анкета';
-          }
-        } else {
+        if (roleInfo.level === 'journalist') {
+          newBtn.hidden = !!myDossier;
+          newBtn.textContent = '+ Моя анкета';
+        } else if (roleInfo.canManageStaff) {
           newBtn.hidden = false;
           newBtn.textContent = '+ Сотрудник';
+        } else {
+          newBtn.hidden = true;
         }
       }
     }
@@ -10730,8 +10775,8 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       const colorStyle = (currentUniType === 'ad' || currentUniType === 'column') && item.titleColor ? ` style="color:${item.titleColor}; margin-bottom:8px;"` : ' style="margin-bottom:8px;"';
 
-      const canEdit = canUserEditOrDeleteItem(item);
-      const canDelete = canUserEditOrDeleteItem(item);
+      const canEdit = canUserEditItem(item);
+      const canDelete = canUserDeleteItem(item);
       const authorBadge = item.author ? `<span style="font-size:11px; color:#94a3b8; display:block; margin-bottom:4px;">Автор: ${escapeHtml(item.author)}</span>` : '';
 
       let actionsHtml = '';
@@ -10746,7 +10791,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         actionsHtml = `
           <div class="cab-ad-item__actions">
-            <span style="font-size:11.5px; color:#94a3b8;">(Досье сотрудника)</span>
+            <span style="font-size:11.5px; color:#94a3b8;">(Нет прав на редактирование)</span>
           </div>
         `;
       }
@@ -10804,7 +10849,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!item) {
       currentEditingId = currentUniType + '-' + Date.now();
-      if (formTitle) formTitle.textContent = currentUniType === 'staff' ? 'Новый сотрудник' : 'Новая публикация';
+      if (formTitle) formTitle.textContent = currentUniType === 'staff' ? (getUserRoleInfo(currentUser).level === 'journalist' ? 'Моё досье' : 'Новый сотрудник') : 'Новая публикация';
       $('#uni-item-id').value = currentEditingId;
       $('#uni-field-title').value = '';
       $('#uni-field-sub').value = '';
@@ -10825,7 +10870,7 @@ document.addEventListener('DOMContentLoaded', () => {
     $('#uni-field-body').value = item.body || item.fullText || item.bio || '';
     currentPhotoData = item.img || item.customImg || '';
     currentArtPreset = item.skinId || '';
-    if (delBtn) delBtn.hidden = !canUserEditOrDeleteItem(item);
+    if (delBtn) delBtn.hidden = !canUserDeleteItem(item);
     renderQuickArtChips();
     renderUniItemsList();
   };
@@ -11453,8 +11498,15 @@ document.addEventListener('DOMContentLoaded', () => {
   }));
 
   $('#modal-article-edit-btn')?.addEventListener('click', () => {
+    const type = lastOpenedModalItem?.type || 'news';
+    const store = type === 'ad' ? adsState : type === 'column' ? columnsState : type === 'staff' ? staffState.members : newsState;
+    const item = store.find(x => x.id === lastOpenedModalItem?.id) || null;
+    if (!canUserEditItem(item)) {
+      flashUniSaved('🔒 Этот материал недоступен для редактирования вашей роли.');
+      return;
+    }
     articleDialog?.close();
-    openJournalistCabinet(lastOpenedModalItem.type, lastOpenedModalItem.id);
+    openJournalistCabinet(type, lastOpenedModalItem.id);
   });
 
   $('#modal-article-del-btn')?.addEventListener('click', (e) => {
@@ -11489,7 +11541,7 @@ document.addEventListener('DOMContentLoaded', () => {
       flashUniSaved('🔒 Журналист не может удалять публикации.');
       return;
     }
-    if (!canUserEditOrDeleteItem(modalItem)) {
+    if (!canUserDeleteItem(modalItem)) {
       btn.classList.remove('is-confirming');
       btn.innerHTML = btn.dataset.origHtml || '🗑️ Удалить новость';
       btn.style.background = '';
@@ -11658,11 +11710,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const deleteUniItemById = (id) => {
     if (!id || !currentUser) return;
-    if (!canUserEditOrDeleteItem(getStoreForType(currentUniType).find(x => x.id === id))) return;
+    if (!canUserDeleteItem(getStoreForType(currentUniType).find(x => x.id === id))) return;
     if (id === 'staff-intro') return;
     const store = getStoreForType(currentUniType);
     const item = store.find(x => x.id === id);
-    if (item && !canUserEditOrDeleteItem(item)) {
+    if (item && !canUserDeleteItem(item)) {
       alert(currentUniType === 'ad'
         ? '🔒 Удалять объявления может только руководство.'
         : currentUniType === 'column'
@@ -11739,8 +11791,8 @@ document.addEventListener('DOMContentLoaded', () => {
   $('#uni-delete-current-btn')?.addEventListener('click', () => {
     const store = getStoreForType(currentUniType);
     const item = store.find(x => x.id === currentEditingId);
-    if (item && !canUserEditOrDeleteItem(item)) {
-      flashUniSaved('🔒 Журналист может удалять только свои собственные публикации');
+    if (item && !canUserDeleteItem(item)) {
+      flashUniSaved('🔒 У этой роли нет права удалять этот материал');
       return;
     }
     const btn = $('#uni-delete-current-btn');
@@ -11770,11 +11822,15 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
     const roleInfoGlobal = getUserRoleInfo(currentUser);
-    if (!canCreateEditorialType(currentUniType, roleInfoGlobal) && !(currentUniType === 'news' && roleInfoGlobal.level === 'journalist')) {
-      flashUniSaved('🔒 У этой роли нет права сохранять материалы в этом разделе.');
+    const id = $('#uni-item-id').value;
+    const currentStore = getStoreForType(currentUniType);
+    const existingForAuth = currentStore.find(x => x.id === id);
+    const canSaveExisting = existingForAuth && canUserEditItem(existingForAuth);
+    const canCreateNew = !existingForAuth && canCreateEditorialType(currentUniType, roleInfoGlobal);
+    if (!canSaveExisting && !canCreateNew) {
+      flashUniSaved('🔒 У этой роли нет права сохранять этот материал.');
       return;
     }
-    const id = $('#uni-item-id').value;
     const title = $('#uni-field-title').value.trim();
     const sub = $('#uni-field-sub').value.trim();
     const body = $('#uni-field-body').value.trim();
@@ -11919,15 +11975,18 @@ document.addEventListener('DOMContentLoaded', () => {
         loadItemIntoUniForm('staff-intro');
         flashUniSaved('Сохранено');
       } else {
-        if (!roleInfo.canManageStaff) {
-          flashUniSaved('🔒 Состав редакции доступен только руководству.');
+        let item = staffState.members.find(x => x.id === id);
+        const isOwnDossier = item ? isOwnStaffDossier(item, currentUser) : false;
+        if (!roleInfo.canManageStaff && !(roleInfo.level === 'journalist' && (isOwnDossier || !getCurrentUserStaffDossier(currentUser)))) {
+          flashUniSaved('🔒 Журналист может создать и редактировать только своё досье.');
           return;
         }
-        let item = staffState.members.find(x => x.id === id);
         if (!item) {
-          item = { id, tone: 'amber', authorLogin: currentUser?.username || 'editor_lsn' };
+          item = { id, tone: 'amber', authorLogin: currentUser?.username || 'editor_lsn', author_id: currentUser?.uuid || null };
           staffState.members.push(item);
         }
+        if (!item.authorLogin) item.authorLogin = currentUser?.username || 'editor_lsn';
+        if (!item.author_id) item.author_id = currentUser?.uuid || null;
         item.name = title;
         item.role = sub || 'Сотрудник LSN';
         item.bio = body;
