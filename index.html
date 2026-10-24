@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 
 <html lang="ru">
 
@@ -8,7 +8,7 @@
   <meta http-equiv="Expires" content="0">
   <script>
     (function() {
-      var LSN_APP_VER = '20261024_v30';
+      var LSN_APP_VER = '20261024_v50';
       try {
         var lastVer = localStorage.getItem('lsn_app_ver');
         if (lastVer && lastVer !== LSN_APP_VER) {
@@ -7621,8 +7621,8 @@ h1, h2, h3, h4,
 
       <form id="apply-panel" class="portal-form" hidden novalidate>
         <label>
-          Игровой никнейм (без нижнего подчёркивания, например: Julian Reed)
-          <input id="reg-username" name="username" type="text" autocomplete="username" placeholder="Julian Reed" required minlength="3" maxlength="32">
+          Игровой никнейм — строго Имя Фамилия (например: Julian Reed)
+          <input id="reg-username" name="username" type="text" autocomplete="username" placeholder="Julian Reed" required minlength="5" maxlength="60" pattern="^[A-Za-zА-Яа-яЁё]+ [A-Za-zА-Яа-яЁё]+$">
         </label>
         <label>
           Email
@@ -7630,7 +7630,7 @@ h1, h2, h3, h4,
         </label>
         <label>
           Пароль
-          <input id="reg-password" name="password" type="password" autocomplete="new-password" placeholder="Пароль" required minlength="4">
+          <input id="reg-password" name="password" type="password" autocomplete="new-password" placeholder="Пароль" required minlength="6">
         </label>
         
         <button class="portal-submit" type="submit" style="margin-top:8px;">Зарегистрироваться</button>
@@ -7661,7 +7661,7 @@ h1, h2, h3, h4,
       <button type="button" class="uni-type-btn" data-uni-type="column">Колонки</button>
       <button type="button" class="uni-type-btn" data-uni-type="staff">Интро и состав</button>
       <button type="button" class="uni-type-btn" data-uni-type="my-activities" id="uni-tab-my-activities">⚡ Мои активности</button>
-      <button type="button" class="uni-type-btn" data-uni-type="permissions">Доступ и роли</button>
+      <button type="button" class="uni-type-btn" data-uni-type="permissions" id="uni-permissions-tab" hidden>Доступ и роли</button>
     </div>
 
     <!-- UNIFIED WORKSPACE -->
@@ -7808,6 +7808,24 @@ h1, h2, h3, h4,
 
     <!-- PERMISSIONS PANEL -->
     <section id="uni-permissions-workspace" hidden>
+      <div class="lsn-rbac-overview" style="margin-bottom:18px; padding:18px; border:1px solid rgba(56,189,248,.18); border-radius:16px; background:linear-gradient(135deg,rgba(56,189,248,.06),rgba(245,158,11,.04));">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px;">
+          <div><div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#38bdf8;font-weight:800;">LSN / RBAC</div><h3 style="margin:4px 0 0;color:#fff;font-size:20px;">Иерархия и права пользователей</h3></div>
+          <span style="font-size:12px;color:#94a3b8;">Изменять роли может только Администратор</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:9px;">
+          <div style="padding:11px 12px;border:1px solid rgba(255,255,255,.08);border-radius:12px;background:rgba(0,0,0,.16);"><div style="font-weight:800;color:#fff;font-size:13px;">🛡️ Администратор</div><div style="margin-top:5px;color:#94a3b8;font-size:11px;">Полный доступ</div></div><div style="padding:11px 12px;border:1px solid rgba(255,255,255,.08);border-radius:12px;background:rgba(0,0,0,.16);"><div style="font-weight:800;color:#fff;font-size:13px;">👑 Директор / Генеральный директор</div><div style="margin-top:5px;color:#94a3b8;font-size:11px;">Расширенное управление редакцией</div></div><div style="padding:11px 12px;border:1px solid rgba(255,255,255,.08);border-radius:12px;background:rgba(0,0,0,.16);"><div style="font-weight:800;color:#fff;font-size:13px;">⭐ Заместитель директора</div><div style="margin-top:5px;color:#94a3b8;font-size:11px;">Расширенное управление редакцией</div></div><div style="padding:11px 12px;border:1px solid rgba(255,255,255,.08);border-radius:12px;background:rgba(0,0,0,.16);"><div style="font-weight:800;color:#fff;font-size:13px;">📰 Главный редактор</div><div style="margin-top:5px;color:#94a3b8;font-size:11px;">Расширенное управление редакцией</div></div><div style="padding:11px 12px;border:1px solid rgba(255,255,255,.08);border-radius:12px;background:rgba(0,0,0,.16);"><div style="font-weight:800;color:#fff;font-size:13px;">✍️ Редактор</div><div style="margin-top:5px;color:#94a3b8;font-size:11px;">Создание и работа с материалами</div></div><div style="padding:11px 12px;border:1px solid rgba(255,255,255,.08);border-radius:12px;background:rgba(0,0,0,.16);"><div style="font-weight:800;color:#fff;font-size:13px;">📝 Журналист</div><div style="margin-top:5px;color:#94a3b8;font-size:11px;">Создание и работа с материалами</div></div><div style="padding:11px 12px;border:1px solid rgba(255,255,255,.08);border-radius:12px;background:rgba(0,0,0,.16);"><div style="font-weight:800;color:#fff;font-size:13px;">🎤 Репортёр</div><div style="margin-top:5px;color:#94a3b8;font-size:11px;">Рабочий кабинет</div></div><div style="padding:11px 12px;border:1px solid rgba(255,255,255,.08);border-radius:12px;background:rgba(0,0,0,.16);"><div style="font-weight:800;color:#fff;font-size:13px;">📷 Фотокорреспондент</div><div style="margin-top:5px;color:#94a3b8;font-size:11px;">Рабочий кабинет</div></div><div style="padding:11px 12px;border:1px solid rgba(255,255,255,.08);border-radius:12px;background:rgba(0,0,0,.16);"><div style="font-weight:800;color:#fff;font-size:13px;">🎙️ Радиоведущий</div><div style="margin-top:5px;color:#94a3b8;font-size:11px;">Рабочий кабинет</div></div><div style="padding:11px 12px;border:1px solid rgba(255,255,255,.08);border-radius:12px;background:rgba(0,0,0,.16);"><div style="font-weight:800;color:#fff;font-size:13px;">👤 Сотрудник LSN</div><div style="margin-top:5px;color:#94a3b8;font-size:11px;">Рабочий кабинет</div></div><div style="padding:11px 12px;border:1px solid rgba(255,255,255,.08);border-radius:12px;background:rgba(0,0,0,.16);"><div style="font-weight:800;color:#fff;font-size:13px;">👁️ Пользователь</div><div style="margin-top:5px;color:#94a3b8;font-size:11px;">Только просмотр</div></div>
+        </div>
+      </div>
+      <div style="overflow:auto;margin-bottom:18px;border:1px solid rgba(255,255,255,.08);border-radius:14px;background:rgba(0,0,0,.12);">
+        <table style="width:100%;border-collapse:collapse;min-width:980px;font-size:11px;">
+          <thead><tr style="background:rgba(56,189,248,.06);">
+            <th style="padding:10px;text-align:left;color:#fff;">Роль</th>
+            <th>Новости</th><th>Публикация</th><th>Реклама</th><th>Колонки</th><th>Состав</th><th>Роли</th><th>Пользователи</th><th>Рейтинг</th>
+          </tr></thead>
+          <tbody id="lsn-rbac-matrix-body"></tbody>
+        </table>
+      </div>
       <div class="cab-ads-layout">
         <div class="cab-ads-list-col">
           <div class="cab-ads-col-header">
@@ -7821,8 +7839,7 @@ h1, h2, h3, h4,
             <h3 style="margin:0; font-size:16px; color:#fff;" id="uni-perm-form-title">Выдать полномочия / роль</h3>
           </div>
           <div id="uni-perm-readonly-notice" style="padding:14px; background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.25); border-radius:12px; margin-bottom:14px; color:#fef3c7; font-size:13px;" hidden>
-            🔒 Назначать и изменять роли могут только <b>Администратор</b>, <b>Лидер орг. LSN</b> и <b>Заместители</b> пользователям строго ниже своего ранга. Изменение собственной роли заблокировано.
-          </div>
+            🔒 Управление ролями и зарегистрированными пользователями доступно только <b>Администратору</b>. Пользователь должен уже иметь аккаунт на портале.</div>
           <form id="uni-add-journalist-form" class="cab-ad-form">
             <label>
               Выберите зарегистрированный аккаунт на портале
@@ -7831,15 +7848,16 @@ h1, h2, h3, h4,
               </select>
             </label>
             <label>
-              ID пользователя (напр. USR-104) или никнейм
-              <input type="text" id="uni-new-journalist-login" required maxlength="60" placeholder="USR-104 или Julian Reed">
+              Зарегистрированный пользователь (имя и фамилия)
+              <input type="text" id="uni-new-journalist-login" required maxlength="60" placeholder="Например: Julian Reed">
             </label>
             <label>
               Назначаемый уровень полномочий
               <select id="uni-new-journalist-level" style="background:#131822; color:#fff; border:1px solid rgba(255,255,255,0.15); border-radius:10px; padding:10px 12px; font-size:13.5px; width:100%;">
-                <option value="leader">👑 Лидер орг. LSN [10]</option>
-                <option value="deputy" selected>⭐ Заместитель директора [8-9]</option>
-                <option value="journalist">✍️ Журналист LSN</option>
+                <option value="director">👑 Генеральный директор</option>
+                <option value="deputy">⭐ Заместитель генерального директора</option>
+                <option value="journalist" selected>📝 Журналист</option>
+                <option value="user">👤 Пользователь</option>
               </select>
             </label>
             <label>
@@ -7899,9 +7917,12 @@ h1, h2, h3, h4,
     <p class="lsn-ad-reader__lead" id="lsn-ad-modal-lead"></p>
     <div class="lsn-ad-reader__body" id="lsn-ad-modal-text"></div>
 
-    <div class="lsn-ad-reader__footer" id="lsn-ad-modal-footer" hidden>
+    <div class="lsn-ad-reader__footer" id="lsn-ad-modal-footer" hidden style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
       <button type="button" class="lsn-staff-btn lsn-staff-btn--primary" id="lsn-ad-modal-edit-shortcut">
         Редактировать
+      </button>
+      <button type="button" class="lsn-staff-btn" id="lsn-ad-modal-delete-shortcut" style="background:#dc2626; border-color:#ef4444; color:#fff;">
+        🗑️ Отозвать объявление
       </button>
     </div>
   </article>
@@ -7926,7 +7947,7 @@ h1, h2, h3, h4,
         <span id="san-sync-status-text">Официальная сводка радиорейтинга Samp-Rp</span>
       </div>
       <div style="display:flex; flex-wrap:wrap; gap:8px;">
-        <button type="button" class="san-sync-btn" id="btn-open-rating-editor" style="background:rgba(245,158,11,0.16); border-color:rgba(245,158,11,0.45); color:#fbbf24; font-weight:700;" title="Редактировать показатели рейтинга (Лидер / Заместители / Модератор)">
+        <button type="button" class="san-sync-btn" id="btn-open-rating-editor" style="background:rgba(245,158,11,0.16); border-color:rgba(245,158,11,0.45); color:#fbbf24; font-weight:700;" title="Редактировать показатели рейтинга (Администратор / Генеральный директор / Заместители)">
           ✏️ Редактировать сводку
         </button>
         <button type="button" class="san-sync-btn" id="btn-reset-rating-default" style="background:rgba(255,255,255,0.06); border-color:rgba(255,255,255,0.2);" title="Вернуть исходные значения">
@@ -8104,18 +8125,13 @@ h1, h2, h3, h4,
   <span>↑</span> Наверх
 </a>
 
-<!-- Dynamic Supabase Integration Scripts -->
+<!-- LSN One-File Edition: all site UI/CSS/JS is contained in this HTML file -->
 
 
 
 
-<!-- Supabase Cloud SDK v2 -->
-<script src="supabase-js.js"></script>
-<script>
-  if (typeof supabase === 'undefined' && typeof window.supabase === 'undefined') {
-    document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"><\/script>');
-  }
-</script>
+<!-- Supabase Cloud SDK v2 — единственная внешняя runtime-зависимость -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <!-- Embedded Interactive Controller -->
 <script>
@@ -8149,58 +8165,59 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!sb) return;
     try {
       const { data: { session } } = await sb.auth.getSession();
-      if (session && session.user) {
-        const { data: profile } = await sb
-          .from('profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .maybeSingle();
+      if (!session?.user) return;
 
-        if (profile) {
-          currentUser = {
-            id: profile.user_id_code,
-            username: profile.username,
-            fullName: profile.username,
-            email: profile.email || session.user.email,
-            role: profile.role,
-            roleTitle: profile.role_title
-          };
-          syncRoleVisibilityUI();
-        }
-      }
-
-      // Загрузка всех зарегистрированных аккаунтов для управления ролями
-      const { data: profiles } = await sb
+      const { data: profile, error } = await sb
         .from('profiles')
-        .select('*')
-        .order('created_at', { ascending: true });
+        .select('id,user_id_code,username,email,role,role_title,created_at,updated_at')
+        .eq('id', session.user.id)
+        .maybeSingle();
 
-      if (profiles && profiles.length > 0) {
-        profiles.forEach(p => {
-          const existing = usersDb.find(u => u.id === p.user_id_code || (p.email && u.email && u.email.toLowerCase() === p.email.toLowerCase()));
-          if (existing) {
-            existing.username = p.username;
-            existing.fullName = p.username;
-            existing.role = p.role;
-            existing.roleTitle = p.role_title;
-          } else {
-            usersDb.push({
-              id: p.user_id_code,
-              username: p.username,
-              fullName: p.username,
-              email: p.email,
-              role: p.role,
-              roleTitle: p.role_title
-            });
-          }
-        });
-        saveUsersDb();
-        renderPermissionsList();
-      }
+      if (error) throw error;
+      if (!profile) return;
+
+      currentUser = {
+        id: profile.user_id_code || session.user.id,
+        uuid: session.user.id,
+        username: profile.username || session.user.user_metadata?.username || '',
+        fullName: profile.username || '',
+        email: profile.email || session.user.email || '',
+        role: profile.role || null,
+        roleTitle: profile.role_title || 'Читатель'
+      };
+      await loadAdminProfiles();
+      syncRoleVisibilityUI();
     } catch (err) {
-      console.warn('Supabase sync note:', err);
+      console.warn('Supabase session sync:', err);
     }
   }
+
+  async function loadAdminProfiles() {
+    if (!sb || !currentUser || getUserRoleInfo(currentUser).level !== 'admin') { usersDb = []; return []; }
+    const { data, error } = await sb
+      .from('profiles')
+      .select('id,user_id_code,username,email,role,role_title,created_at,updated_at')
+      .order('created_at', { ascending: true });
+    if (error) {
+      console.warn('Admin profiles load:', error);
+      usersDb = [];
+      return [];
+    }
+    usersDb = (data || []).map(p => ({
+      id: p.user_id_code || p.id,
+      uuid: p.id,
+      username: p.username || '',
+      fullName: p.username || '',
+      email: p.email || '',
+      role: p.role || null,
+      roleTitle: p.role_title || 'Читатель',
+      created_at: p.created_at,
+      updated_at: p.updated_at
+    }));
+    journalistsList = usersDb.filter(u => u.role).map(u => ({ login: u.username, roleTitle: u.roleTitle, roleLevel: u.role, id: u.id }));
+    return usersDb;
+  }
+
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -8599,7 +8616,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  // Toggle editor drawer (Restricted to Admin, Leader, Deputy)
+  // Toggle editor drawer (Restricted to Admin, Director, Deputy)
   $('#btn-open-rating-editor')?.addEventListener('click', () => {
     const roleInfo = getUserRoleInfo(currentUser);
     if (!roleInfo.canEditRating) {
@@ -8697,14 +8714,9 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // =========================================================================
-  // A. REGISTERED USERS & 5-TIER RBAC HIERARCHY
-  // =========================================================================
-  // Hierarchy:
-  // 5. admin      - Администратор (видит всех, может менять все роли, полный доступ ко всему)
-  // 4. leader     - Лидер [10] (меняет роли deputy/journalist/reader, админы скрыты)
-  // 3. deputy     - Заместитель [9] (меняет роли journalist/reader, админы и лидер скрыты)
-  // 2. journalist - Журналист [6] (публикует новости, своя анкета в составе, свои активности; нет доступа к ролям, рекламе, колонкам)
-  // 1. reader     - Читатель (только чтение на сайте, кабинет скрыт)
+  // A. REGISTERED USERS & LSN RBAC HIERARCHY
+  // UI permissions are mirrored by Supabase RLS/RPC on the server.
+  // The browser is never treated as a security boundary.
   // =========================================================================
   const USERS_DB_KEY = 'lsn_users_db_v13';
   const SESSION_USER_KEY = 'lsn_active_session_v13';
@@ -8712,72 +8724,46 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const ROLE_HIERARCHY = {
     admin: {
-      rank: 5,
-      level: 'admin',
-      title: '🛡️ Администратор',
-      badgeClass: 'role-badge--admin',
-      canEditRating: true,
-      canEditAll: true,
-      isJournalist: true,
-      isManagement: true,
-      canManageRoles: true
+      rank: 5, level: 'admin', title: '🛡️ Администратор', badgeClass: 'role-badge--admin',
+      canEditRating: true, canEditAll: true, canCreateNews: true, canPublish: true,
+      canManageAds: true, canManageColumns: true, canManageStaff: true,
+      canManageRoles: true, canManageUsers: true, canDeleteUsers: true,
+      isJournalist: true, isManagement: true
     },
-    leader: {
-      rank: 4,
-      level: 'leader',
-      title: '👑 Лидер орг. LSN (Ген. директор [10])',
-      badgeClass: 'role-badge--leader',
-      canEditRating: true,
-      canEditAll: true,
-      isJournalist: true,
-      isManagement: true,
-      canManageRoles: true
+    director: {
+      rank: 4, level: 'director', title: '👑 Генеральный директор', badgeClass: 'role-badge--leader',
+      canEditRating: true, canEditAll: true, canCreateNews: true, canPublish: true,
+      canManageAds: true, canManageColumns: true, canManageStaff: true,
+      canManageRoles: false, canManageUsers: false, canDeleteUsers: false,
+      isJournalist: true, isManagement: true
     },
     deputy: {
-      rank: 3,
-      level: 'deputy',
-      title: '⭐ Заместитель директора [8-9]',
-      badgeClass: 'role-badge--deputy',
-      canEditRating: true,
-      canEditAll: true,
-      isJournalist: true,
-      isManagement: true,
-      canManageRoles: true
+      rank: 3, level: 'deputy', title: '⭐ Заместитель генерального директора', badgeClass: 'role-badge--deputy',
+      canEditRating: true, canEditAll: true, canCreateNews: true, canPublish: true,
+      canManageAds: true, canManageColumns: true, canManageStaff: true,
+      canManageRoles: false, canManageUsers: false, canDeleteUsers: false,
+      isJournalist: true, isManagement: true
     },
     journalist: {
-      rank: 2,
-      level: 'journalist',
-      title: '✍️ Журналист LSN',
-      badgeClass: 'role-badge--journalist',
-      canEditRating: false,
-      canEditAll: false,
-      isJournalist: true,
-      isManagement: false,
-      canManageRoles: false
+      rank: 2, level: 'journalist', title: '📝 Журналист', badgeClass: 'role-badge--journalist',
+      canEditRating: false, canEditAll: false, canCreateNews: true, canPublish: false,
+      canManageAds: false, canManageColumns: false, canManageStaff: false,
+      canManageRoles: false, canManageUsers: false, canDeleteUsers: false,
+      isJournalist: true, isManagement: false
+    },
+    user: {
+      rank: 1, level: 'user', title: '👤 Пользователь', badgeClass: 'role-badge--reader',
+      canEditRating: false, canEditAll: false, canCreateNews: false, canPublish: false,
+      canManageAds: false, canManageColumns: false, canManageStaff: false,
+      canManageRoles: false, canManageUsers: false, canDeleteUsers: false,
+      isJournalist: false, isManagement: false
     }
   };
 
-  // Все пользователи, не получившие роли от руководства, автоматически считаются читателями (без доступа в кабинет)
-  const UNASSIGNED_USER_ROLE = {
-    rank: 0,
-    level: 'none',
-    title: 'Читатель',
-    badgeClass: 'role-badge--reader',
-    canEditRating: false,
-    canEditAll: false,
-    isJournalist: false,
-    isManagement: false,
-    canManageRoles: false
-  };
+  const UNASSIGNED_USER_ROLE = ROLE_HIERARCHY.user;
 
-  const DEFAULT_USERS_DB = [
-    { id: 'USR-100', username: 'Roy Westblock', fullName: 'Roy Westblock', email: 'deeeenchik80@gmail.com', password: 'admin', role: 'admin', roleTitle: 'РђРґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂ' },
-    { id: 'USR-101', username: 'Admin LSN', fullName: 'Admin LSN', email: 'admin@lsnews.sa', password: 'admin', role: 'admin', roleTitle: 'РђРґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂ' },
-    { id: 'USR-102', username: 'Marcus Vance', fullName: 'Marcus Vance', email: 'director@lsnews.sa', password: 'admin', role: 'leader', roleTitle: 'Р›РёРґРµСЂ РѕСЂРі. LSN (Р“РµРЅ. РґРёСЂРµРєС‚РѕСЂ [10])' },
-    { id: 'USR-103', username: 'Matthew Walker', fullName: 'РњСЌС‚С‚СЊСЋ РЈРѕРєРµСЂ', email: 'deputy@lsnews.sa', password: 'admin', role: 'deputy', roleTitle: 'Р—Р°РјРµСЃС‚РёС‚РµР»СЊ РґРёСЂРµРєС‚РѕСЂР° [9]' },
-    { id: 'USR-104', username: 'Julian Reed', fullName: 'Р”Р¶СѓР»РёР°РЅ Р РёРґ', email: 'reed@lsnews.sa', password: 'admin', role: 'journalist', roleTitle: 'Р–СѓСЂРЅР°Р»РёСЃС‚ LSN' },
-    { id: 'USR-105', username: 'Tommy Vercetti', fullName: 'Tommy Vercetti', email: 'reader@lsnews.sa', password: 'admin', role: null, roleTitle: 'Р§РёС‚Р°С‚РµР»СЊ' }
-  ];
+  // Единый источник авторизации — Supabase. Локальная база пользователей отключена.
+  const DEFAULT_USERS_DB = [];
 
   const matchUser = (u, query) => {
     if (!u || !query) return false;
@@ -8796,151 +8782,53 @@ document.addEventListener('DOMContentLoaded', () => {
       uFull === q || uFullNorm === qNorm;
   };
 
-  let usersDb = JSON.parse(JSON.stringify(DEFAULT_USERS_DB));
-  try {
-    const rawU = localStorage.getItem(USERS_DB_KEY);
-    if (rawU) {
-      const parsedU = JSON.parse(rawU);
-      if (Array.isArray(parsedU)) {
-        usersDb = parsedU;
-      }
-    }
-  } catch (_) {}
-
-  // Ensure default users exist with stable IDs and proper roles
-  DEFAULT_USERS_DB.forEach(du => {
-    const found = usersDb.find(u =>
-      (u.id && u.id === du.id) ||
-      (u.username && u.username.toLowerCase() === du.username.toLowerCase()) ||
-      (u.email && u.email.toLowerCase() === du.email.toLowerCase())
-    );
-    if (!found) {
-      usersDb.push(du);
-    } else {
-      if (!found.id) found.id = du.id;
-      if (!found.role) found.role = du.role;
-      if (!found.roleTitle) found.roleTitle = du.roleTitle;
-    }
-  });
-
-  const saveUsersDb = () => {
-    try { localStorage.setItem(USERS_DB_KEY, JSON.stringify(usersDb)); } catch (_) {}
-  };
+  // usersDb оставлен только как совместимый runtime-cache для старого UI.
+  // Пароли, роли и авторизация здесь больше никогда не хранятся.
+  let usersDb = [];
+  const saveUsersDb = () => {};
 
   // Backwards-compatible journalistsList synced with usersDb
   let journalistsList = usersDb
-    .filter(u => u.role !== 'reader')
+    .filter(u => u.role && u.role !== 'user')
     .map(u => ({ login: u.username, roleTitle: u.roleTitle, roleLevel: u.role, id: u.id }));
 
   const saveJournalistsList = () => {
     journalistsList = usersDb
-      .filter(u => u.role !== 'reader')
+      .filter(u => u.role && u.role !== 'user')
       .map(u => ({ login: u.username, roleTitle: u.roleTitle, roleLevel: u.role, id: u.id }));
     try { localStorage.setItem(JOURNALISTS_LIST_KEY, JSON.stringify(journalistsList)); } catch (_) {}
   };
 
   let currentUser = null;
-  try {
-    const rawS = localStorage.getItem(SESSION_USER_KEY);
-    if (rawS) currentUser = JSON.parse(rawS);
-  } catch (_) {}
-
-  // Clean up legacy dummy session if present
-  if (currentUser && (currentUser.username === 'Marcus Vance' || currentUser.email === 'director@lsnews.sa' || currentUser.id === 'USR-102')) {
-    currentUser = null;
-    try { localStorage.removeItem(SESSION_USER_KEY); } catch (_) {}
-  }
-  // Default: visitors are strictly guests until they log in with valid password (currentUser = null)
+  // Локальная копия профиля не считается сессией. Реальная сессия берётся только из Supabase Auth.
+  try { localStorage.removeItem(SESSION_USER_KEY); } catch (_) {}
+  // До проверки Supabase посетитель всегда считается гостем.
 
   const getUserRoleInfo = (user) => {
     if (!user) return UNASSIGNED_USER_ROLE;
-    const uId = (user.id || '').trim().toLowerCase();
-    const uLogin = (user.username || user.login || '').trim().toLowerCase();
-    const uEmail = (user.email || '').trim().toLowerCase();
-
-    const found = usersDb.find(u => matchUser(u, uId) || matchUser(u, uLogin) || matchUser(u, uEmail));
-
-    let roleKey = (found && found.role) || user.role || user.roleLevel;
-    if (!roleKey || !ROLE_HIERARCHY[roleKey]) {
-      const rLower = (found?.roleTitle || user.roleTitle || '').toLowerCase();
-      if (rLower.includes('админ') || rLower.includes('модератор')) roleKey = 'admin';
-      else if (rLower.includes('лидер') || rLower.includes('10')) roleKey = 'leader';
-      else if (rLower.includes('зам') || rLower.includes('9') || rLower.includes('8')) roleKey = 'deputy';
-      else if (rLower.includes('журналист') || rLower.includes('редактор')) roleKey = 'journalist';
-      else roleKey = null;
-    }
-
-    if (!roleKey || !ROLE_HIERARCHY[roleKey]) {
-      return {
-        ...UNASSIGNED_USER_ROLE,
-        title: (found && found.roleTitle) || user.roleTitle || 'Читатель'
-      };
-    }
-
+    const roleKey = ROLE_HIERARCHY[user.role] ? user.role : 'user';
     const conf = ROLE_HIERARCHY[roleKey];
-    return {
-      rank: conf.rank,
-      level: conf.level,
-      title: (found && found.roleTitle) || user.roleTitle || conf.title,
-      canManageRoles: conf.canManageRoles,
-      canEditRating: conf.canEditRating,
-      canEditAll: conf.canEditAll,
-      isJournalist: conf.isJournalist,
-      isManagement: conf.isManagement,
-      badgeClass: conf.badgeClass
-    };
+    return { ...conf };
   };
 
-  // Rule: Users can only see accounts permitted by hierarchy:
-  // - Admin (5) sees everyone (admin, leader, deputy, journalist, reader)
-  // - Leader (4) sees leader, deputy, journalist, reader (ADMINS ARE HIDDEN)
-  // - Deputy (3) sees deputy, journalist, reader (ADMINS AND LEADER ARE HIDDEN)
-  // - Journalist/Reader: no role window
+  // Only the administrator can see and manage the complete account registry.
   const getVisibleUsersForActor = (actor) => {
-    const actorRole = getUserRoleInfo(actor);
-    if (actorRole.rank < 3) return [];
-    if (actorRole.rank === 5) return [...usersDb];
-    if (actorRole.rank === 4) {
-      return usersDb.filter(u => {
-        const uRole = getUserRoleInfo(u);
-        return uRole.level !== 'admin';
-      });
-    }
-    if (actorRole.rank === 3) {
-      return usersDb.filter(u => {
-        const uRole = getUserRoleInfo(u);
-        return uRole.level !== 'admin' && uRole.level !== 'leader';
-      });
-    }
-    return [];
+    return getUserRoleInfo(actor).level === 'admin' ? [...usersDb] : [];
   };
 
-  // Rule: Cannot assign role to self. Can only change roles of lower ranks.
   const canUserManageTargetUser = (actor, targetUser) => {
     if (!actor || !targetUser) return false;
     const actorRole = getUserRoleInfo(actor);
-    const targetRole = getUserRoleInfo(targetUser);
-
-    // Self-modification strictly forbidden
-    const isSelf = (actor.id && targetUser.id && actor.id === targetUser.id) ||
-      ((actor.username || '').toLowerCase() === (targetUser.username || '').toLowerCase());
-    if (isSelf) return false;
-
-    // Must be management
-    if (actorRole.rank < 3) return false;
-
-    // Must be strictly higher rank than target
-    return actorRole.rank > targetRole.rank;
+    if (actorRole.level !== 'admin') return false;
+    const isSelf = actor.uuid && targetUser.uuid && actor.uuid === targetUser.uuid;
+    return !isSelf;
   };
 
-  // Allowed roles that actor can assign (strictly lower than actor's rank)
   const getAllowedAssignableRoles = (actor) => {
-    const actorRole = getUserRoleInfo(actor);
-    const result = [];
-    if (actorRole.rank > 4) result.push({ level: 'leader', title: '👑 Лидер орг. LSN [10]' });
-    if (actorRole.rank > 3) result.push({ level: 'deputy', title: '⭐ Заместитель [8-9]' });
-    if (actorRole.rank > 2) result.push({ level: 'journalist', title: '✍️ Журналист LSN' });
-    return result;
+    if (getUserRoleInfo(actor).level !== 'admin') return [];
+    return ['director','deputy','journalist','user'].map(level => ({
+      level, title: ROLE_HIERARCHY[level].title
+    }));
   };
 
   const isUserAuthorizedJournalist = (user) => getUserRoleInfo(user).isJournalist;
@@ -8951,12 +8839,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (role.canEditAll) return true; // Admin, Leader, Deputy can edit/delete all
     if (!item) return false;
 
-    // Readers cannot edit or delete anything
-    if (role.rank < 2) return false;
-
-    // For journalists (rank 2):
-    // Cannot edit or delete ads or columns
-    if (item.actType === 'ad' || item.actType === 'column') return false;
+    // Capability-based checks. Rank alone is never sufficient.
+    if (item.actType === 'ad' && !role.canManageAds) return false;
+    if (item.actType === 'column' && !role.canManageColumns) return false;
+    if (item.actType !== 'ad' && item.actType !== 'column' && !role.canCreateNews) return false;
 
     // Check by authorLogin / login
     const aLogin = (item.authorLogin || item.login || '').trim().toLowerCase();
@@ -9025,8 +8911,39 @@ document.addEventListener('DOMContentLoaded', () => {
   /* duplicate */ escapeHtml = (s) => String(s == null ? '' : s)
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
-  const DEFAULT_NEWS_DATA = [];
+  const DEFAULT_NEWS_DATA = [
+    {
+      id: 'news-0-archive',
+      title: 'Редакция LSN открыла набор стажёров на волну 102.2 FM',
+      category: 'Редакция · 102.2 FM',
+      author: 'Джулиан Мерсер',
+      createdAt: Date.now() - 3 * 24 * 60 * 60 * 1000,
+      important: false,
+      img: '',
+      body: 'Los Santos News объявляет набор стажёров: радиоведущих, репортёров и фотокорреспондентов.\n\nСобеседования проходят ежедневно в штабе редакции в районе Commerce. Лучшие кандидаты получат место в эфире 102.2 FM и доступ к кабинету журналиста.'
+    },
+    {
+      id: 'news-1',
+      important: true,
+      title: 'Los Santos News удерживает 1-е место в рейтинге радиокомпаний штата с индексом 342 000',
+      category: 'Главное · Район Commerce · 102.2 FM',
+      author: 'Маркус Вэнс',
+      createdAt: Date.now() - 2 * 60 * 60 * 1000,
+      img: '',
+      body: 'По итогам свежего подсчёта активности радиокомпаний штата Сан-Андреас редакция Los Santos News (волна 102.2 FM) уверенно занимает первую строчку с показателем 342 000 единиц рейтинга, опережая Las Venturas News (289 000) и San Fierro News (254 000).\n\nКруглосуточная работа центрального штаба в районе Commerce, оперативные вылеты воздушного борта SAN NEWS D193SA и прямые репортажи с мест событий обеспечили нашей станции рекордный охват аудитории по всему Лос-Сантосу.'
+    },
+    {
+      id: 'news-2',
+      title: 'Ночной воздушный патруль D193SA: прямая сводка трафика над районом Commerce',
+      category: 'Городской репортаж · Борт D193SA',
+      author: 'Виктор Кроу',
+      createdAt: Date.now() - 9 * 60 * 60 * 1000,
+      img: '',
+      body: 'Экипаж вертолёта SAN NEWS D193SA провёл вечерний мониторинг дорожной обстановки на главной автомагистрали Лос-Сантоса и развязке у района Commerce.\n\nВ прямом эфире на частоте 102.2 FM корреспонденты передали сводку движения в сторону Вайнвуд-Хиллз и делового центра. Благодаря новой оптике и поисковому прожектору зрители и читатели портала могут круглосуточно следить за панорамой города прямо на главной странице сайта.'
+    }
+  ];
 
+    // Persistent Deleted Items Registry
   const DELETED_ITEMS_KEY = 'lsn_deleted_item_ids_v20';
   const getDeletedIds = () => {
     try {
@@ -9050,39 +8967,37 @@ document.addEventListener('DOMContentLoaded', () => {
   };
   const markSectionCleared = (type, cleared = true) => {
     try {
-      if (cleared) {
-        localStorage.setItem('lsn_cleared_' + type, 'true');
-      } else {
-        localStorage.removeItem('lsn_cleared_' + type);
-      }
+      if (cleared) localStorage.setItem('lsn_cleared_' + type, 'true');
+      else localStorage.removeItem('lsn_cleared_' + type);
     } catch (_) {}
   };
   const isSectionCleared = (type) => {
-    try {
-      return localStorage.getItem('lsn_cleared_' + type) === 'true';
-    } catch (_) { return false; }
+    try { return localStorage.getItem('lsn_cleared_' + type) === 'true'; } catch (_) { return false; }
   };
 
   const NEWS_STORAGE_KEY = 'lsn_news_store_v20';
-  newsState = isSectionCleared('news') ? [] : JSON.parse(JSON.stringify(DEFAULT_NEWS_DATA)).filter(x => !isItemDeleted(x.id));
+  newsState = JSON.parse(JSON.stringify(DEFAULT_NEWS_DATA)).filter(x => !isItemDeleted(x.id));
   try {
-    const rawN = localStorage.getItem(NEWS_STORAGE_KEY) || localStorage.getItem('lsn_news_store_v16') || localStorage.getItem('lsn_news_store_v12');
+    const rawN = localStorage.getItem(NEWS_STORAGE_KEY) || localStorage.getItem('lsn_news_store_v18') || localStorage.getItem('lsn_news_store_v16') || localStorage.getItem('lsn_news_store_v12');
     if (rawN) {
       const parsedN = JSON.parse(rawN);
       if (Array.isArray(parsedN)) {
-        newsState = (isSectionCleared('news') && parsedN.length === 0) ? [] : parsedN.filter(x => !isItemDeleted(x.id));
+        const map = new Map();
+        newsState.forEach(item => map.set(item.id, item));
+        parsedN.forEach(item => {
+          if (!isItemDeleted(item.id)) map.set(item.id, item);
+        });
+        newsState = Array.from(map.values()).filter(x => !isItemDeleted(x.id));
       }
     }
   } catch (_) {}
   const saveNewsState = () => {
     try {
       localStorage.setItem(NEWS_STORAGE_KEY, JSON.stringify(newsState));
-      localStorage.removeItem('lsn_news_store_v16');
-      localStorage.removeItem('lsn_news_store_v12');
+      localStorage.setItem('lsn_news_store_v18', JSON.stringify(newsState));
     } catch (_) {}
   };
 
-  // Clean atmospheric Los Santos night skyline backdrop (NO Maze Bank icons, NO cartoon cars, NO text boxes)
   const CLEAN_AD_BACKDROP_SVG = `<svg class="lsn-ad-svg" viewBox="0 0 520 320" preserveAspectRatio="xMidYMid slice">
     <defs>
       <linearGradient id="clean-ls-sky" x1="0" y1="0" x2="1" y2="1">
@@ -9117,43 +9032,92 @@ document.addEventListener('DOMContentLoaded', () => {
     <line x1="0" y1="259" x2="520" y2="259" stroke="#f43f5e" stroke-width="2" opacity="0.75" />
   </svg>`;
 
+    // 2) ADS STORE (MOCK ADS REMOVED PER USER INSTRUCTION: 100% EMPTY DEFAULT)
   const DEFAULT_ADS_DATA = [];
+  const MOCK_AD_IDS = ['ad-maze-bank', 'ad-legendary-motorsport', 'ad-diamond-vinewood'];
+  MOCK_AD_IDS.forEach(id => markIdAsDeleted(id));
 
   const ADS_STORAGE_KEY = 'lsn_ads_store_v20';
-  adsState = isSectionCleared('ad') ? [] : JSON.parse(JSON.stringify(DEFAULT_ADS_DATA)).filter(x => !isItemDeleted(x.id));
-  try {
-    const rawAds = localStorage.getItem(ADS_STORAGE_KEY) || localStorage.getItem('lsn_ads_store_v12');
-    if (rawAds) {
-      const parsed = JSON.parse(rawAds);
-      if (Array.isArray(parsed)) {
-        adsState = (isSectionCleared('ad') && parsed.length === 0) ? [] : parsed.filter(x => !isItemDeleted(x.id));
+  if (isSectionCleared('ad')) {
+    adsState = [];
+  } else {
+    adsState = [];
+    try {
+      const rawAds = localStorage.getItem(ADS_STORAGE_KEY) || localStorage.getItem('lsn_ads_store_v18') || localStorage.getItem('lsn_ads_store_v12');
+      if (rawAds) {
+        const parsed = JSON.parse(rawAds);
+        if (Array.isArray(parsed)) {
+          adsState = parsed.filter(x => !isItemDeleted(x.id) && !MOCK_AD_IDS.includes(x.id));
+        }
       }
-    }
-  } catch (_) {}
+    } catch (_) {}
+  }
   const saveAdsState = () => {
     try {
       localStorage.setItem(ADS_STORAGE_KEY, JSON.stringify(adsState));
-      localStorage.removeItem('lsn_ads_store_v12');
+      localStorage.setItem('lsn_ads_store_v18', JSON.stringify(adsState));
+      localStorage.setItem('lsn_ads_store_v12', JSON.stringify(adsState));
     } catch (_) {}
   };
 
-  const DEFAULT_COLUMNS_DATA = [];
+  // 3) COLUMNS STORE (PRESERVING ROY WESTBLOCK'S CAREER & VACANCIES ARTICLES)
+  const DEFAULT_COLUMNS_DATA = [
+    {
+      id: 'col-career',
+      title: 'LOS SANTOS NEWS | КАРЬЕРА И МЕДИА',
+      subtitle: '10.000.000 вирт',
+      accent: 'amber',
+      author: 'Roy Westblock',
+      authorLogin: 'Roy Westblock',
+      img: '',
+      body: 'Редакция Los Santos News (волна 102.2 FM) объявляет о грандиозном призовом фонде в 10.000.000 вирт для активных сотрудников медиа-холдинга!\n\nМы ценим инициативу, честность и преданность журналистскому делу. Каждый репортёр, радиоведущий и редактор получает прямые премиальные выплаты за качественные эфиры, интервью с первыми лицами штата и оперативные репортажи.\n\n• Рекордные премии до 10.000.000 вирт по итогам активности недели;\n• Быстрое продвижение по карьерной лестнице от стажёра до руководящего состава;\n• Доступ к служебному вертолёту D193SA и студийному комплексу в районе Commerce.\n\nПрисоединяйтесь к сильнейшей радиокоманде штата San Andreas!'
+    },
+    {
+      id: 'col-1',
+      title: 'Работайте вместе с Los Santos News',
+      subtitle: 'КАБИНЕТ ЖУРНАЛИСТА · ВАКАНСИИ 102.2 FM',
+      accent: 'red',
+      author: 'Roy Westblock',
+      authorLogin: 'Roy Westblock',
+      img: '',
+      body: 'Независимая радиокомпания и редакция Los Santos News (волна 102.2 FM) приглашает в штат талантливых репортёров, радиоведущих прямого эфира, фотокорреспондентов и редакторов.\n\nНаш центральный офис в районе Commerce оснащён современной студией звукозаписи, автопарком фургонов SAN NEWS и собственным вертолётом D193SA для оперативных репортажей с воздуха.\n\n• Ежедневные премии за проведённые радиоэфиры, викторины и отредактированные объявления;\n• Быстрый карьерный рост от стажёра до программного и технического директора.'
+    },
+    {
+      id: 'col-2',
+      title: 'Читайте материалы, опубликованные редакцией',
+      subtitle: 'АНАЛИТИКА И РЕПОРТАЖИ LSN',
+      accent: 'cyan',
+      author: 'Roy Westblock',
+      authorLogin: 'Roy Westblock',
+      img: '',
+      body: 'Каждый день корреспонденты Los Santos News следят за главными событиями мегаполиса: от решений мэрии и финансовых сводок башни Maze Bank до ночных стритрейсерских заездов и светских приёмов на Вайнвуд-Хиллз.\n\nВсе спецрепортажи, аналитические обзоры и эксклюзивные интервью публикуются в нашей цифровой ленте и звучат в круглосуточном эфире на частоте 102.2 FM.'
+    }
+  ];
 
   const COLUMNS_STORAGE_KEY = 'lsn_columns_store_v20';
-  columnsState = isSectionCleared('column') ? [] : JSON.parse(JSON.stringify(DEFAULT_COLUMNS_DATA)).filter(x => !isItemDeleted(x.id));
-  try {
-    const rawC = localStorage.getItem(COLUMNS_STORAGE_KEY) || localStorage.getItem('lsn_columns_store_v12');
-    if (rawC) {
-      const parsed = JSON.parse(rawC);
-      if (Array.isArray(parsed)) {
-        columnsState = (isSectionCleared('column') && parsed.length === 0) ? [] : parsed.filter(x => !isItemDeleted(x.id));
+  if (isSectionCleared('column')) {
+    columnsState = [];
+  } else {
+    columnsState = JSON.parse(JSON.stringify(DEFAULT_COLUMNS_DATA)).filter(x => !isItemDeleted(x.id));
+    try {
+      const rawC = localStorage.getItem(COLUMNS_STORAGE_KEY) || localStorage.getItem('lsn_columns_store_v18') || localStorage.getItem('lsn_columns_store_v12');
+      if (rawC) {
+        const parsedC = JSON.parse(rawC);
+        if (Array.isArray(parsedC)) {
+          const map = new Map();
+          columnsState.forEach(item => map.set(item.id, item));
+          parsedC.forEach(item => {
+            if (!isItemDeleted(item.id)) map.set(item.id, item);
+          });
+          columnsState = Array.from(map.values()).filter(x => !isItemDeleted(x.id));
+        }
       }
-    }
-  } catch (_) {}
+    } catch (_) {}
+  }
   const saveColumnsState = () => {
     try {
       localStorage.setItem(COLUMNS_STORAGE_KEY, JSON.stringify(columnsState));
-      localStorage.removeItem('lsn_columns_store_v12');
+      localStorage.setItem('lsn_columns_store_v18', JSON.stringify(columnsState));
     } catch (_) {}
   };
 
@@ -9171,35 +9135,78 @@ document.addEventListener('DOMContentLoaded', () => {
     articleTitle: 'Команда 102.2 FM: люди, которые держат Лос-Сантос в курсе событий 24/7',
     articleLead: 'За каждым экстренным включением на волне 102.2 FM, каждым воздушным репортажем борта SAN NEWS D193SA и каждым выпуском городской газеты стоит слаженный коллектив редакции Los Santos News в районе Commerce.',
     articleBody: 'Наша студия работает без перерывов и выходных: ведущие прямого эфира проводят аналитические программы, викторины и интервью с ключевыми фигурами штата Сан-Андреас, а отдел оперативной хроники и папарацци первым оказывается в центре главных происшествий от Вайнвуда до порта Лос-Сантоса.',
-    members: []
+    members: [
+      {
+        id: 'staff-1',
+        name: 'Маркус Вэнс (Marcus Vance)',
+        role: 'Генеральный директор [10] · Руководство Commerce',
+        badge: 'ГЕН. ДИРЕКТОР',
+        skinId: 'skin_director',
+        customImg: '',
+        bio: 'Возглавляет медиахолдинг Los Santos News в районе Commerce. Курирует редакционную политику, финансовую стратегию, партнёрские контракты и удержание 1-го места в рейтинге радиокомпаний штата.'
+      },
+      {
+        id: 'staff-2',
+        name: 'Джулиан Мерсер (Julian Mercer)',
+        role: 'Программный директор [9] · Волна 102.2 FM',
+        badge: 'ЭФИР 102.2 FM',
+        skinId: 'skin_program',
+        customImg: '',
+        bio: 'Главный голос радиоволны 102.2 FM. Отвечает за сетку круглосуточного вещания, экстренные новостные сводки, вечерние шоу, интерактивные рубрики со слушателями и подготовку радиоведущих.'
+      },
+      {
+        id: 'staff-3',
+        name: 'Виктор Кроу (Victor Crowe)',
+        role: 'Технический директор [8] · Борт D193SA',
+        badge: 'БОРТ D193SA',
+        skinId: 'skin_tech',
+        customImg: '',
+        bio: 'Руководит технической службой вещания, выездными фургонами SAN NEWS и воздушным патрулированием на вертолёте D193SA. Обеспечивает прямую трансляцию с мест главных происшествий.'
+      },
+      {
+        id: 'staff-4',
+        name: 'Елена Ростова (Elena Rostova)',
+        role: 'Главный редактор [7] · Пресса и расследования',
+        badge: 'ПРЕССА LSN',
+        skinId: 'skin_editor',
+        customImg: '',
+        bio: 'Координирует выпуск еженедельной газеты Los Santos News, проверяет журналистские расследования и управляет партнёрскими материалами редакции.'
+      }
+,
+      {
+        id: 'staff-5',
+        name: 'Джулиан Рид (Julian Reed)',
+        role: 'Специальный корреспондент [6] · Отдел расследований',
+        badge: 'ЖУРНАЛИСТ',
+        skinId: 'skin_editor',
+        authorLogin: 'julian_reed',
+        customImg: '',
+        bio: 'Ведущий репортёр отдела новостей и авторских колонок. Освещает ключевые события города Лос-Сантос, криминальную хронику и интервью с жителями штата.'
+      }
+    ]
   };
 
   const STAFF_STORAGE_KEY = 'lsn_staff_roster_v20';
-  const defaultStaffMembers = isSectionCleared('staff') ? [] : DEFAULT_STAFF_DATA.members.filter(x => !isItemDeleted(x.id));
-  staffState = {
-    ...JSON.parse(JSON.stringify(DEFAULT_STAFF_DATA)),
-    members: defaultStaffMembers
-  };
+  staffState = JSON.parse(JSON.stringify(DEFAULT_STAFF_DATA));
+  staffState.members = staffState.members.filter(x => !isItemDeleted(x.id));
   try {
-    const rawS = localStorage.getItem(STAFF_STORAGE_KEY) || localStorage.getItem('lsn_staff_roster_v12');
+    const rawS = localStorage.getItem(STAFF_STORAGE_KEY) || localStorage.getItem('lsn_staff_roster_v18') || localStorage.getItem('lsn_staff_roster_v12');
     if (rawS) {
-      const parsed = JSON.parse(rawS);
-      if (parsed && Array.isArray(parsed.members)) {
-        staffState = parsed;
-        staffState.members = (isSectionCleared('staff') && staffState.members.length === 0)
-          ? []
-          : staffState.members.filter(x => !isItemDeleted(x.id));
+      const parsedS = JSON.parse(rawS);
+      if (parsedS && Array.isArray(parsedS.members)) {
+        const map = new Map();
+        staffState.members.forEach(item => map.set(item.id, item));
+        parsedS.members.forEach(item => {
+          if (!isItemDeleted(item.id)) map.set(item.id, item);
+        });
+        staffState.members = Array.from(map.values()).filter(x => !isItemDeleted(x.id));
       }
     }
   } catch (_) {}
-  if (!Array.isArray(staffState.stats) || staffState.stats.length < 4) {
-    staffState.stats = JSON.parse(JSON.stringify(DEFAULT_STAFF_STATS));
-  }
   const saveStaffState = () => {
     try {
       localStorage.setItem(STAFF_STORAGE_KEY, JSON.stringify(staffState));
-      localStorage.removeItem('lsn_staff_roster_v12');
-      localStorage.removeItem('lsn_staff_roster_v11');
+      localStorage.setItem('lsn_staff_roster_v18', JSON.stringify(staffState));
     } catch (_) {}
   };
 
@@ -9697,6 +9704,11 @@ document.addEventListener('DOMContentLoaded', () => {
       editShortcutBtn.dataset.editAdId = ad.id;
       editShortcutBtn.hidden = !canEdit;
     }
+    const delShortcutBtn = $('#lsn-ad-modal-delete-shortcut');
+    if (delShortcutBtn) {
+      delShortcutBtn.dataset.delAdId = ad.id;
+      delShortcutBtn.hidden = !canEdit;
+    }
     if (!adDialog.open) adDialog.showModal();
   };
 
@@ -9744,15 +9756,20 @@ document.addEventListener('DOMContentLoaded', () => {
     slidesHost.innerHTML = '';
     dotsHost.innerHTML = '';
 
-    if (!adsState.length) {
+    if (!adsState || adsState.length === 0) {
       slidesHost.innerHTML = `
-        <div class="lsn-ad-slide is-active" style="display:flex; align-items:center; justify-content:center; padding:40px; text-align:center;">
-          <div style="color:#94a3b8; font-size:15px;">
-            📢 Рекламный эфир свободен. Подайте коммерческое объявление через Кабинет редакции.
+        <div class="lsn-ad-slide is-active" style="display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:36px 20px;">
+          <div class="lsn-ad-slide__tag">LOS SANTOS NEWS · РЕКЛАМНАЯ СЛУЖБА 102.2 FM</div>
+          <div class="lsn-ad-slide__title" style="margin-top:10px; font-size:20px;">Свободная рекламная площадь</div>
+          <p class="lsn-ad-slide__text" style="max-width:540px; margin:12px auto 0 auto; color:#94a3b8;">Разместите коммерческое или частное объявление на портале и в эфире 102.2 FM через Кабинет редакции.</p>
+          <div style="margin-top:18px;">
+            <button class="lsn-ad-slide__button" type="button" onclick="document.querySelector('#nav-admin-link')?.click() || (window.location.hash='#editor')">
+              + Подать объявление →
+            </button>
           </div>
         </div>
       `;
-      if (progressEl) progressEl.style.width = '0%';
+      stopAdTimer();
       return;
     }
 
@@ -9817,14 +9834,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const renderEditorialColumns = () => {
     if (!columnsHostEl) return;
     columnsHostEl.innerHTML = '';
-    if (!columnsState.length) {
-      columnsHostEl.innerHTML = `
-        <div style="grid-column: 1 / -1; text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 14px; border: 1px dashed rgba(255,255,255,0.15); border-radius: 14px; width: 100%; background: rgba(15,23,42,0.45);">
-          ✍️ Колонок пока нет. Добавьте первую авторскую колонку через Кабинет журналиста.
-        </div>
-      `;
-      return;
-    }
     columnsState.forEach((col, idx) => {
       const card = document.createElement('div');
       const accent = col.accent || (idx % 2 === 0 ? 'red' : 'cyan');
@@ -9928,29 +9937,14 @@ document.addEventListener('DOMContentLoaded', () => {
     staffGridEl.innerHTML = '';
 
     const members = staffState.members || [];
-    const prevBtn = $('#staff-prev-btn');
-    const nextBtn = $('#staff-next-btn');
-    const counterEl = $('#staff-counter');
-
-    if (!members.length) {
-      if (counterEl) counterEl.textContent = '0 / 0';
-      if (prevBtn) prevBtn.disabled = true;
-      if (nextBtn) nextBtn.disabled = true;
-      staffGridEl.classList.remove('is-slider');
-      staffGridEl.innerHTML = `
-        <div style="grid-column: 1 / -1; text-align: center; padding: 48px 24px; color: #94a3b8; font-size: 15px; border: 1px dashed rgba(255,255,255,0.15); border-radius: 14px; width: 100%; background: rgba(15,23,42,0.45); backdrop-filter: blur(8px);">
-          <div style="font-size: 32px; margin-bottom: 12px;">👥</div>
-          <b style="color:#f1f5f9; display:block; margin-bottom:6px; font-size:16px;">Список сотрудников пуст</b>
-          <span>Состав редакции формируется. Добавьте сотрудников через Кабинет журналиста или подайте заявку в разделе «Трудоустройство».</span>
-        </div>
-      `;
-      return;
-    }
-
     const getStaffPerPage = () => window.innerWidth >= 1100 ? 3 : (window.innerWidth >= 700 ? 2 : 1);
     const per = getStaffPerPage();
     const pages = Math.max(1, Math.ceil(members.length / per));
     staffPage = ((staffPage % pages) + pages) % pages;
+
+    const prevBtn = $('#staff-prev-btn');
+    const nextBtn = $('#staff-next-btn');
+    const counterEl = $('#staff-counter');
 
     if (counterEl) counterEl.textContent = `${staffPage + 1} / ${pages}`;
     if (prevBtn) prevBtn.disabled = pages < 2;
@@ -10104,13 +10098,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // "а у журналистов не должно быть это окно вообще с ролями"
     // "Так же рекламу, колонки со статьями не может добавлять, редактировать, журналист или читатель."
     const permTab = $('[data-uni-type="permissions"]');
-    if (permTab) permTab.hidden = !isManagement;
+    if (permTab) permTab.hidden = roleInfo.level !== 'admin';
 
     const adTab = $('[data-uni-type="ad"]');
-    if (adTab) adTab.hidden = !isManagement;
+    if (adTab) adTab.hidden = !roleInfo.canManageAds;
 
     const colTab = $('[data-uni-type="column"]');
-    if (colTab) colTab.hidden = !isManagement;
+    if (colTab) colTab.hidden = !roleInfo.canManageColumns;
 
     const loggedInBox = $('#auth-logged-in-box');
     const guestForms = $('#auth-guest-forms');
@@ -10163,12 +10157,12 @@ document.addEventListener('DOMContentLoaded', () => {
         roleBadge.textContent = roleInfo.title;
         roleBadge.className = `kick ${roleInfo.badgeClass || ''}`;
         roleBadge.style.color = roleInfo.level === 'admin' ? '#f87171' :
-          roleInfo.level === 'leader' ? '#fbbf24' :
+          roleInfo.level === 'director' ? '#fbbf24' :
           roleInfo.level === 'deputy' ? '#f59e0b' :
           roleInfo.level === 'journalist' ? '#34d399' : '#94a3b8';
       }
       if (accessNote) {
-        if (roleInfo.rank >= 3) {
+        if (roleInfo.isManagement) {
           accessNote.textContent = `Уровень доступа: ${roleInfo.title}. Полные права на управление новостями, рекламой, колонками, составом, ролями и рейтингом.`;
         } else if (roleInfo.rank === 2) {
           accessNote.textContent = `Уровень доступа: ${roleInfo.title}. Вы можете публиковать новости, заполнить свою анкету в составе редакции и редактировать/удалять свои активности.`;
@@ -10274,8 +10268,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const inputVal = ($('#change-nick-input').value || '').trim();
     const cleanNick = inputVal.replace(/_/g, ' ').replace(/\s+/g, ' ').trim();
 
-    if (!cleanNick || cleanNick.length < 3) {
-      alert('Пожалуйста, укажите никнейм длиной минимум от 3 символов.');
+    if (!/^[A-Za-zА-Яа-яЁё]+ [A-Za-zА-Яа-яЁё]+$/.test(cleanNick) || cleanNick.length < 5 || cleanNick.length > 60) {
+      alert('Никнейм должен быть строго в формате «Имя Фамилия».');
       return;
     }
     if (cleanNick.length > 30) {
@@ -10299,388 +10293,216 @@ document.addEventListener('DOMContentLoaded', () => {
     const oldNick = currentUser.username;
     const now = Date.now();
 
-    currentUser.username = cleanNick;
-    currentUser.fullName = cleanNick;
-    currentUser.lastNickChange = now;
-
-    const uIdx = usersDb.findIndex(u =>
-      (u.id && currentUser.id && u.id === currentUser.id) ||
-      (u.username && u.username.toLowerCase() === oldNick.toLowerCase())
-    );
-    if (uIdx >= 0) {
-      usersDb[uIdx].username = cleanNick;
-      usersDb[uIdx].fullName = cleanNick;
-      usersDb[uIdx].lastNickChange = now;
+    if (!sb || !currentUser.uuid) {
+      alert('⚠️ Не удалось подтвердить сессию Supabase. Войдите заново.');
+      return;
     }
-    saveUsersDb();
-
-    // Обновляем авторство в новостях
-    newsState.forEach(n => {
-      if (n.authorLogin && n.authorLogin.toLowerCase() === oldNick.toLowerCase()) {
-        n.authorLogin = cleanNick;
-        if (n.author === oldNick) n.author = cleanNick;
-      }
-    });
-    saveNewsState();
-    renderNewsSections();
-
-    // Обновляем анкету в составе редакции
-    staffState.members.forEach(m => {
-      if (m.authorLogin && m.authorLogin.toLowerCase() === oldNick.toLowerCase()) {
-        m.authorLogin = cleanNick;
-        if (m.name === oldNick) m.name = cleanNick;
-      }
-    });
-    saveStaffState();
-    renderStaffSection();
 
     try {
-      localStorage.setItem(SESSION_USER_KEY, JSON.stringify(currentUser));
-    } catch (_) {}
-
-    $('#change-nick-input').value = '';
-    syncRoleVisibilityUI();
-    flashUniSaved(`Никнейм успешно изменён на "${cleanNick}"! (Кулдаун 10 дней)`);
-
-    const nickMsg = $('#change-nick-msg');
-    if (nickMsg) {
-      nickMsg.innerHTML = `<span style="color:#10b981;">✅ Ник успешно обновлён на <b>${cleanNick}</b>! Следующая смена будет доступна через 10 дней.</span>`;
-    }
-
-    // Обновляем профиль в Supabase в фоне
-    if (sb && currentUser.id) {
-      sb.from('profiles')
-        .update({
-          username: cleanNick,
-          updated_at: new Date(now).toISOString()
-        })
-        .eq('user_id_code', currentUser.id)
-        .then(({ error }) => {
-          if (error) console.warn('Supabase nickname update:', error.message);
-        });
-    }
-  });
-
-  // Login Form: strictly validates registered credentials (Supabase Auth + Verified Local DB)
-  $('#login-panel')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const idVal = ($('#login-identifier').value || '').trim();
-    const passVal = ($('#login-password').value || '').trim();
-    if (!idVal || !passVal) {
-      alert('Пожалуйста, введите логин/email и пароль.');
-      return;
-    }
-
-    const submitBtn = e.target.querySelector('button[type="submit"]');
-    const originalBtnText = submitBtn ? submitBtn.textContent : '';
-    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Проверка…'; }
-
-    if (sb) {
-      try {
-        let authEmail = idVal;
-        let matchedProfile = null;
-
-        // If user entered nickname or USR code, look up their email in profiles table
-        if (!idVal.includes('@')) {
-          const cleanSearchNick = idVal.replace(/_/g, ' ');
-          const { data } = await sb
-            .from('profiles')
-            .select('*')
-            .or(`username.ilike.${cleanSearchNick},user_id_code.ilike.${idVal}`)
-            .maybeSingle();
-
-          matchedProfile = data;
-          if (!matchedProfile) {
-            alert(`❌ Пользователь с никнеймом "${idVal}" не найден на портале.\n\nПожалуйста, проверьте написание или зарегистрируйтесь во вкладке «Регистрация».`);
-            if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = originalBtnText; }
-            return;
-          }
-          authEmail = matchedProfile.email;
-        }
-
-        const { data: authData, error: authError } = await sb.auth.signInWithPassword({
-          email: authEmail,
-          password: passVal
-        });
-
-        if (authError) {
-          // Local fallback check (essential for phone and offline admin access)
-          const localMatch = usersDb.find(u => matchUser(u, idVal) || matchUser(u, authEmail));
-          if (localMatch && (!localMatch.password || localMatch.password === passVal || passVal === 'admin' || (localMatch.email === 'deeeenchik80@gmail.com' && passVal === 'admin'))) {
-            currentUser = localMatch;
-            try { localStorage.setItem(SESSION_USER_KEY, JSON.stringify(currentUser)); } catch (_) {}
-            syncRoleVisibilityUI();
-            authDialog?.close();
-            if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = originalBtnText; }
-            flashUniSaved('Вход выполнен: открываю кабинет.');
-            if (isUserAuthorizedJournalist(currentUser)) {
-              openJournalistCabinet('news');
-            }
-            return;
-          }
-          alert('❌ Неверный пароль для аккаунта.\n\nПожалуйста, введите правильный пароль.');
-          if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = originalBtnText; }
-          return;
-        }
-
-        if (authData && authData.user) {
-          const { data: profile } = await sb
-            .from('profiles')
-            .select('*')
-            .eq('id', authData.user.id)
-            .maybeSingle();
-
-          const userCode = profile?.user_id_code || ('USR-' + (100 + usersDb.length + 1));
-          const userRole = profile?.role || (authEmail.toLowerCase() === 'deeeenchik80@gmail.com' ? 'admin' : null);
-          const userRoleTitle = profile?.role_title || (userRole ? (ROLE_HIERARCHY[userRole]?.title || 'Читатель') : 'Читатель');
-
-          const userObj = {
-            id: userCode,
-            supabase_uid: authData.user.id,
-            username: profile?.username || idVal.replace(/_/g, ' '),
-            fullName: profile?.username || idVal.replace(/_/g, ' '),
-            email: authEmail,
-            role: userRole,
-            roleTitle: userRoleTitle,
-            createdAt: profile?.created_at ? new Date(profile.created_at).getTime() : Date.now()
-          };
-
-          const existIdx = usersDb.findIndex(u => matchUser(u, userObj.username) || (u.id && u.id === userCode));
-          if (existIdx >= 0) {
-            usersDb[existIdx] = Object.assign(usersDb[existIdx], userObj);
-          } else {
-            usersDb.push(userObj);
-          }
-          saveUsersDb();
-
-          currentUser = userObj;
-          try { localStorage.setItem(SESSION_USER_KEY, JSON.stringify(currentUser)); } catch (_) {}
-          syncRoleVisibilityUI();
-          authDialog?.close();
-          if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = originalBtnText; }
-
-          if (isUserAuthorizedJournalist(currentUser)) {
-            openJournalistCabinet('news');
-            flashUniSaved(`Вход выполнен: ${currentUser.username} (${userRoleTitle})`);
-          } else {
-            flashUniSaved(`Вход выполнен: ${currentUser.username}`);
-          }
-          return;
-        }
-      } catch (sbErr) {
-        console.warn('Supabase login check:', sbErr);
-        alert('Ошибка связи с базой данных: ' + sbErr.message);
-        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = originalBtnText; }
-        return;
-      }
-    } else {
-      // Local fallback only if no Supabase connection
-      let found = usersDb.find(u => matchUser(u, idVal));
-      if (!found) {
-        alert(`❌ Аккаунт с никнеймом "${idVal}" не найден.\n\nПожалуйста, зарегистрируйтесь во вкладке «Регистрация».`);
-        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = originalBtnText; }
-        return;
-      }
-      if (found.password !== passVal) {
-        alert('❌ Неверный пароль от аккаунта!');
-        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = originalBtnText; }
+      const { data: existing, error: existingError } = await sb
+        .from('profiles')
+        .select('id')
+        .ilike('username', cleanNick)
+        .neq('id', currentUser.uuid)
+        .maybeSingle();
+      if (existingError) throw existingError;
+      if (existing) {
+        alert(`Никнейм «${cleanNick}» уже занят другим пользователем.`);
         return;
       }
 
-      currentUser = found;
-      try { localStorage.setItem(SESSION_USER_KEY, JSON.stringify(currentUser)); } catch (_) {}
+      const { error: updateError } = await sb
+        .from('profiles')
+        .update({ username: cleanNick, updated_at: new Date(now).toISOString() })
+        .eq('id', currentUser.uuid);
+      if (updateError) throw updateError;
+
+      currentUser.username = cleanNick;
+      currentUser.fullName = cleanNick;
+      currentUser.lastNickChange = now;
+      newsState.forEach(n => {
+        if (n.authorLogin && n.authorLogin.toLowerCase() === oldNick.toLowerCase()) n.authorLogin = cleanNick;
+        if (n.author && n.author.toLowerCase() === oldNick.toLowerCase()) n.author = cleanNick;
+      });
+      adsState.forEach(n => { if (n.authorLogin && n.authorLogin.toLowerCase() === oldNick.toLowerCase()) n.authorLogin = cleanNick; });
+      columnsState.forEach(n => { if (n.authorLogin && n.authorLogin.toLowerCase() === oldNick.toLowerCase()) n.authorLogin = cleanNick; });
+      staffState.members.forEach(m => { if (m.login && m.login.toLowerCase() === oldNick.toLowerCase()) m.login = cleanNick; });
+      localStorage.setItem(NEWS_KEY, JSON.stringify(newsState));
+      localStorage.setItem(ADS_KEY, JSON.stringify(adsState));
+      localStorage.setItem(COLUMNS_KEY, JSON.stringify(columnsState));
+      localStorage.setItem(STAFF_KEY, JSON.stringify(staffState));
       syncRoleVisibilityUI();
-      authDialog?.close();
-      if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = originalBtnText; }
-      if (isUserAuthorizedJournalist(currentUser)) {
-        openJournalistCabinet('news');
-        flashUniSaved(`Вход выполнен: ${found.username} (${getUserRoleInfo(currentUser).title})`);
-      } else {
-        flashUniSaved(`Вход выполнен: ${found.username}`);
-      }
-    }
-  });
-  // Apply / Registration Form: in-game Nick_Name required (unique & without underscores)
-  $('#apply-panel')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    let username = ($('#reg-username').value || '').trim().replace(/_/g, ' ').replace(/\s+/g, ' ');
-    let email = ($('#reg-email').value || '').trim();
-    const password = ($('#reg-password').value || '').trim();
-    if (!username || username.length < 3) {
-      alert('Пожалуйста, укажите ваш игровой никнейм (минимум 3 символа, например: Julian Reed).');
-      return;
-    }
-    if (username.length > 30) {
-      alert('Никнейм не должен превышать 30 символов.');
-      return;
-    }
-    if (!email) {
-      email = `${username.toLowerCase().replace(/[^a-z0-9]/g, '')}@lsnews.sa`;
-    }
-    if (!password || password.length < 6) {
-      alert('Пароль должен содержать минимум 6 символов.');
-      return;
-    }
-
-    const submitBtn = e.target.querySelector('button[type="submit"]');
-    const originalBtnText = submitBtn ? submitBtn.textContent : '';
-    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Проверка никнейма…'; }
-
-    // 1. Проверяем уникальность никнейма в локальной базе
-    const takenLocally = usersDb.some(u =>
-      (u.username && u.username.toLowerCase() === username.toLowerCase()) ||
-      (u.fullName && u.fullName.toLowerCase() === username.toLowerCase())
-    );
-    if (takenLocally) {
-      alert(`⚠️ Никнейм "${username}" уже занят другим игроком на портале!\n\nПожалуйста, введите ваш собственный никнейм или перейдите во вкладку «Вход».`);
-      if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = originalBtnText; }
-      return;
-    }
-
-    // 2. Проверяем уникальность никнейма в Supabase
-    if (sb) {
-      try {
-        const { data: existingProfile } = await sb
-          .from('profiles')
-          .select('username')
-          .ilike('username', username)
-          .maybeSingle();
-
-        if (existingProfile) {
-          alert(`⚠️ Никнейм "${username}" уже зарегистрирован в базе данных портала!\n\nПожалуйста, выберите другой никнейм или войдите в систему.`);
-          if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = originalBtnText; }
-          return;
-        }
-      } catch (checkErr) {
-        console.warn('Supabase nickname uniqueness check:', checkErr);
-      }
-    }
-
-    if (submitBtn) submitBtn.textContent = 'Регистрация…';
-
-    let registeredViaSb = false;
-
-    if (sb) {
-      try {
-        // Safe ASCII username for database trigger (3-24 characters, [a-z0-9_])
-        const toSafeDbUsername = (raw) => {
-          if (!raw) return 'user_' + Math.floor(1000 + Math.random() * 9000);
-          let s = (raw || '').toLowerCase().trim();
-          const ruMap = {
-            'Р°':'a','Р±':'b','РІ':'v','Рі':'g','Рґ':'d','Рµ':'e','С‘':'yo','Р¶':'zh','Р·':'z','Рё':'i','Р№':'y',
-            'Рє':'k','Р»':'l','Рј':'m','РЅ':'n','Рѕ':'o','Рї':'p','СЂ':'r','СЃ':'s','С‚':'t','Сѓ':'u','С„':'f',
-            'С…':'kh','С†':'ts','С‡':'ch','С€':'sh','С‰':'sch','СЉ':'','С‹':'y','СЊ':'','СЌ':'e','СЋ':'yu','СЏ':'ya'
-          };
-          s = s.split('').map(c => ruMap[c] || c).join('');
-          s = s.replace(/[^a-z0-9_]/g, '_').replace(/_+/g, '_').replace(/^_+|_+$/g, '');
-          if (s.length < 3) s = (s + '_usr').slice(0, 24);
-          if (s.length < 3) s = 'usr_' + Math.floor(100 + Math.random() * 900);
-          return s.slice(0, 24);
-        };
-        const safeUsername = toSafeDbUsername(username);
-
-        const { data, error } = await sb.auth.signUp({
-          email,
-          password,
-          options: {
-            data: {
-              username: safeUsername,
-              display_name: username,
-              full_name: username
-            }
-          }
-        });
-
-        if (error) {
-          console.warn('Supabase auth signup warning:', error.message);
-          if (error.message.includes('already registered')) {
-            alert('вљ пёЏ РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ СЃ С‚Р°РєРёРј email СѓР¶Рµ Р·Р°СЂРµРіРёСЃС‚СЂРёСЂРѕРІР°РЅ РІ Р±Р°Р·Рµ РґР°РЅРЅС‹С….\n\nРџРѕР¶Р°Р»СѓР№СЃС‚Р°, РїРµСЂРµР№РґРёС‚Рµ РІРѕ РІРєР»Р°РґРєСѓ В«Р’С…РѕРґВ».');
-            if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = originalBtnText; }
-            return;
-          }
-          // If Supabase trigger throws, fall back smoothly to local registration
-          console.warn('Falling back to local registration due to Supabase error:', error.message);
-        } else if (data && data.user) {
-          try {
-            await sb.from('profiles').update({ username: username }).eq('id', data.user.id);
-          } catch (_) {}
-          registeredViaSb = true;
-          await new Promise(r => setTimeout(r, 600));
-          const { data: profile } = await sb
-            .from('profiles')
-            .select('*')
-            .eq('id', data.user.id)
-            .maybeSingle();
-
-          const userCode = profile?.user_id_code || ('USR-' + (100 + usersDb.length + 1));
-          const userRole = profile?.role || (email.toLowerCase() === 'deeeenchik80@gmail.com' ? 'admin' : null);
-          const userRoleTitle = profile?.role_title || (userRole ? (ROLE_HIERARCHY[userRole]?.title || 'Читатель') : 'Читатель');
-
-          const newUser = {
-            id: userCode,
-            supabase_uid: data.user.id,
-            username: profile?.username || username,
-            fullName: profile?.username || username,
-            email: profile?.email || email,
-            password,
-            role: userRole,
-            roleTitle: userRoleTitle,
-            createdAt: Date.now()
-          };
-
-          const existIdx = usersDb.findIndex(u => matchUser(u, username) || (u.id && u.id === userCode));
-          if (existIdx >= 0) {
-            usersDb[existIdx] = Object.assign(usersDb[existIdx], newUser);
-          } else {
-            usersDb.push(newUser);
-          }
-          saveUsersDb();
-
-          currentUser = newUser;
-          try { localStorage.setItem(SESSION_USER_KEY, JSON.stringify(currentUser)); } catch (_) {}
-          syncRoleVisibilityUI();
-          authDialog?.close();
-          if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = originalBtnText; }
-          flashUniSaved(`Регистрация успешна! ID: ${userCode}. Добро пожаловать, ${newUser.username}!`);
-          if (isUserAuthorizedJournalist(currentUser)) {
-            openJournalistCabinet('news');
-          }
-          return;
-        }
-      } catch (sbErr) {
-        console.warn('Supabase signup fallback:', sbErr);
-      }
-    }
-
-    if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = originalBtnText; }
-
-    // Fallback if Supabase offline
-    const nextId = 'USR-' + (100 + usersDb.length + 1);
-    const isAutoAdmin = (email.toLowerCase() === 'deeeenchik80@gmail.com');
-    const newUser = {
-      id: nextId,
-      username,
-      fullName: username,
-      email: email || `${username.toLowerCase().replace(/\s+/g, '')}@lsnews.sa`,
-      password,
-      role: isAutoAdmin ? 'admin' : null,
-      roleTitle: isAutoAdmin ? 'Администратор' : 'Читатель',
-      createdAt: Date.now()
-    };
-    usersDb.push(newUser);
-    saveUsersDb();
-
-    currentUser = newUser;
-    try { localStorage.setItem(SESSION_USER_KEY, JSON.stringify(currentUser)); } catch (_) {}
-    syncRoleVisibilityUI();
-    authDialog?.close();
-    flashUniSaved(`Регистрация успешна! ID: ${nextId}. Доступен просмотр портала.`);
-    if (isUserAuthorizedJournalist(currentUser)) {
-      openJournalistCabinet('news');
+      $('#change-nick-input').value = '';
+      alert('✅ Никнейм успешно изменён.');
+    } catch (err) {
+      console.error('Supabase nickname update:', err);
+      alert('⚠️ Никнейм не изменён: ' + (err?.message || 'ошибка Supabase'));
     }
   });
 
   // =========================================================================
+  // LOGIN FORM: Supabase Auth only; no local/admin bypass
+  // =========================================================================
+  $('#login-panel')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const identifier = ($('#login-identifier').value || '').trim();
+    const password = ($('#login-password').value || '').trim();
+    const msg = $('#auth-message');
+    const btn = e.target.querySelector('button[type="submit"]');
+    if (!identifier || !password) {
+      if (msg) msg.textContent = '⚠️ Введите никнейм/email и пароль.';
+      return;
+    }
+    if (!sb) {
+      if (msg) msg.textContent = '⚠️ Supabase не подключён. Проверьте интернет и настройки проекта.';
+      return;
+    }
+    if (btn) { btn.disabled = true; btn.textContent = 'Вход…'; }
+    try {
+      let email = identifier;
+      // Разрешаем вход по никнейму без раскрытия списка аккаунтов.
+      if (!identifier.includes('@')) {
+        const cleanNick = identifier.replace(/\s+/g, ' ').trim();
+        const { data: loginEmail, error: lookupError } = await sb.rpc('lsn_login_email_by_username', { p_username: cleanNick });
+        if (lookupError || !loginEmail) throw new Error('Никнейм не найден. Используйте email или проверьте написание.');
+        email = loginEmail;
+      }
+
+      const { data, error } = await sb.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      if (!data?.user) throw new Error('Supabase не вернул пользователя.');
+
+      const { data: profile, error: profileError } = await sb
+        .from('profiles')
+        .select('id,user_id_code,username,email,role,role_title')
+        .eq('id', data.user.id)
+        .maybeSingle();
+      if (profileError) throw profileError;
+
+      currentUser = {
+        id: profile?.user_id_code || data.user.id,
+        uuid: data.user.id,
+        username: profile?.username || data.user.user_metadata?.username || email.split('@')[0],
+        fullName: profile?.username || '',
+        email: profile?.email || data.user.email || email,
+        role: profile?.role || null,
+        roleTitle: profile?.role_title || 'Читатель'
+      };
+      if (msg) msg.textContent = '✅ Вход выполнен.';
+      syncRoleVisibilityUI();
+      authDialog?.close();
+      if (isUserAuthorizedJournalist(currentUser)) openJournalistCabinet('news');
+    } catch (err) {
+      console.error('Login error:', err);
+      if (msg) msg.textContent = '⚠️ ' + (err?.message || 'Не удалось выполнить вход.');
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = 'Войти'; }
+    }
+  });
+
+  $('#apply-panel')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const username = ($('#reg-username').value || '').replace(/\s+/g, ' ').trim();
+    const email = ($('#reg-email').value || '').trim().toLowerCase();
+    const password = ($('#reg-password').value || '').trim();
+    const msg = $('#auth-message');
+    const btn = e.target.querySelector('button[type="submit"]');
+
+    // Только формат Имя Фамилия: две части, буквы RU/EN, один пробел между ними.
+    if (!/^[A-Za-zА-Яа-яЁё]+ [A-Za-zА-Яа-яЁё]+$/.test(username) || username.length < 5 || username.length > 60) {
+      if (msg) msg.textContent = '⚠️ Никнейм должен быть строго в формате «Имя Фамилия». Без цифр, подчёркиваний и третьего слова.';
+      return;
+    }
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      if (msg) msg.textContent = '⚠️ Укажите корректный email.';
+      return;
+    }
+    if (password.length < 6) {
+      if (msg) msg.textContent = '⚠️ Пароль должен содержать минимум 6 символов.';
+      return;
+    }
+    if (!sb) {
+      if (msg) msg.textContent = '⚠️ Supabase не подключён.';
+      return;
+    }
+    if (btn) { btn.disabled = true; btn.textContent = 'Регистрация…'; }
+    try {
+      // Безопасность: нельзя создавать новый аккаунт поверх активной сессии
+      // (например, когда сейчас открыт аккаунт Roy Westblock). Иначе Supabase
+      // может сохранить текущую сессию и интерфейс продолжит показывать admin.
+      const { data: activeSession } = await sb.auth.getSession();
+      if (activeSession?.session?.user) {
+        throw new Error('Сначала выйдите из текущего аккаунта, затем зарегистрируйте новый.');
+      }
+
+      const { data: existingEmail, error: nickError } = await sb.rpc('lsn_login_email_by_username', { p_username: username });
+      if (nickError) throw nickError;
+      if (existingEmail) throw new Error('Этот никнейм уже зарегистрирован.');
+
+      const { data: signData, error: signError } = await sb.auth.signUp({
+        email,
+        password,
+        options: { data: { username } }
+      });
+      if (signError) throw signError;
+      if (!signData?.user) throw new Error('Supabase не вернул созданного пользователя.');
+
+      // Email confirmation у проекта отключён, поэтому новая сессия должна
+      // появиться сразу. Если её нет — не создаём локального пользователя.
+      if (!signData.session) {
+        if (msg) msg.textContent = '⚠️ Аккаунт создан, но сессия не выдана. Проверьте настройки подтверждения email в Supabase.';
+        return;
+      }
+
+      // Триггер Supabase создаёт профиль с ролью user. Ждём его появления,
+      // чтобы не продолжать работу с неполным/старым профилем.
+      let profile = null;
+      let profileError = null;
+      for (let attempt = 0; attempt < 5; attempt++) {
+        const result = await sb
+          .from('profiles')
+          .select('id,user_id_code,username,email,role,role_title')
+          .eq('id', signData.user.id)
+          .maybeSingle();
+        profile = result.data;
+        profileError = result.error;
+        if (profile) break;
+        await new Promise(resolve => setTimeout(resolve, 250));
+      }
+      if (profileError) throw profileError;
+      if (!profile) throw new Error('Профиль пользователя не создан. Регистрация остановлена для безопасности.');
+
+      // Никогда не выдаём права из клиентского fallback. Роль должна прийти
+      // из profiles и для новой регистрации обязана быть user.
+      if (profile.id !== signData.user.id || profile.role !== 'user') {
+        await sb.auth.signOut();
+        currentUser = null;
+        throw new Error('Ошибка безопасности: новый аккаунт получил некорректную роль. Администратор не назначается автоматически.');
+      }
+
+      currentUser = {
+        id: profile.user_id_code || signData.user.id,
+        uuid: signData.user.id,
+        username: profile.username || username,
+        fullName: profile.username || username,
+        email: profile.email || email,
+        role: 'user',
+        roleTitle: profile.role_title || '👤 Пользователь'
+      };
+      syncRoleVisibilityUI();
+      authDialog?.close();
+      flashUniSaved('Регистрация успешна!');
+    } catch (err) {
+      console.error('Registration error:', err);
+      const text = String(err?.message || 'Не удалось зарегистрировать аккаунт.');
+      if (msg) msg.textContent = text.toLowerCase().includes('already registered') || text.toLowerCase().includes('already been registered')
+        ? '⚠️ Пользователь с таким email уже зарегистрирован.'
+        : '⚠️ ' + text;
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = 'Зарегистрироваться'; }
+    }
+  });
+
   // F. SIMPLIFIED UNIFIED EDITOR CONTROLLER INSIDE #cabinet-dialog
   // =========================================================================
   let currentUniType = 'news';
@@ -10763,7 +10585,7 @@ document.addEventListener('DOMContentLoaded', () => {
       );
 
       // Intro card: only management can edit
-      if (roleInfo.rank >= 3) {
+      if (roleInfo.isManagement) {
         const introCard = document.createElement('div');
         introCard.className = 'cab-ad-item cab-ad-item--intro' + (currentEditingId === 'staff-intro' ? ' is-editing' : '');
         introCard.innerHTML = `
@@ -10843,13 +10665,6 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
       listEl.appendChild(card);
     });
-
-    if (listEl.children.length === 0) {
-      const emptyDiv = document.createElement('div');
-      emptyDiv.style.cssText = 'padding:32px 16px; text-align:center; color:#94a3b8; font-size:13px; border:1px dashed rgba(255,255,255,0.1); border-radius:10px; margin:8px;';
-      emptyDiv.innerHTML = '📭 Список пуст. Нажмите «Добавить» выше, чтобы создать запись.';
-      listEl.appendChild(emptyDiv);
-    }
   };
 
   const loadItemIntoUniFormBase = (itemId) => {
@@ -10976,10 +10791,30 @@ document.addEventListener('DOMContentLoaded', () => {
   // RBAC PERMISSIONS ROSTER CONTROLLER
   // =========================================================================
   const renderPermissionsList = () => {
+    const matrix = $('#lsn-rbac-matrix-body');
+    if (matrix) {
+      const ok = v => v ? '✓' : '—';
+      matrix.innerHTML = Object.values(ROLE_HIERARCHY).sort((a,b)=>b.rank-a.rank).map(r => `<tr>
+        <td style="padding:9px 10px;color:#fff;font-weight:800;border-top:1px solid rgba(255,255,255,.06);">${escapeHtml(r.title)} <span style="color:#64748b;font-weight:600;">[${r.rank}]</span></td>
+        <td style="text-align:center;border-top:1px solid rgba(255,255,255,.06);">${ok(r.canCreateNews)}</td>
+        <td style="text-align:center;border-top:1px solid rgba(255,255,255,.06);">${ok(r.canPublish)}</td>
+        <td style="text-align:center;border-top:1px solid rgba(255,255,255,.06);">${ok(r.canManageAds)}</td>
+        <td style="text-align:center;border-top:1px solid rgba(255,255,255,.06);">${ok(r.canManageColumns)}</td>
+        <td style="text-align:center;border-top:1px solid rgba(255,255,255,.06);">${ok(r.canManageStaff)}</td>
+        <td style="text-align:center;border-top:1px solid rgba(255,255,255,.06);">${ok(r.canManageRoles)}</td>
+        <td style="text-align:center;border-top:1px solid rgba(255,255,255,.06);">${ok(r.canManageUsers)}</td>
+        <td style="text-align:center;border-top:1px solid rgba(255,255,255,.06);">${ok(r.canEditRating)}</td>
+      </tr>`).join('');
+    }
     const listEl = $('#uni-journalists-list');
     const addForm = $('#uni-add-journalist-form');
     const notice = $('#uni-perm-readonly-notice');
     const roleInfo = getUserRoleInfo(currentUser);
+    if (roleInfo.level !== 'admin') {
+      const ws = $('#uni-permissions-workspace');
+      if (ws) ws.hidden = true;
+      return;
+    }
     const selectRegUser = $('#uni-select-registered-user');
     const selectRoleLevel = $('#uni-new-journalist-level');
 
@@ -11009,7 +10844,7 @@ document.addEventListener('DOMContentLoaded', () => {
       selectRegUser.innerHTML = '<option value="">-- Выбрать из зарегистрированных пользователей --</option>' +
         eligibleUsers.map(u => {
           const uRole = getUserRoleInfo(u);
-          return `<option value="${escapeHtml(u.username)}">[${escapeHtml(u.id || 'USR-?')}] ${escapeHtml(u.username)} (Текущая роль: ${escapeHtml(uRole.title)})</option>`;
+          return `<option value="${escapeHtml(u.username)}">${escapeHtml(u.username)} (Текущая роль: ${escapeHtml(uRole.title)})</option>`;
         }).join('');
     }
 
@@ -11048,6 +10883,7 @@ document.addEventListener('DOMContentLoaded', () => {
               ${selectOptions}
             </select>
             ${uRole.rank >= 2 ? `<button type="button" class="cab-ad-mini-btn cab-ad-mini-btn--del" data-revoke-login="${escapeHtml(u.id || u.username)}">Снять роль</button>` : ''}
+            ${uRole.level !== 'admin' ? `<button type="button" class="cab-ad-mini-btn cab-ad-mini-btn--del" data-delete-account="${escapeHtml(u.id || u.username)}">Удалить аккаунт</button>` : ''}
           </div>
         `;
       } else {
@@ -11061,7 +10897,7 @@ document.addEventListener('DOMContentLoaded', () => {
       card.innerHTML = `
         <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
           <div>
-            <span style="font:700 11px var(--font-mono); color:var(--cyan); margin-right:6px;">${escapeHtml(u.id || 'USR-?')}</span>
+            
             <span class="cab-ad-item__title" style="display:inline; margin:0;">${escapeHtml(u.username)}</span>
           </div>
           <span class="role-badge ${uRole.badgeClass}">${escapeHtml(uRole.title)}</span>
@@ -11071,13 +10907,6 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
       listEl.appendChild(card);
     });
-
-    if (listEl.children.length === 0) {
-      const emptyDiv = document.createElement('div');
-      emptyDiv.style.cssText = 'padding:32px 16px; text-align:center; color:#94a3b8; font-size:13px; border:1px dashed rgba(255,255,255,0.1); border-radius:10px; margin:8px;';
-      emptyDiv.innerHTML = '📭 Список пуст. Нажмите «Добавить» выше, чтобы создать запись.';
-      listEl.appendChild(emptyDiv);
-    }
   };
 
   // Sync registered user selection dropdown with input fields
@@ -11101,6 +10930,7 @@ document.addEventListener('DOMContentLoaded', () => {
   $('#uni-journalists-list')?.addEventListener('change', (e) => {
     const sel = e.target.closest('[data-change-role]');
     if (!sel) return;
+    if (getUserRoleInfo(currentUser).level !== 'admin') return;
     const identifier = sel.dataset.changeRole;
     const newLvl = sel.value;
 
@@ -11112,14 +10942,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!canUserManageTargetUser(currentUser, targetUser)) {
       alert('🔒 Запрещено: вы не можете изменить роль этому пользователю или самому себе.');
-      renderPermissionsList();
+      if (roleInfo.level !== 'admin') { if (contentWs) contentWs.hidden = false; if (permsWs) permsWs.hidden = true; return; }
+      loadAdminProfiles().then(() => renderPermissionsList());
       return;
     }
 
     const actorRole = getUserRoleInfo(currentUser);
     const newRoleInfo = ROLE_HIERARCHY[newLvl];
-    if (!newRoleInfo || newRoleInfo.rank >= actorRole.rank) {
-      alert('🔒 Вы можете назначать только роли ниже вашей собственной.');
+    if (actorRole.level !== 'admin' || !newRoleInfo) {
+      alert('🔒 Только администратор может назначать роли.');
       renderPermissionsList();
       return;
     }
@@ -11142,9 +10973,46 @@ document.addEventListener('DOMContentLoaded', () => {
     flashUniSaved(`Роль для ${targetUser.username} изменена на: ${newRoleInfo.title}`);
   });
 
+  $('#uni-journalists-list')?.addEventListener('click', async (e) => {
+    const btn = e.target.closest('[data-delete-account]');
+    if (!btn) return;
+    if (getUserRoleInfo(currentUser).level !== 'admin') return;
+    const identifier = btn.dataset.deleteAccount;
+    const targetUser = usersDb.find(x =>
+      (x.id && x.id.toLowerCase() === identifier.toLowerCase()) ||
+      (x.username && x.username.toLowerCase() === identifier.toLowerCase())
+    );
+    if (!targetUser?.uuid) { alert('Не удалось определить UUID аккаунта.'); return; }
+    if (targetUser.role === 'admin') { alert('Администратора удалить нельзя.'); return; }
+    if (!btn.classList.contains('is-confirming')) {
+      btn.classList.add('is-confirming');
+      btn.dataset.origHtml = btn.innerHTML;
+      btn.innerHTML = '⚠️ Подтвердить удаление';
+      const t = setTimeout(() => { if (btn.isConnected) { btn.classList.remove('is-confirming'); btn.innerHTML = btn.dataset.origHtml || 'Удалить аккаунт'; } }, 4000);
+      btn._resetTimer = t;
+      return;
+    }
+    if (btn._resetTimer) clearTimeout(btn._resetTimer);
+    btn.disabled = true;
+    btn.textContent = 'Удаление…';
+    try {
+      const { error } = await sb.functions.invoke('admin-delete-user', { body: { user_id: targetUser.uuid } });
+      if (error) throw error;
+      await loadAdminProfiles();
+      renderPermissionsList();
+      flashUniSaved('🗑️ Аккаунт удалён.');
+    } catch (err) {
+      console.error('Admin delete user:', err);
+      alert('⚠️ Не удалось удалить аккаунт: ' + (err?.message || 'ошибка сервера'));
+      btn.disabled = false;
+      btn.textContent = 'Удалить аккаунт';
+    }
+  });
+
   $('#uni-journalists-list')?.addEventListener('click', (e) => {
     const btn = e.target.closest('[data-revoke-login]');
     if (!btn) return;
+    if (getUserRoleInfo(currentUser).level !== 'admin') return;
     const identifier = btn.dataset.revokeLogin;
 
     const targetUser = usersDb.find(x =>
@@ -11177,12 +11045,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (btn._resetTimer) clearTimeout(btn._resetTimer);
 
-    targetUser.role = null;
-    targetUser.roleTitle = 'Читатель';
+    targetUser.role = 'user';
+    targetUser.roleTitle = ROLE_HIERARCHY.user.title;
 
     if (sb && targetUser.id) {
       sb.from('profiles')
-        .update({ role: null, role_title: 'Читатель' })
+        .update({ role: 'user', role_title: ROLE_HIERARCHY.user.title })
         .eq('user_id_code', targetUser.id)
         .then(({ error }) => {
           if (error) console.warn('Supabase role revoke:', error.message);
@@ -11198,7 +11066,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   $('#uni-add-journalist-form')?.addEventListener('submit', (e) => {
     e.preventDefault();
-    if (!getUserRoleInfo(currentUser).canManageRoles) {
+    if (getUserRoleInfo(currentUser).level !== 'admin') {
       alert('Доступ запрещен.');
       return;
     }
@@ -11209,8 +11077,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const actorRole = getUserRoleInfo(currentUser);
     const newRoleInfo = ROLE_HIERARCHY[roleLevel];
-    if (!newRoleInfo || newRoleInfo.rank >= actorRole.rank) {
-      alert('🔒 Вы можете назначать только роли ниже вашей собственной.');
+    if (actorRole.level !== 'admin' || !newRoleInfo) {
+      alert('🔒 Только администратор может назначать роли.');
       return;
     }
 
@@ -11226,19 +11094,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (!targetUser) {
-      // Create user by in-game nickname if not yet registered
-      const nextId = 'USR-' + (100 + usersDb.length + 1);
-      targetUser = {
-        id: nextId,
-        username: inputVal,
-        fullName: inputVal,
-        email: `${inputVal.toLowerCase()}@lsnews.sa`,
-        password: 'admin',
-        role: roleLevel,
-        roleTitle: roleTitle || newRoleInfo.title,
-        createdAt: Date.now()
-      };
-      usersDb.push(targetUser);
+      alert('⚠️ Пользователь не найден в списке зарегистрированных аккаунтов Supabase. Сначала он должен зарегистрироваться.');
+      return;
     } else {
       targetUser.role = roleLevel;
       targetUser.roleTitle = roleTitle || newRoleInfo.title;
@@ -11338,13 +11195,6 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
       listEl.appendChild(card);
     });
-
-    if (listEl.children.length === 0) {
-      const emptyDiv = document.createElement('div');
-      emptyDiv.style.cssText = 'padding:32px 16px; text-align:center; color:#94a3b8; font-size:13px; border:1px dashed rgba(255,255,255,0.1); border-radius:10px; margin:8px;';
-      emptyDiv.innerHTML = '📭 Список пуст. Нажмите «Добавить» выше, чтобы создать запись.';
-      listEl.appendChild(emptyDiv);
-    }
   };
 
   // Filter clicks
@@ -11368,57 +11218,47 @@ document.addEventListener('DOMContentLoaded', () => {
       const type = delBtn.dataset.actDelType;
       const id = delBtn.dataset.actDelId;
 
-      // In-portal confirmation: zero browser confirm() popups!
-      if (!delBtn.classList.contains('is-confirming')) {
-        delBtn.classList.add('is-confirming');
-        delBtn.dataset.origHtml = delBtn.innerHTML;
-        delBtn.innerHTML = '⚠️ Точно отозвать?';
-        delBtn.style.background = '#dc2626';
-        delBtn.style.color = '#ffffff';
-        delBtn.style.borderColor = '#ef4444';
-
-        const tId = setTimeout(() => {
-          if (delBtn && delBtn.isConnected) {
-            delBtn.classList.remove('is-confirming');
-            delBtn.innerHTML = delBtn.dataset.origHtml || '🗑️ Отозвать';
-            delBtn.style.background = '';
-            delBtn.style.color = '';
-            delBtn.style.borderColor = '';
-          }
-        }, 3500);
-        delBtn._resetTimer = tId;
-        return;
-      }
-
-      if (delBtn._resetTimer) clearTimeout(delBtn._resetTimer);
-
       markIdAsDeleted(id);
+
       if (type === 'news') {
         newsState = newsState.filter(x => x.id !== id);
-        if (newsState.length === 0) markSectionCleared('news', true);
         saveNewsState();
         renderNewsSections();
       } else if (type === 'ad') {
         adsState = adsState.filter(x => x.id !== id);
-        if (adsState.length === 0) markSectionCleared('ad', true);
         saveAdsState();
         renderAdsCarousel();
       } else if (type === 'column') {
         columnsState = columnsState.filter(x => x.id !== id);
-        if (columnsState.length === 0) markSectionCleared('column', true);
         saveColumnsState();
         renderEditorialColumns();
       }
+
+      if (sb) {
+        sb.from('lsn_articles')
+          .delete()
+          .eq('id', id)
+          .then(({ error }) => {
+            if (error) console.warn('Supabase delete act note:', error.message);
+          })
+          .catch(() => {});
+      }
+
       renderMyActivitiesList(myActCurrentFilter);
-      flashUniSaved('🗑️ Публикация отозвана с портала');
+      flashUniSaved('🗑️ Публикация успешно удалена');
+      return;
     }
   });
 
   const switchUniCategory = (type, specificItemId = null) => {
     const roleInfo = getUserRoleInfo(currentUser);
 
-    // Protection: ad, column, and permissions require management (rank >= 3)
-    if (roleInfo.rank < 3 && (type === 'permissions' || type === 'ad' || type === 'column')) {
+    // Protection: permissions require admin; ads/columns require management.
+    if (type === 'permissions' && roleInfo.level !== 'admin') {
+      type = 'news';
+      flashUniSaved('🔒 Управление пользователями доступно только администратору');
+    }
+    if ((type === 'ad' && !roleInfo.canManageAds) || (type === 'column' && !roleInfo.canManageColumns)) {
       type = 'news';
       flashUniSaved('🔒 Реклама, колонки и роли доступны только руководству');
     }
@@ -11535,7 +11375,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!btn.classList.contains('is-confirming')) {
       btn.classList.add('is-confirming');
       btn.dataset.origHtml = btn.innerHTML;
-      btn.innerHTML = '⚠️ Точно удалить?';
+      btn.innerHTML = 'вљ пёЏ Точно удалить?';
       btn.style.background = '#dc2626';
       btn.style.borderColor = '#ef4444';
       btn.style.color = '#fff';
@@ -11551,36 +11391,20 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    btn.classList.remove('is-confirming');
-    btn.innerHTML = btn.dataset.origHtml || '🗑️ Удалить новость';
-    btn.style.background = '';
-    btn.style.borderColor = '';
-    btn.style.color = '';
-
     const type = lastOpenedModalItem.type || 'news';
     const id = lastOpenedModalItem.id;
-    markIdAsDeleted(id);
-
     if (type === 'news') {
       newsState = newsState.filter(x => x.id !== id);
-      if (newsState.length === 0) markSectionCleared('news', true);
       saveNewsState();
       renderNewsSections();
     } else if (type === 'ad') {
       adsState = adsState.filter(x => x.id !== id);
-      if (adsState.length === 0) markSectionCleared('ad', true);
       saveAdsState();
       renderAdsCarousel();
     } else if (type === 'column') {
       columnsState = columnsState.filter(x => x.id !== id);
-      if (columnsState.length === 0) markSectionCleared('column', true);
       saveColumnsState();
       renderEditorialColumns();
-    } else if (type === 'staff') {
-      staffState.members = staffState.members.filter(x => x.id !== id);
-      if (staffState.members.length === 0) markSectionCleared('staff', true);
-      saveStaffState();
-      renderStaffSection();
     }
 
     if (sb) {
@@ -11599,8 +11423,8 @@ document.addEventListener('DOMContentLoaded', () => {
   $('#uni-clear-all-btn')?.addEventListener('click', (e) => {
     const btn = e.currentTarget;
     const roleInfo = getUserRoleInfo(currentUser);
-    if (roleInfo.rank < 3) {
-      alert('Доступ запрещен.');
+    if ((currentUniType === 'ad' && !roleInfo.canManageAds) || (currentUniType === 'column' && !roleInfo.canManageColumns) || (currentUniType === 'news' && !roleInfo.canEditAll) || (currentUniType === 'staff' && !roleInfo.canManageStaff)) {
+      alert('🔒 Доступ запрещен для этой роли.');
       return;
     }
 
@@ -11630,32 +11454,26 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.style.borderColor = '';
     btn.style.color = '';
 
+    markSectionCleared(currentUniType, true);
+
     if (currentUniType === 'news') {
       newsState.forEach(x => markIdAsDeleted(x.id));
-      DEFAULT_NEWS_DATA.forEach(x => markIdAsDeleted(x.id));
       newsState = [];
-      markSectionCleared('news', true);
       saveNewsState();
       renderNewsSections();
     } else if (currentUniType === 'ad') {
       adsState.forEach(x => markIdAsDeleted(x.id));
-      DEFAULT_ADS_DATA.forEach(x => markIdAsDeleted(x.id));
       adsState = [];
-      markSectionCleared('ad', true);
       saveAdsState();
       renderAdsCarousel();
     } else if (currentUniType === 'column') {
       columnsState.forEach(x => markIdAsDeleted(x.id));
-      DEFAULT_COLUMNS_DATA.forEach(x => markIdAsDeleted(x.id));
       columnsState = [];
-      markSectionCleared('column', true);
       saveColumnsState();
       renderEditorialColumns();
     } else if (currentUniType === 'staff') {
       staffState.members.forEach(x => markIdAsDeleted(x.id));
-      DEFAULT_STAFF_DATA.members.forEach(x => markIdAsDeleted(x.id));
       staffState.members = [];
-      markSectionCleared('staff', true);
       saveStaffState();
       renderStaffSection();
     }
@@ -11666,7 +11484,8 @@ document.addEventListener('DOMContentLoaded', () => {
         .eq('type', currentUniType)
         .then(({ error }) => {
           if (error) console.warn('Supabase bulk delete:', error.message);
-        });
+        })
+        .catch(() => {});
     }
 
     loadItemIntoUniForm(null);
@@ -11703,6 +11522,8 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   const deleteUniItemById = (id) => {
+    if (!id) return;
+    markIdAsDeleted(id);
     if (id === 'staff-intro') return;
     const store = getStoreForType(currentUniType);
     const item = store.find(x => x.id === id);
@@ -11711,33 +11532,26 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    markIdAsDeleted(id);
-
     if (currentUniType === 'news') {
       newsState = newsState.filter(x => x.id !== id);
-      if (newsState.length === 0) markSectionCleared('news', true);
       saveNewsState();
       renderNewsSections();
     } else if (currentUniType === 'ad') {
       adsState = adsState.filter(x => x.id !== id);
-      if (adsState.length === 0) markSectionCleared('ad', true);
       saveAdsState();
       renderAdsCarousel();
     } else if (currentUniType === 'column') {
       columnsState = columnsState.filter(x => x.id !== id);
-      if (columnsState.length === 0) markSectionCleared('column', true);
       saveColumnsState();
       renderEditorialColumns();
     } else if (currentUniType === 'staff') {
       staffState.members = staffState.members.filter(x => x.id !== id);
-      if (staffState.members.length === 0) markSectionCleared('staff', true);
       saveStaffState();
       renderStaffSection();
       if (typeof renderSanRatingTableUI === 'function') renderSanRatingTableUI();
       if (typeof checkSundayMondaySync === 'function') checkSundayMondaySync();
     }
-
-    if (sb) {
+        if (sb) {
       sb.from('lsn_articles')
         .delete()
         .eq('id', id)
@@ -11747,7 +11561,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     const updatedStore = getStoreForType(currentUniType);
     loadItemIntoUniForm(updatedStore[0]?.id || null);
-    renderUniItemsList();
     flashUniSaved('Удалено');
   };
 
@@ -11762,7 +11575,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!delBtn.classList.contains('is-confirming')) {
         delBtn.classList.add('is-confirming');
         delBtn.dataset.origHtml = delBtn.innerHTML;
-        delBtn.innerHTML = '⚠️ Точно удалить?';
+        delBtn.innerHTML = 'вљ пёЏ Точно удалить?';
         delBtn.style.background = '#dc2626';
         delBtn.style.borderColor = '#ef4444';
         delBtn.style.color = '#fff';
@@ -11817,9 +11630,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const sub = $('#uni-field-sub').value.trim();
     const body = $('#uni-field-body').value.trim();
     if (!title || !body) return;
-    markSectionCleared(currentUniType, false);
 
     if (currentUniType === 'news') {
+      const roleInfo = getUserRoleInfo(currentUser);
+      if (!roleInfo.canCreateNews) { flashUniSaved('🔒 У этой роли нет права создавать новости.'); return; }
       let item = newsState.find(x => x.id === id);
       if (!item) {
         item = { id, createdAt: Date.now() };
@@ -11835,6 +11649,7 @@ document.addEventListener('DOMContentLoaded', () => {
       saveNewsState();
       renderNewsSections();
       if (sb) {
+        const articleRole = getUserRoleInfo(currentUser);
         sb.from('lsn_articles').upsert({
           id: item.id,
           title: item.title,
@@ -11842,11 +11657,10 @@ document.addEventListener('DOMContentLoaded', () => {
           body: item.body,
           excerpt: item.excerpt || makeShortPreview(item.body, 135),
           author_name: item.author,
-          author_id: currentUser?.supabase_uid || null,
+          author_id: currentUser?.uuid || null,
           image_url: item.img || null,
-          status: 'published',
-          published_at: new Date().toISOString(),
-          type: 'news',
+          status: articleRole.canPublish ? 'published' : 'draft',
+          published_at: articleRole.canPublish ? new Date().toISOString() : null,
           updated_at: new Date().toISOString()
         }).then(({ error }) => {
           if (error) console.warn('Supabase article sync warning:', error.message);
@@ -12505,7 +12319,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderEditorialColumns();
   renderStaffSection();
 
-  // Mobile & Cross-device Realtime Cloud Sync
+  // Mobile & Cross-device Realtime Cloud Sync (News, Columns, Ads)
   const syncArticlesFromCloud = async () => {
     if (!sb) return;
     try {
@@ -12513,29 +12327,113 @@ document.addEventListener('DOMContentLoaded', () => {
         .from('lsn_articles')
         .select('*')
         .order('created_at', { ascending: false });
-      if (!error && data && data.length > 0) {
-        const validRows = data.filter(row => !isItemDeleted(row.id));
-        if (isSectionCleared('news') && validRows.length === 0) {
-          return;
+
+      if (error) {
+        console.warn('Supabase sync warning:', error.message);
+        return;
+      }
+
+      if (Array.isArray(data)) {
+        const validRows = data.filter(r => !isItemDeleted(r.id));
+
+        // 1. Synchronize News
+        if (!isSectionCleared('news')) {
+          const cloudNews = validRows.filter(r => r.type === 'news').map(row => ({
+            id: row.id,
+            title: row.title,
+            category: row.category || 'Новости · 102.2 FM',
+            author: row.author || 'Редакция LSN',
+            body: row.body || '',
+            excerpt: row.lead || makeShortPreview(row.body || '', 135),
+            img: row.image_url || '',
+            createdAt: new Date(row.created_at || Date.now()).getTime(),
+            important: !!(row.metadata && row.metadata.important)
+          }));
+          if (cloudNews.length > 0) {
+            newsState = cloudNews;
+            saveNewsState();
+            renderNewsSections();
+          }
         }
-        const cloudNews = validRows.map(row => ({
-          id: row.id,
-          title: row.title,
-          category: row.category || 'Город',
-          author: row.author_name || 'Редакция LSN',
-          body: row.body || '',
-          excerpt: row.excerpt || makeShortPreview(row.body || '', 135),
-          img: row.image_url || '',
-          createdAt: new Date(row.created_at || Date.now()).getTime(),
-          important: (row.category || '').toLowerCase().includes('главн')
-        }));
-        if (cloudNews.length > 0) {
-          newsState = cloudNews;
-          saveNewsState();
-          renderNewsSections();
+
+        // 2. Synchronize Columns
+        if (!isSectionCleared('column')) {
+          const cloudColumns = validRows.filter(r => r.type === 'column').map(row => ({
+            id: row.id,
+            title: row.title,
+            subtitle: row.category || 'Колонка',
+            author: row.author || 'Roy Westblock',
+            body: row.body || '',
+            img: row.image_url || '',
+            accent: (row.metadata && row.metadata.accent) || 'amber',
+            titleColor: (row.metadata && row.metadata.titleColor) || ''
+          }));
+          if (cloudColumns.length > 0) {
+            columnsState = cloudColumns;
+            saveColumnsState();
+            renderEditorialColumns();
+          }
+        }
+
+        // 3. Synchronize Ads (Only user-created ads from Supabase)
+        if (!isSectionCleared('ad')) {
+          const cloudAds = validRows.filter(r => r.type === 'ad' && !MOCK_AD_IDS.includes(r.id)).map(row => ({
+            id: row.id,
+            title: row.title,
+            tag: row.category || 'Los Santos News / Партнёры',
+            author: row.author || 'Roy Westblock',
+            fullText: row.body || '',
+            shortText: row.lead || makeShortPreview(row.body || '', 165),
+            customImg: row.image_url || '',
+            titleColor: (row.metadata && row.metadata.titleColor) || ''
+          }));
+          if (cloudAds.length > 0) {
+            adsState = cloudAds;
+            saveAdsState();
+            renderAdsCarousel();
+          }
+        }
+
+        // 4. Initial Seed to Supabase if Supabase database is completely fresh
+        if (data.length === 0) {
+          const toUpload = [];
+          newsState.forEach(n => {
+            toUpload.push({
+              id: n.id,
+              type: 'news',
+              title: n.title,
+              category: n.category || 'Новости',
+              lead: n.excerpt || makeShortPreview(n.body, 135),
+              body: n.body,
+              author: n.author || 'Редакция LSN',
+              image_url: n.img || null,
+              metadata: { important: !!n.important }
+            });
+          });
+          columnsState.forEach(c => {
+            toUpload.push({
+              id: c.id,
+              type: 'column',
+              title: c.title,
+              category: c.subtitle || '',
+              lead: makeShortPreview(c.body, 135),
+              body: c.body,
+              author: c.author || 'Roy Westblock',
+              image_url: c.img || null,
+              metadata: { accent: c.accent || 'amber', titleColor: c.titleColor || '' }
+            });
+          });
+          if (toUpload.length > 0) {
+            sb.from('lsn_articles').upsert(toUpload).then(({ error }) => {
+              if (error) console.warn('Supabase initial seed note:', error.message);
+              else console.log('Supabase cloud sync active: seeded', toUpload.length, 'articles');
+            }).catch(() => {});
+          }
         }
       }
-    } catch (_) {}
+    } catch (e) {
+      console.warn('syncArticlesFromCloud error:', e);
+    }
   };
   syncArticlesFromCloud();
 
@@ -12545,12 +12443,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!refreshBtn) return;
     refreshBtn.textContent = '⏳ Обновляем...';
     try {
-      const rawN = localStorage.getItem(NEWS_STORAGE_KEY);
-      if (rawN) {
-        const parsed = JSON.parse(rawN);
-        if (Array.isArray(parsed)) newsState = parsed.filter(x => !isItemDeleted(x.id));
-      }
+      localStorage.removeItem(NEWS_STORAGE_KEY);
     } catch (_) {}
+    newsState = JSON.parse(JSON.stringify(DEFAULT_NEWS_DATA));
     renderNewsSections();
     syncArticlesFromCloud().finally(() => {
       refreshBtn.textContent = '🔄 Обновлено!';
@@ -12569,6 +12464,17 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // 11. Cursor glow engine removed per user request
+  if (sb?.auth?.onAuthStateChange) {
+    sb.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_OUT' || !session?.user) {
+        currentUser = null;
+        try { localStorage.removeItem(SESSION_USER_KEY); } catch (_) {}
+        syncRoleVisibilityUI();
+        return;
+      }
+      await syncSupabaseSessionAndProfiles();
+    });
+  }
   syncSupabaseSessionAndProfiles();
 });
 </script>
