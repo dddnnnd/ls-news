@@ -6042,6 +6042,35 @@ h1, h2, h3, h4,
   border-radius: 18px;
 }
 
+/* Premium media picker */
+.uni-media-picker{gap:14px;background:linear-gradient(145deg,rgba(12,20,30,.96),rgba(7,12,20,.94));border-color:rgba(120,196,223,.18);box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 12px 30px rgba(0,0,0,.18)}
+.uni-media-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+.uni-media-head>div{display:grid;gap:4px}
+.uni-media-head strong{font-size:15px;color:#f8fafc}
+.uni-media-head span:not(.uni-media-kicker):not(.uni-media-status){font-size:11.5px;color:#8fa1b5;line-height:1.45}
+.uni-media-kicker{font:800 9px/1 var(--font-mono);letter-spacing:.16em;color:#6ad1bc}
+.uni-media-status{flex:0 0 auto;padding:6px 9px;border-radius:999px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.035);font:700 10px/1 var(--font-mono);color:#94a3b8}
+.uni-media-status.is-ready{color:#c7ff52;border-color:rgba(199,255,82,.3);background:rgba(199,255,82,.08)}
+.uni-media-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.uni-media-primary,.uni-media-secondary{min-height:58px;padding:10px 12px;border-radius:12px;display:flex;align-items:center;gap:10px;text-align:left;cursor:pointer;transition:.18s ease}
+.uni-media-primary{border:1px solid rgba(106,209,188,.45);background:linear-gradient(135deg,rgba(40,106,117,.3),rgba(106,209,188,.08));color:#dffcf5}
+.uni-media-secondary{border:1px solid rgba(150,170,247,.32);background:rgba(150,170,247,.08);color:#e2e8f0}
+.uni-media-primary:hover,.uni-media-secondary:hover{transform:translateY(-1px);filter:brightness(1.08)}
+.uni-media-primary b,.uni-media-secondary b{display:block;font-size:12px}
+.uni-media-primary small,.uni-media-secondary small{display:block;margin-top:3px;color:#8fa1b5;font-size:10px}
+.uni-media-icon{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:rgba(255,255,255,.06);font-size:18px;font-weight:800}
+.uni-media-dropzone{min-height:74px;border:1px dashed rgba(120,196,223,.25);border-radius:12px;display:flex;align-items:center;justify-content:center;gap:10px;color:#9fb0c2;background:rgba(255,255,255,.018);cursor:pointer;transition:.18s ease}
+.uni-media-dropzone:hover,.uni-media-dropzone.is-dragover{border-color:#6ad1bc;background:rgba(106,209,188,.07);color:#dffcf5}
+.uni-media-drop-icon{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;border:1px solid rgba(255,255,255,.12);font-size:20px}
+.uni-media-dropzone b{display:block;color:#dbe7ef;font-size:11.5px}.uni-media-dropzone span{display:block;margin-top:3px;font-size:10.5px}
+.uni-media-selected{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;border-radius:11px;border:1px solid rgba(199,255,82,.22);background:rgba(199,255,82,.055)}
+.uni-media-selected__copy{display:grid;gap:3px;min-width:0}.uni-media-selected__eyebrow{font:800 8px/1 var(--font-mono);letter-spacing:.14em;color:#a6cf57}.uni-media-selected strong{font-size:11.5px;color:#eef8e5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.uni-media-selected span:last-child{font-size:10px;color:#91a19a}
+.uni-album-toolbar{display:flex;align-items:center;gap:10px;margin-bottom:10px}.uni-album-toolbar input{flex:1;min-width:0;padding:8px 10px;border-radius:9px;border:1px solid rgba(255,255,255,.1);background:#090f18;color:#eaf2f7;outline:none}.uni-album-toolbar input:focus{border-color:rgba(106,209,188,.6);box-shadow:0 0 0 3px rgba(106,209,188,.08)}.uni-album-toolbar span{font:700 9px/1 var(--font-mono);color:#728397;white-space:nowrap}
+.uni-site-album-hdr>div{display:grid;gap:3px}.uni-site-album-hdr>div span{font-size:10.5px;color:#8292a5}
+.uni-media-picker .uni-photo-preview-wrap{border-color:rgba(120,196,223,.2)}
+.uni-photo-preview-head{display:flex;justify-content:space-between;padding:7px 9px;font:700 9px/1 var(--font-mono);color:#7f90a3;background:rgba(255,255,255,.025);border-bottom:1px solid rgba(255,255,255,.07)}
+@media(max-width:640px){.uni-media-actions{grid-template-columns:1fr}.uni-media-head{display:grid}.uni-media-status{justify-self:start}.uni-album-toolbar{display:grid}.uni-album-toolbar span{justify-self:start}}
+
 /* Site Illustration Album Grid in Journalist Cabinet */
 .uni-site-album-wrap {
   margin-top: 12px;
@@ -7755,42 +7784,60 @@ h1, h2, h3, h4,
             </div>
           </div>
 
-          <!-- Clean Photo Upload + Site Illustration Album + Full-Width Preview -->
-          <div class="uni-simple-photo-box">
-            <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px;">
+          <!-- Premium media picker: upload, drag & drop, site album, preview -->
+          <div class="uni-simple-photo-box uni-media-picker" id="uni-media-picker">
+            <div class="uni-media-head">
               <div>
-                <span style="font-size:13px; font-weight:700; color:#e2e8f0; display:block;">Фотография или иллюстрация</span>
-                <span style="font-size:11.5px; color:#94a3b8;">Загрузите своё фото или выберите готовую иллюстрацию из альбома сайта</span>
+                <span class="uni-media-kicker">МЕДИАМАТЕРИАЛ</span>
+                <strong>Фотография или иллюстрация</strong>
+                <span>Добавьте собственное изображение или выберите готовую графику LSN. Изображение автоматически оптимизируется.</span>
               </div>
-              <div style="display:flex; flex-wrap:wrap; gap:8px;">
-                <label class="lsn-staff-btn lsn-staff-btn--cyan" style="cursor:pointer; margin:0;">
-                  📷 Загрузить фото
-                  <input type="file" id="uni-field-file" accept="image/*" hidden>
-                </label>
-                <button type="button" class="lsn-staff-btn" id="uni-toggle-album-btn" style="margin:0; border-color:rgba(150,170,247,0.45); color:#d6ebf7; background:rgba(150,170,247,0.12);">
-                  🎨 Альбом иллюстраций сайта
-                </button>
-                <button type="button" class="cab-ad-mini-btn cab-ad-mini-btn--del" id="uni-clear-photo-btn" hidden>
-                  Убрать
-                </button>
-              </div>
+              <span class="uni-media-status" id="uni-media-status">Изображение не выбрано</span>
             </div>
 
-            <!-- Only shown for Staff tab if choosing between the 4 default studio skins -->
+            <div class="uni-media-actions">
+              <label class="uni-media-primary" for="uni-field-file">
+                <span class="uni-media-icon">↥</span>
+                <span><b>Загрузить изображение</b><small>PNG, JPG, WEBP · до 8 МБ</small></span>
+                <input type="file" id="uni-field-file" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
+              </label>
+              <button type="button" class="uni-media-secondary" id="uni-toggle-album-btn">
+                <span class="uni-media-icon">✦</span>
+                <span><b>Открыть альбом LSN</b><small>Готовые иллюстрации сайта</small></span>
+              </button>
+            </div>
+
+            <div class="uni-media-dropzone" id="uni-media-dropzone" tabindex="0" role="button" aria-label="Перетащите изображение сюда">
+              <div class="uni-media-drop-icon">＋</div>
+              <div><b>Перетащите изображение сюда</b><span>или нажмите, чтобы выбрать файл</span></div>
+            </div>
+
+            <div class="uni-media-selected" id="uni-media-selected" hidden>
+              <div class="uni-media-selected__copy">
+                <span class="uni-media-selected__eyebrow">ВЫБРАНО</span>
+                <strong id="uni-media-selected-name">Изображение</strong>
+                <span id="uni-media-selected-meta">Готово к сохранению</span>
+              </div>
+              <button type="button" class="cab-ad-mini-btn cab-ad-mini-btn--del" id="uni-clear-photo-btn">Убрать</button>
+            </div>
+
             <div class="uni-quick-art-row" id="uni-quick-art-row" hidden></div>
 
-            <!-- Site Illustration Album Drawer (12 custom LSN vector illustrations) -->
             <div id="uni-site-album-wrap" class="uni-site-album-wrap" hidden>
               <div class="uni-site-album-hdr">
-                <span>🎨 Альбом иллюстраций Los Santos News (нажмите на карточку, чтобы прикрепить)</span>
+                <div><b>Альбом иллюстраций Los Santos News</b><span>Нажмите на карточку, чтобы выбрать изображение</span></div>
                 <button type="button" class="cab-ad-mini-btn" id="uni-close-album-btn">Свернуть ×</button>
+              </div>
+              <div class="uni-album-toolbar">
+                <input id="uni-album-search" type="search" placeholder="Поиск по иллюстрациям..." autocomplete="off">
+                <span id="uni-album-count">0 иллюстраций</span>
               </div>
               <div class="uni-site-album-grid" id="uni-site-album-grid"></div>
             </div>
 
-            <!-- Full-width preview inside the editor -->
             <div id="uni-photo-preview-wrap" class="uni-photo-preview-wrap" hidden>
-              <img id="uni-photo-preview-img" src="" alt="Превью">
+              <div class="uni-photo-preview-head"><span>Предпросмотр</span><span id="uni-photo-preview-size"></span></div>
+              <img id="uni-photo-preview-img" src="" alt="Предпросмотр выбранного изображения">
             </div>
           </div>
 
@@ -8689,25 +8736,37 @@ document.addEventListener('DOMContentLoaded', () => {
   ];
 
   // Crisp full-window image resize (1280x800 max)
-  const compressUploadedImage = (file, maxWidth = 1280, maxHeight = 800) => new Promise((resolve) => {
-    if (!file) { resolve(''); return; }
+  const compressUploadedImage = (file, maxWidth = 1280, maxHeight = 800) => new Promise((resolve, reject) => {
+    if (!file) { resolve({ data: '', name: '', size: 0, width: 0, height: 0 }); return; }
+    if (!/^image\/(png|jpe?g|webp|gif)$/i.test(file.type || '')) {
+      reject(new Error('Поддерживаются PNG, JPG, WEBP и GIF.'));
+      return;
+    }
+    if (file.size > 8 * 1024 * 1024) {
+      reject(new Error('Файл слишком большой. Максимальный размер — 8 МБ.'));
+      return;
+    }
     const reader = new FileReader();
+    reader.onerror = () => reject(new Error('Не удалось прочитать изображение.'));
     reader.onload = () => {
       const img = new Image();
+      img.onerror = () => reject(new Error('Файл изображения повреждён или не поддерживается браузером.'));
       img.onload = () => {
-        let w = img.width;
-        let h = img.height;
+        let w = img.naturalWidth || img.width;
+        let h = img.naturalHeight || img.height;
+        if (!w || !h) { reject(new Error('Не удалось определить размер изображения.')); return; }
         const ratio = Math.min(maxWidth / w, maxHeight / h, 1);
-        w = Math.round(w * ratio);
-        h = Math.round(h * ratio);
+        w = Math.max(1, Math.round(w * ratio));
+        h = Math.max(1, Math.round(h * ratio));
         const canvas = document.createElement('canvas');
-        canvas.width = w;
-        canvas.height = h;
-        const ctx = canvas.getContext('2d');
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext('2d', { alpha: false });
+        if (!ctx) { reject(new Error('Браузер не поддерживает обработку изображения.')); return; }
+        ctx.fillStyle = '#0b111a'; ctx.fillRect(0, 0, w, h);
         ctx.drawImage(img, 0, 0, w, h);
-        resolve(canvas.toDataURL('image/jpeg', 0.90));
+        const data = canvas.toDataURL('image/jpeg', 0.86);
+        resolve({ data, name: file.name || 'image', size: file.size, width: w, height: h });
       };
-      img.onerror = () => resolve(typeof reader.result === 'string' ? reader.result : '');
       img.src = reader.result;
     };
     reader.readAsDataURL(file);
@@ -8833,40 +8892,52 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const isUserAuthorizedJournalist = (user) => getUserRoleInfo(user).isJournalist;
 
+  // Centralized client-side RBAC. Server-side RLS/triggers remain the final authority.
   const canUserEditOrDeleteItem = (item) => {
-    if (!currentUser) return false;
+    if (!currentUser || !item) return false;
     const role = getUserRoleInfo(currentUser);
-    if (role.canEditAll) return true; // Admin, Leader, Deputy can edit/delete all
-    if (!item) return false;
-
-    // Capability-based checks. Rank alone is never sufficient.
-    // Some legacy local items do not carry actType, so fall back to the
-    // currently opened cabinet section.
     const itemType = item.actType || (
       currentUniType === 'ad' ? 'ad' :
       currentUniType === 'column' ? 'column' :
       currentUniType === 'staff' ? 'staff' : 'news'
     );
-    if (itemType === 'ad' && !role.canManageAds) return false;
-    if (itemType === 'column' && !role.canManageColumns) return false;
-    if (itemType === 'staff' && !role.canManageStaff) return false;
-    if (itemType === 'news' && !role.canCreateNews) return false;
 
-    // Check by authorLogin / login
-    const aLogin = (item.authorLogin || item.login || '').trim().toLowerCase();
-    const uLogin = (currentUser.username || '').trim().toLowerCase();
-    if (aLogin && uLogin && aLogin === uLogin) return true;
+    // Users have no editorial rights.
+    if (role.level === 'user') return false;
 
-    // Check by in-game name / fullName
-    const aName = (item.author || item.name || '').trim().toLowerCase();
-    const uName = (currentUser.fullName || '').trim().toLowerCase();
-    if (aName && uLogin && (aName.includes(uLogin) || aName.replace(/\s+/g, '_').includes(uLogin))) return true;
-    if (aName && uName && (aName.includes(uName) || uName.includes(aName))) return true;
+    // Management/admin can manage all editorial content.
+    if (role.canEditAll) return true;
 
-    // Fallback for default Julian Reed
-    if (uLogin === 'julian_reed' && (item.id === 'staff-5' || item.id === 'staff-julian' || aName.includes('джулиан') || aName.includes('reed'))) return true;
+    // Journalists: only their own NEWS drafts. No ads, columns, staff or published news.
+    if (role.level === 'journalist') {
+      if (itemType !== 'news') return false;
+      // Journalists can edit their own drafts, but destructive deletion is management-only.
+      if (item.status === 'published' || item.published_at) return false;
+      if (item.__deleteCheck === true) return false;
+
+      const aLogin = (item.authorLogin || item.login || '').trim().toLowerCase();
+      const uLogin = (currentUser.username || '').trim().toLowerCase();
+      const aId = item.author_id || item.authorId || '';
+      const uId = currentUser.uuid || '';
+
+      return (aId && uId && aId === uId) || (aLogin && uLogin && aLogin === uLogin);
+    }
 
     return false;
+  };
+
+  const canCreateEditorialType = (type, role = getUserRoleInfo(currentUser)) => {
+    if (!role || role.level === 'user') return false;
+    if (type === 'news') return !!role.canCreateNews;
+    if (type === 'ad') return !!role.canManageAds;
+    if (type === 'column') return !!role.canManageColumns;
+    if (type === 'staff') return !!role.canManageStaff;
+    return false;
+  };
+
+  const canOpenEditorialType = (type, role = getUserRoleInfo(currentUser)) => {
+    return canCreateEditorialType(type, role) ||
+      (type === 'news' && role.level === 'journalist');
   };
 
   window.ROLE_HIERARCHY = ROLE_HIERARCHY; window.UNASSIGNED_USER_ROLE = UNASSIGNED_USER_ROLE; window.matchUser = matchUser;
@@ -9244,6 +9315,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const openUniversalReaderModal = ({ type, id, category, title, author, dateText, body, img, titleColor }) => {
     if (!articleDialog) return;
     lastOpenedModalItem = { type, id };
+
+    // RBAC: reader modal actions must reflect the actual role and item ownership.
+    // Never expose destructive actions to users/journalists for published content.
+    const modalStore = type === 'ad' ? adsState : type === 'column' ? columnsState : type === 'staff' ? staffState.members : newsState;
+    const modalItem = (Array.isArray(modalStore) ? modalStore.find(x => x.id === id) : null) || { id, actType: type };
+    const canManageItem = !!currentUser && canUserEditOrDeleteItem(modalItem);
+    const modalEditBtn = $('#modal-article-edit-btn');
+    const modalDelBtn = $('#modal-article-del-btn');
+    if (modalEditBtn) modalEditBtn.hidden = !canManageItem;
+    if (modalDelBtn) modalDelBtn.hidden = !canManageItem || getUserRoleInfo(currentUser).level === 'journalist';
 
     const catEl = $('#modal-article-category');
     const titleEl = $('#modal-article-title');
@@ -10114,6 +10195,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const colTab = $('[data-uni-type="column"]');
     if (colTab) colTab.hidden = !roleInfo.canManageColumns;
 
+    const staffTab = $('[data-uni-type="staff"]');
+    if (staffTab) staffTab.hidden = !roleInfo.canManageStaff;
+
+    const myActTab = $('[data-uni-type="my-activities"]');
+    if (myActTab) myActTab.hidden = !roleInfo.isJournalist;
+
     const loggedInBox = $('#auth-logged-in-box');
     const guestForms = $('#auth-guest-forms');
     const roleBadge = $('#auth-user-role-badge');
@@ -10170,12 +10257,16 @@ document.addEventListener('DOMContentLoaded', () => {
           roleInfo.level === 'journalist' ? '#34d399' : '#94a3b8';
       }
       if (accessNote) {
-        if (roleInfo.isManagement) {
-          accessNote.textContent = `Уровень доступа: ${roleInfo.title}. Полные права на управление новостями, рекламой, колонками, составом, ролями и рейтингом.`;
-        } else if (roleInfo.rank === 2) {
-          accessNote.textContent = `Уровень доступа: ${roleInfo.title}. Вы можете публиковать новости, заполнить свою анкету в составе редакции и редактировать/удалять свои активности.`;
+        if (roleInfo.level === 'admin') {
+          accessNote.textContent = 'Полный доступ: публикации, реклама, колонки, состав редакции, рейтинг, пользователи и роли.';
+        } else if (roleInfo.level === 'director') {
+          accessNote.textContent = 'Руководство: новости, публикация, реклама, колонки, состав редакции и рейтинг. Управление ролями — только администратору.';
+        } else if (roleInfo.level === 'deputy') {
+          accessNote.textContent = 'Заместитель: новости, публикация, реклама, колонки, состав редакции и рейтинг. Управление ролями — только администратору.';
+        } else if (roleInfo.level === 'journalist') {
+          accessNote.textContent = 'Журналист: создание и редактирование собственных черновиков новостей. Публикация, реклама, колонки и управление составом недоступны.';
         } else {
-          accessNote.textContent = `Статус: Читатель (без должности). Доступен просмотр всех материалов портала Los Santos News.`;
+          accessNote.textContent = 'Пользователь: только просмотр опубликованных материалов портала Los Santos News.';
         }
       }
       if (openCabFromProfile) openCabFromProfile.hidden = !hasRights;
@@ -10215,20 +10306,8 @@ document.addEventListener('DOMContentLoaded', () => {
       if (qCol) qCol.hidden = !isManagement;
 
       if (qStaff) {
-        if (isManagement) {
-          qStaff.hidden = false;
-          qStaff.textContent = '+ Сотрудник';
-        } else {
-          // Journalist: can only create their own dossier if they don't have one
-          const uLogin = (currentUser.username || '').toLowerCase();
-          const uName = (currentUser.fullName || '').toLowerCase();
-          const hasDossier = staffState.members.some(m =>
-            (m.authorLogin && m.authorLogin.toLowerCase() === uLogin) ||
-            (m.name && (m.name.toLowerCase().includes(uLogin) || m.name.toLowerCase().includes(uName)))
-          );
-          qStaff.hidden = hasDossier;
-          qStaff.textContent = '+ Моя анкета';
-        }
+        qStaff.hidden = !roleInfo.canManageStaff;
+        qStaff.textContent = '+ Сотрудник';
       }
     }
   };
@@ -10577,12 +10656,19 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const renderUniItemsList = () => {
+    const roleInfo = getUserRoleInfo(currentUser);
+    const canCreateCurrent = canCreateEditorialType(currentUniType, roleInfo);
+    const canManageCurrent = currentUniType === 'news' ? roleInfo.canEditAll
+      : currentUniType === 'ad' ? roleInfo.canManageAds
+      : currentUniType === 'column' ? roleInfo.canManageColumns
+      : currentUniType === 'staff' ? roleInfo.canManageStaff
+      : false;
     const listEl = $('#uni-items-list');
     if (!listEl) return;
     listEl.innerHTML = '';
 
-    const roleInfo = getUserRoleInfo(currentUser);
     const newBtn = $('#uni-new-item-btn');
+    if (newBtn) newBtn.hidden = !canCreateCurrent;
 
     if (currentUniType === 'staff') {
       const uLogin = (currentUser?.username || '').toLowerCase();
@@ -11261,14 +11347,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const switchUniCategory = (type, specificItemId = null) => {
     const roleInfo = getUserRoleInfo(currentUser);
 
-    // Protection: permissions require admin; ads/columns require management.
+    // Every cabinet section is explicitly gated by capability.
     if (type === 'permissions' && roleInfo.level !== 'admin') {
       type = 'news';
-      flashUniSaved('🔒 Управление пользователями доступно только администратору');
+      flashUniSaved('🔒 Управление пользователями и ролями доступно только администратору');
     }
-    if ((type === 'ad' && !roleInfo.canManageAds) || (type === 'column' && !roleInfo.canManageColumns)) {
+    if (!canOpenEditorialType(type, roleInfo) && type !== 'my-activities') {
       type = 'news';
-      flashUniSaved('🔒 Реклама, колонки и роли доступны только руководству');
+      flashUniSaved(
+        roleInfo.level === 'journalist'
+          ? '🔒 Журналисту доступен только раздел новостей.'
+          : '🔒 У этой роли нет доступа к выбранному разделу.'
+      );
     }
 
     currentUniType = type;
@@ -11311,23 +11401,13 @@ document.addEventListener('DOMContentLoaded', () => {
     let defaultId = null;
 
     if (type === 'staff') {
-      const uLogin = (currentUser?.username || '').toLowerCase();
-      const uName = (currentUser?.fullName || '').toLowerCase();
-      const myDossier = staffState.members.find(m =>
-        (m.authorLogin && m.authorLogin.toLowerCase() === uLogin) ||
-        (m.name && (m.name.toLowerCase().includes(uLogin) || m.name.toLowerCase().includes(uName)))
-      );
-      if (roleInfo.rank < 3) {
-        if (myDossier) {
-          if (newBtn) newBtn.hidden = true;
-          defaultId = myDossier.id;
-        } else {
-          if (newBtn) {
-            newBtn.hidden = false;
-            newBtn.textContent = '+ Моя анкета';
-          }
-          defaultId = null;
-        }
+      if (!roleInfo.canManageStaff) {
+        if (newBtn) newBtn.hidden = true;
+        type = 'news';
+        currentUniType = 'news';
+        if (contentWs) contentWs.hidden = false;
+        flashUniSaved('🔒 Состав редакции доступен только руководству.');
+        defaultId = newsState[0]?.id || null;
       } else {
         if (newBtn) {
           newBtn.hidden = false;
@@ -11337,7 +11417,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     } else {
       if (newBtn) {
-        newBtn.hidden = false;
+        newBtn.hidden = !canCreateEditorialType(type, roleInfo);
         newBtn.textContent = 'Создать';
       }
       defaultId = specificItemId || store[0]?.id || null;
@@ -11351,7 +11431,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!roleInfo.isJournalist) {
       syncRoleVisibilityUI();
       if (authDialog && !authDialog.open) authDialog.showModal();
-      flashUniSaved('🔒 Кабинет доступен только сотрудникам редакции (роль Журналист и выше)');
+      flashUniSaved('🔒 Кабинет доступен только сотрудникам редакции.');
       return;
     }
     syncRoleVisibilityUI();
@@ -11401,8 +11481,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const type = lastOpenedModalItem.type || 'news';
     const id = lastOpenedModalItem.id;
-    const modalStore = type === 'ad' ? adsState : type === 'column' ? columnsState : newsState;
+    const modalStore = type === 'ad' ? adsState : type === 'column' ? columnsState : type === 'staff' ? staffState.members : newsState;
     const modalItem = modalStore.find(x => x.id === id) || { id, actType: type };
+    if (getUserRoleInfo(currentUser).level === 'journalist') {
+      btn.classList.remove('is-confirming');
+      btn.innerHTML = btn.dataset.origHtml || '🗑️ Удалить новость';
+      flashUniSaved('🔒 Журналист не может удалять публикации.');
+      return;
+    }
     if (!canUserEditOrDeleteItem(modalItem)) {
       btn.classList.remove('is-confirming');
       btn.innerHTML = btn.dataset.origHtml || '🗑️ Удалить новость';
@@ -11416,29 +11502,41 @@ document.addEventListener('DOMContentLoaded', () => {
           : '🔒 У вас нет права удалять эту публикацию');
       return;
     }
-    if (type === 'news') {
-      newsState = newsState.filter(x => x.id !== id);
-      saveNewsState();
-      renderNewsSections();
-    } else if (type === 'ad') {
+    const applyLocalDelete = () => {
+      if (type === 'news') {
+        newsState = newsState.filter(x => x.id !== id);
+        saveNewsState();
+        renderNewsSections();
+      } else if (type === 'ad') {
       adsState = adsState.filter(x => x.id !== id);
       saveAdsState();
       renderAdsCarousel();
-    } else if (type === 'column') {
-      columnsState = columnsState.filter(x => x.id !== id);
-      saveColumnsState();
-      renderEditorialColumns();
-    }
+      } else if (type === 'column') {
+        columnsState = columnsState.filter(x => x.id !== id);
+        saveColumnsState();
+        renderEditorialColumns();
+      }
+    };
 
     if (sb) {
       sb.from('lsn_articles')
         .delete()
         .eq('id', id)
         .then(({ error }) => {
-          if (error) console.warn('Supabase delete article note:', error.message);
-        });
+          if (error) {
+            console.warn('Supabase delete article note:', error.message);
+            flashUniSaved('❌ Сервер не разрешил удаление. Материал не удалён.');
+            return;
+          }
+          applyLocalDelete();
+          articleDialog?.close();
+        })
+        .catch(() => flashUniSaved('❌ Не удалось удалить материал.'));
+      return;
     }
 
+    // Local-only legacy item fallback.
+    applyLocalDelete();
     articleDialog?.close();
     flashUniSaved('🗑️ Публикация удалена с портала');
   });
@@ -11446,8 +11544,13 @@ document.addEventListener('DOMContentLoaded', () => {
   $('#uni-clear-all-btn')?.addEventListener('click', (e) => {
     const btn = e.currentTarget;
     const roleInfo = getUserRoleInfo(currentUser);
-    if ((currentUniType === 'ad' && !roleInfo.canManageAds) || (currentUniType === 'column' && !roleInfo.canManageColumns) || (currentUniType === 'news' && !roleInfo.canEditAll) || (currentUniType === 'staff' && !roleInfo.canManageStaff)) {
-      alert('🔒 Доступ запрещен для этой роли.');
+    const canClearAll = currentUniType === 'news' ? roleInfo.canEditAll
+      : currentUniType === 'ad' ? roleInfo.canManageAds
+      : currentUniType === 'column' ? roleInfo.canManageColumns
+      : currentUniType === 'staff' ? roleInfo.canManageStaff
+      : false;
+    if (!canClearAll) {
+      alert('🔒 Массовое удаление недоступно для этой роли.');
       return;
     }
 
@@ -11526,26 +11629,36 @@ document.addEventListener('DOMContentLoaded', () => {
   }));
 
   $('#uni-new-item-btn')?.addEventListener('click', () => {
+    const roleInfo = getUserRoleInfo(currentUser);
+    if (!canCreateEditorialType(currentUniType, roleInfo)) {
+      flashUniSaved('🔒 У этой роли нет права создавать материалы в этом разделе.');
+      return;
+    }
     loadItemIntoUniForm(null);
     $('#uni-field-title')?.focus();
   });
 
   $('#uni-field-file')?.addEventListener('change', async (e) => {
     const file = e.target.files && e.target.files[0];
-    if (!file) return;
-    currentPhotoData = await compressUploadedImage(file, 1280, 800);
-    renderQuickArtChips();
+    const roleInfo = getUserRoleInfo(currentUser);
+    if (!canCreateEditorialType(currentUniType, roleInfo)) {
+      e.target.value = '';
+      flashUniSaved('🔒 У этой роли нет права добавлять изображения в этот раздел.');
+      return;
+    }
+    if (file) await handleMediaFile(file);
   });
 
   $('#uni-clear-photo-btn')?.addEventListener('click', () => {
-    currentPhotoData = '';
+    setCurrentPhoto('', {});
     const fileInput = $('#uni-field-file');
     if (fileInput) fileInput.value = '';
-    renderQuickArtChips();
+    flashUniSaved('Изображение убрано');
   });
 
   const deleteUniItemById = (id) => {
-    if (!id) return;
+    if (!id || !currentUser) return;
+    if (!canUserEditOrDeleteItem(getStoreForType(currentUniType).find(x => x.id === id))) return;
     if (id === 'staff-intro') return;
     const store = getStoreForType(currentUniType);
     const item = store.find(x => x.id === id);
@@ -11652,6 +11765,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   $('#uni-editor-form')?.addEventListener('submit', (e) => {
     e.preventDefault();
+    if (!currentUser) {
+      flashUniSaved('🔒 Войдите в аккаунт для работы с редакцией.');
+      return;
+    }
+    const roleInfoGlobal = getUserRoleInfo(currentUser);
+    if (!canCreateEditorialType(currentUniType, roleInfoGlobal) && !(currentUniType === 'news' && roleInfoGlobal.level === 'journalist')) {
+      flashUniSaved('🔒 У этой роли нет права сохранять материалы в этом разделе.');
+      return;
+    }
     const id = $('#uni-item-id').value;
     const title = $('#uni-field-title').value.trim();
     const sub = $('#uni-field-sub').value.trim();
@@ -11662,23 +11784,31 @@ document.addEventListener('DOMContentLoaded', () => {
       const roleInfo = getUserRoleInfo(currentUser);
       if (!roleInfo.canCreateNews) { flashUniSaved('🔒 У этой роли нет права создавать новости.'); return; }
       let item = newsState.find(x => x.id === id);
+      if (item && roleInfo.level === 'journalist' && !canUserEditOrDeleteItem(item)) {
+        flashUniSaved('🔒 Журналист может редактировать только собственные черновики.');
+        return;
+      }
+      const isNew = !item;
       if (!item) {
-        item = { id, createdAt: Date.now() };
+        item = { id, createdAt: Date.now(), status: roleInfo.canPublish ? 'published' : 'draft' };
         newsState.unshift(item);
       }
       if (!item.authorLogin) item.authorLogin = currentUser?.username || 'editor_lsn';
+      if (!item.author_id) item.author_id = currentUser?.uuid || null;
       item.title = title;
       item.category = sub || 'Город • 102.2 FM';
       item.author = currentUser?.fullName || currentUser?.username || 'Редакция LSN';
       item.body = body;
       item.img = currentPhotoData;
-      item.important = !!$('#uni-field-important')?.checked;
+      item.important = roleInfo.isManagement ? !!$('#uni-field-important')?.checked : false;
+      item.status = roleInfo.canPublish ? 'published' : 'draft';
       saveNewsState();
       renderNewsSections();
       if (sb) {
         const articleRole = getUserRoleInfo(currentUser);
         sb.from('lsn_articles').upsert({
           id: item.id,
+          type: 'news',
           title: item.title,
           category: item.category,
           body: item.body,
@@ -11698,7 +11828,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (currentUniType === 'ad') {
       const roleInfo = getUserRoleInfo(currentUser);
       if (roleInfo.rank < 3) {
-        flashUniSaved('🔒 Рекламу может редактировать только Руководство (Заместители / Лидер / Администратор)');
+        flashUniSaved('🔒 Рекламу может редактировать только Руководство (Заместитель / Генеральный директор / Администратор)');
         return;
       }
       let item = adsState.find(x => x.id === id);
@@ -11718,12 +11848,20 @@ document.addEventListener('DOMContentLoaded', () => {
       saveAdsState();
       if (isNew) activeAdIdx = adsState.length - 1;
       renderAdsCarousel();
+      if (sb) {
+        sb.from('lsn_articles').upsert({
+          id: item.id, type: 'ad', title: item.title, category: item.tag, body: item.fullText,
+          lead: item.shortText, author_name: item.author, author_id: currentUser?.uuid || null,
+          image_url: item.customImg || null, metadata: { titleColor: item.titleColor || '' },
+          status: 'published', published_at: new Date().toISOString(), updated_at: new Date().toISOString()
+        }).then(({ error }) => { if (error) console.warn('Supabase ad sync warning:', error.message); });
+      }
       loadItemIntoUniForm(item.id);
       flashUniSaved('Сохранено');
     } else if (currentUniType === 'column') {
       const roleInfo = getUserRoleInfo(currentUser);
       if (roleInfo.rank < 3) {
-        flashUniSaved('🔒 Колонки может редактировать только Руководство (Заместители / Лидер / Администратор)');
+        flashUniSaved('🔒 Колонки может редактировать только Руководство (Заместитель / Генеральный директор / Администратор)');
         return;
       }
       let item = columnsState.find(x => x.id === id);
@@ -11740,13 +11878,21 @@ document.addEventListener('DOMContentLoaded', () => {
       item.titleColor = currentTitleColor || '';
       saveColumnsState();
       renderEditorialColumns();
+      if (sb) {
+        sb.from('lsn_articles').upsert({
+          id: item.id, type: 'column', title: item.title, category: item.subtitle, body: item.body,
+          lead: makeShortPreview(item.body, 135), author_name: item.author, author_id: currentUser?.uuid || null,
+          image_url: item.img || null, metadata: { titleColor: item.titleColor || '', accent: item.accent || 'cyan' },
+          status: 'published', published_at: new Date().toISOString(), updated_at: new Date().toISOString()
+        }).then(({ error }) => { if (error) console.warn('Supabase column sync warning:', error.message); });
+      }
       loadItemIntoUniForm(item.id);
       flashUniSaved('Сохранено');
     } else if (currentUniType === 'staff') {
       const roleInfo = getUserRoleInfo(currentUser);
       if (id === 'staff-intro') {
         if (roleInfo.rank < 3) {
-          flashUniSaved('🔒 Статью редакции может редактировать только Руководство (Заместители / Лидер / Администратор)');
+          flashUniSaved('🔒 Статью редакции может редактировать только Руководство (Заместитель / Генеральный директор / Администратор)');
           return;
         }
         const parts = body.split(/\n\s*\n/);
@@ -11773,28 +11919,13 @@ document.addEventListener('DOMContentLoaded', () => {
         loadItemIntoUniForm('staff-intro');
         flashUniSaved('Сохранено');
       } else {
-        const uLogin = (currentUser?.username || '').toLowerCase();
-        const uName = (currentUser?.fullName || '').toLowerCase();
-        const existingMyDossier = staffState.members.find(m =>
-          (m.authorLogin && m.authorLogin.toLowerCase() === uLogin) ||
-          (m.name && (m.name.toLowerCase().includes(uLogin) || m.name.toLowerCase().includes(uName)))
-        );
-
-        let item = staffState.members.find(x => x.id === id);
-        if (roleInfo.rank < 3) {
-          // Journalist: can only create 1 own dossier or edit their own dossier
-          if (item && !canUserEditOrDeleteItem(item)) {
-            flashUniSaved('🔒 Журналист может редактировать только собственную анкету');
-            return;
-          }
-          if (!item && existingMyDossier) {
-            flashUniSaved('🔒 У вас уже есть анкета в составе редакции');
-            return;
-          }
+        if (!roleInfo.canManageStaff) {
+          flashUniSaved('🔒 Состав редакции доступен только руководству.');
+          return;
         }
-
+        let item = staffState.members.find(x => x.id === id);
         if (!item) {
-          item = { id, tone: 'amber', authorLogin: currentUser?.username || 'julian_reed' };
+          item = { id, tone: 'amber', authorLogin: currentUser?.username || 'editor_lsn' };
           staffState.members.push(item);
         }
         item.name = title;
@@ -12214,41 +12345,95 @@ document.addEventListener('DOMContentLoaded', () => {
   const toggleAlbumBtn = $('#uni-toggle-album-btn');
   const closeAlbumBtn = $('#uni-close-album-btn');
 
+  const albumSearchEl = $('#uni-album-search');
+  const albumCountEl = $('#uni-album-count');
+  const mediaStatusEl = $('#uni-media-status');
+  const mediaSelectedEl = $('#uni-media-selected');
+  const mediaSelectedNameEl = $('#uni-media-selected-name');
+  const mediaSelectedMetaEl = $('#uni-media-selected-meta');
+  const previewSizeEl = $('#uni-photo-preview-size');
+  const dropzoneEl = $('#uni-media-dropzone');
+  let currentPhotoMeta = { name: '', size: 0, width: 0, height: 0 };
+
+  const formatBytes = (bytes) => {
+    if (!bytes) return 'Готово';
+    if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} КБ`;
+    return `${(bytes / 1024 / 1024).toFixed(1)} МБ`;
+  };
+
+  const updateMediaUI = () => {
+    const hasImage = !!currentPhotoData;
+    if (mediaStatusEl) {
+      mediaStatusEl.textContent = hasImage ? 'Изображение выбрано' : 'Изображение не выбрано';
+      mediaStatusEl.classList.toggle('is-ready', hasImage);
+    }
+    if (mediaSelectedEl) mediaSelectedEl.hidden = !hasImage;
+    if (mediaSelectedNameEl) mediaSelectedNameEl.textContent = currentPhotoMeta.name || (hasImage ? 'Иллюстрация LSN' : 'Изображение');
+    if (mediaSelectedMetaEl) mediaSelectedMetaEl.textContent = currentPhotoMeta.width ? `${currentPhotoMeta.width}×${currentPhotoMeta.height} · ${formatBytes(currentPhotoMeta.size)}` : 'Готово к сохранению';
+    if (previewSizeEl) previewSizeEl.textContent = currentPhotoMeta.width ? `${currentPhotoMeta.width}×${currentPhotoMeta.height}` : '';
+  };
+
+  const setCurrentPhoto = (data, meta = {}) => {
+    currentPhotoData = data || '';
+    currentPhotoMeta = { name: meta.name || '', size: meta.size || 0, width: meta.width || 0, height: meta.height || 0 };
+    renderQuickArtChips();
+    updateMediaUI();
+    if (albumWrapEl && !albumWrapEl.hidden) renderSiteAlbumGrid();
+  };
+
   const renderSiteAlbumGrid = () => {
     if (!albumGridEl) return;
+    const q = (albumSearchEl?.value || '').trim().toLowerCase();
+    const filtered = LSN_SITE_ALBUM.filter(ill => !q || `${ill.title} ${ill.tag}`.toLowerCase().includes(q));
+    if (albumCountEl) albumCountEl.textContent = `${filtered.length} ${filtered.length === 1 ? 'иллюстрация' : 'иллюстраций'}`;
     albumGridEl.innerHTML = '';
-    LSN_SITE_ALBUM.forEach((ill) => {
+    filtered.forEach((ill) => {
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'uni-album-card' + (currentPhotoData === ill.src ? ' is-selected' : '');
-      btn.innerHTML = `
-        <span class="uni-album-card__tag">${escapeHtml(ill.tag)}</span>
-        <img class="uni-album-card__img" src="${ill.src}" alt="${escapeHtml(ill.title)}">
-        <span class="uni-album-card__title">${escapeHtml(ill.title)}</span>
-      `;
+      btn.innerHTML = `<span class="uni-album-card__tag">${escapeHtml(ill.tag)}</span><img class="uni-album-card__img" src="${ill.src}" alt="${escapeHtml(ill.title)}" loading="lazy"><span class="uni-album-card__title">${escapeHtml(ill.title)}</span>`;
       btn.addEventListener('click', () => {
-        currentPhotoData = ill.src;
-        const fileInput = $('#uni-field-file');
-        if (fileInput) fileInput.value = '';
-        renderQuickArtChips();
-        renderSiteAlbumGrid();
-        flashUniSaved('Иллюстрация выбрана');
+        const roleInfo = getUserRoleInfo(currentUser);
+        if (!canCreateEditorialType(currentUniType, roleInfo)) {
+          flashUniSaved('🔒 У этой роли нет права использовать иллюстрации в этом разделе.');
+          return;
+        }
+        setCurrentPhoto(ill.src, { name: ill.title, size: 0, width: 800, height: 500 });
+        const fileInput = $('#uni-field-file'); if (fileInput) fileInput.value = '';
+        flashUniSaved(`✓ Выбрано: ${ill.title}`);
       });
       albumGridEl.appendChild(btn);
     });
+    if (!filtered.length) albumGridEl.innerHTML = '<div style="grid-column:1/-1;padding:24px;text-align:center;color:#7f90a3;font-size:11px;">Ничего не найдено. Попробуйте другой запрос.</div>';
+  };
+
+  const handleMediaFile = async (file) => {
+    try {
+      const result = await compressUploadedImage(file, 1280, 800);
+      setCurrentPhoto(result.data, result);
+      flashUniSaved('✓ Изображение загружено и оптимизировано');
+    } catch (err) {
+      setCurrentPhoto('', {});
+      const msg = err?.message || 'Не удалось загрузить изображение.';
+      flashUniSaved(`⚠️ ${msg}`);
+    }
   };
 
   toggleAlbumBtn?.addEventListener('click', () => {
     if (!albumWrapEl) return;
     albumWrapEl.hidden = !albumWrapEl.hidden;
-    if (!albumWrapEl.hidden) renderSiteAlbumGrid();
+    if (!albumWrapEl.hidden) { renderSiteAlbumGrid(); albumSearchEl?.focus(); }
   });
-  closeAlbumBtn?.addEventListener('click', () => {
-    if (albumWrapEl) albumWrapEl.hidden = true;
-  });
-  $('#uni-clear-photo-btn')?.addEventListener('click', () => {
-    renderSiteAlbumGrid();
-  });
+  closeAlbumBtn?.addEventListener('click', () => { if (albumWrapEl) albumWrapEl.hidden = true; });
+  albumSearchEl?.addEventListener('input', renderSiteAlbumGrid);
+
+  dropzoneEl?.addEventListener('click', () => $('#uni-field-file')?.click());
+  dropzoneEl?.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $('#uni-field-file')?.click(); } });
+  ['dragenter','dragover'].forEach(evt => dropzoneEl?.addEventListener(evt, e => { e.preventDefault(); dropzoneEl.classList.add('is-dragover'); }));
+  ['dragleave','drop'].forEach(evt => dropzoneEl?.addEventListener(evt, e => { e.preventDefault(); dropzoneEl.classList.remove('is-dragover'); }));
+  dropzoneEl?.addEventListener('drop', e => { const file = e.dataTransfer?.files?.[0]; if (file) handleMediaFile(file); });
+
+  updateMediaUI();
 
   // =========================================================================
   // FONT STYLE SWITCHER (Exo 2 / Montserrat / Unbounded / Comfortaa)
