@@ -10412,13 +10412,13 @@ document.addEventListener('DOMContentLoaded', () => {
             syncRoleVisibilityUI();
             authDialog?.close();
             if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = originalBtnText; }
-            flashUniSaved(Р’С…РѕРґ РІС‹РїРѕР»РЅРµРЅ:  ());
+            flashUniSaved('Вход выполнен: открываю кабинет.');
             if (isUserAuthorizedJournalist(currentUser)) {
               openJournalistCabinet('news');
             }
             return;
           }
-          alert(вќЊ РќРµРІРµСЂРЅС‹Р№ РїР°СЂРѕР»СЊ РґР»СЏ Р°РєРєР°СѓРЅС‚Р° ""!\n\nРџРѕР¶Р°Р»СѓР№СЃС‚Р°, РІРІРµРґРёС‚Рµ РїСЂР°РІРёР»СЊРЅС‹Р№ РїР°СЂРѕР»СЊ.);
+          alert('❌ Неверный пароль для аккаунта.\n\nПожалуйста, введите правильный пароль.');
           if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = originalBtnText; }
           return;
         }
@@ -11842,8 +11842,11 @@ document.addEventListener('DOMContentLoaded', () => {
           body: item.body,
           excerpt: item.excerpt || makeShortPreview(item.body, 135),
           author_name: item.author,
+          author_id: currentUser?.supabase_uid || null,
           image_url: item.img || null,
           status: 'published',
+          published_at: new Date().toISOString(),
+          type: 'news',
           updated_at: new Date().toISOString()
         }).then(({ error }) => {
           if (error) console.warn('Supabase article sync warning:', error.message);
