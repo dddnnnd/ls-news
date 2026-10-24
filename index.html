@@ -8,7 +8,7 @@
   <meta http-equiv="Expires" content="0">
   <script>
     (function() {
-      var LSN_APP_VER = '20261024_v50';
+      var LSN_APP_VER = '20261025_FINAL';
       try {
         var lastVer = localStorage.getItem('lsn_app_ver');
         if (lastVer && lastVer !== LSN_APP_VER) {
@@ -547,7 +547,7 @@ header {
 
   transform: translateY(-2px);
 
-  box-shadow: 0 8px 26px rgba(100, 232, 255, 0.4);
+  box-shadow: 0 8px 26px rgba(245, 158, 11, 0.38);
 
 }
 
@@ -2731,6 +2731,14 @@ dialog::backdrop {
    RESPONSIVE QUERIES
 
    ---------------------------------------------------- */
+
+
+/* Final polish: keyboard focus, reduced-motion, and safer touch targets. */
+:focus-visible { outline: 2px solid var(--cyan); outline-offset: 3px; }
+button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; scroll-behavior: auto !important; }
+}
 
 @media (max-width: 900px) {
 
@@ -5127,6 +5135,29 @@ dialog[open]::backdrop {
   display: block;
 }
 
+/* Dedicated staff skin selector: always visible when editing a staff dossier. */
+.uni-staff-skin-picker {
+  margin-top: 10px;
+  padding: 14px;
+  border-radius: 14px;
+  background: rgba(10, 16, 24, 0.92);
+  border: 1px solid rgba(199, 255, 82, 0.22);
+}
+.uni-staff-skin-picker__head {
+  display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:12px;
+}
+.uni-staff-skin-picker__head b { display:block; color:#fff; font-size:13px; }
+.uni-staff-skin-picker__head span { display:block; margin-top:4px; color:#94a3b8; font-size:11px; line-height:1.45; }
+.uni-staff-skin-grid {
+  display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:10px;
+}
+.uni-staff-skin-card {
+  appearance:none; border:1px solid rgba(255,255,255,.12); background:#080d14; color:#dbe7f2; border-radius:12px; padding:8px; cursor:pointer; text-align:left; transition:.18s ease;
+}
+.uni-staff-skin-card:hover { transform:translateY(-1px); border-color:rgba(199,255,82,.55); }
+.uni-staff-skin-card.is-selected { border-color:var(--lime); box-shadow:0 0 0 1px rgba(199,255,82,.22), 0 8px 24px rgba(0,0,0,.22); }
+.uni-staff-skin-card img { width:100%; height:120px; object-fit:cover; object-position:center top; border-radius:8px; background:#111827; display:block; }
+.uni-staff-skin-card strong { display:block; margin-top:7px; font-size:11px; line-height:1.25; }
 .news-fresh-pill {
   display: inline-flex;
   align-items: center;
@@ -7699,7 +7730,7 @@ h1, h2, h3, h4,
       <div class="cab-ads-list-col">
         <div class="cab-ads-col-header">
           <h3 style="margin:0; font-size:16px; color:#fff;" id="uni-list-title">Список</h3>
-          <button type="button" class="lsn-staff-btn" id="uni-clear-all-btn" style="color:#ff8c9a; border-color:rgba(255,82,101,0.35); font-size:11.5px; padding:6px 10px; margin-right:6px;" hidden>🗑️ Удалить все</button><button type="button" class="lsn-staff-btn lsn-staff-btn--primary" id="uni-new-item-btn">
+          <button type="button" class="lsn-staff-btn" id="uni-clear-all-btn" style="color:#ff8c9a; border-color:rgba(255,82,101,0.35); font-size:11.5px; padding:6px 10px; margin-right:6px;" hidden>🗑️ Удалить все</button><button type="button" class="lsn-staff-btn" id="uni-my-dossier-btn" hidden>+ Моя анкета</button><button type="button" class="lsn-staff-btn lsn-staff-btn--primary" id="uni-new-item-btn">
             Добавить
           </button>
         </div>
@@ -7822,6 +7853,13 @@ h1, h2, h3, h4,
             </div>
 
             <div class="uni-quick-art-row" id="uni-quick-art-row" hidden></div>
+            <div class="uni-staff-skin-picker" id="uni-staff-skin-picker" hidden>
+              <div class="uni-staff-skin-picker__head">
+                <div><b>Скины сотрудников</b><span>Выберите готовый образ для досье. Можно заменить своей фотографией ниже.</span></div>
+                <span id="uni-staff-skin-selected" class="uni-media-status">Не выбран</span>
+              </div>
+              <div class="uni-staff-skin-grid" id="uni-staff-skin-grid"></div>
+            </div>
 
             <div id="uni-site-album-wrap" class="uni-site-album-wrap" hidden>
               <div class="uni-site-album-hdr">
@@ -8240,7 +8278,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   async function loadAdminProfiles() {
-    if (!sb || !currentUser || getUserRoleInfo(currentUser).level !== 'admin') { usersDb = []; return []; }
+    if (!sb || !currentUser || !getUserRoleInfo(currentUser).canManageRoles) { usersDb = []; return []; }
     const { data, error } = await sb
       .from('profiles')
       .select('id,user_id_code,username,email,role,role_title,created_at,updated_at')
@@ -8268,6 +8306,22 @@ document.addEventListener('DOMContentLoaded', () => {
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Accessibility hardening: every form control gets an explicit accessible name.
+  const applyAccessibleFormLabels = () => {
+    document.querySelectorAll('input, select, textarea').forEach((el) => {
+      if (el.getAttribute('aria-label') || el.getAttribute('aria-labelledby')) return;
+      const id = el.id;
+      const label = id && document.querySelector(`label[for=\"${CSS.escape(id)}\"]`);
+      if (label) return;
+      const placeholder = el.getAttribute('placeholder');
+      const name = el.getAttribute('name');
+      if (placeholder) el.setAttribute('aria-label', placeholder);
+      else if (name) el.setAttribute('aria-label', name);
+      else if (el.tagName === 'SELECT') el.setAttribute('aria-label', 'Выбор');
+    });
+  };
+
   function escapeHtml(s) {
     return String(s == null ? '' : s)
       .replace(/&/g, '&amp;')
@@ -8793,14 +8847,14 @@ document.addEventListener('DOMContentLoaded', () => {
       rank: 4, level: 'director', title: '👑 Генеральный директор', badgeClass: 'role-badge--leader',
       canEditRating: true, canEditAll: true, canCreateNews: true, canPublish: true,
       canManageAds: true, canManageColumns: true, canManageStaff: true,
-      canManageRoles: false, canManageUsers: false, canDeleteUsers: false,
+      canManageRoles: true, canManageUsers: false, canDeleteUsers: false,
       isJournalist: true, isManagement: true
     },
     deputy: {
       rank: 3, level: 'deputy', title: '⭐ Заместитель генерального директора', badgeClass: 'role-badge--deputy',
       canEditRating: true, canEditAll: true, canCreateNews: true, canPublish: true,
       canManageAds: true, canManageColumns: true, canManageStaff: true,
-      canManageRoles: false, canManageUsers: false, canDeleteUsers: false,
+      canManageRoles: true, canManageUsers: false, canDeleteUsers: false,
       isJournalist: true, isManagement: true
     },
     journalist: {
@@ -8870,27 +8924,38 @@ document.addEventListener('DOMContentLoaded', () => {
     return { ...conf };
   };
 
-  // Only the administrator can see and manage the complete account registry.
+  // Management roles can see/manage accounts strictly below their own rank.
   const getVisibleUsersForActor = (actor) => {
-    return getUserRoleInfo(actor).level === 'admin' ? [...usersDb] : [];
+    const ar = getUserRoleInfo(actor);
+    if (!ar.canManageRoles) return [];
+    return usersDb.filter(u => {
+      const tr = getUserRoleInfo(u);
+      return tr.rank < ar.rank && tr.level !== 'admin';
+    });
   };
 
   const canUserManageTargetUser = (actor, targetUser) => {
     if (!actor || !targetUser) return false;
     const actorRole = getUserRoleInfo(actor);
-    if (actorRole.level !== 'admin') return false;
+    const targetRole = getUserRoleInfo(targetUser);
+    if (!actorRole.canManageRoles) return false;
     const isSelf = actor.uuid && targetUser.uuid && actor.uuid === targetUser.uuid;
-    return !isSelf;
+    if (isSelf || targetRole.level === 'admin') return false;
+    return targetRole.rank < actorRole.rank;
   };
 
   const getAllowedAssignableRoles = (actor) => {
-    if (getUserRoleInfo(actor).level !== 'admin') return [];
-    return ['director','deputy','journalist','user'].map(level => ({
-      level, title: ROLE_HIERARCHY[level].title
-    }));
+    const ar = getUserRoleInfo(actor);
+    if (!ar.canManageRoles) return [];
+    return Object.values(ROLE_HIERARCHY)
+      .filter(r => r.level !== 'admin' && r.rank < ar.rank)
+      .sort((a,b) => b.rank - a.rank)
+      .map(r => ({ level: r.level, title: r.title }));
   };
 
   const isUserAuthorizedJournalist = (user) => getUserRoleInfo(user).isJournalist;
+
+  applyAccessibleFormLabels();
 
   // Centralized client-side RBAC. Server-side RLS/triggers remain the final authority.
   const getCurrentUserStaffDossier = (user = currentUser) => {
@@ -8921,11 +8986,15 @@ document.addEventListener('DOMContentLoaded', () => {
       (uName && mName && uName === mName);
   };
 
-  const resolveItemType = (item) => item?.actType || (
-    currentUniType === 'ad' ? 'ad' :
-    currentUniType === 'column' ? 'column' :
-    currentUniType === 'staff' ? 'staff' : 'news'
-  );
+  const resolveItemType = (item) => {
+    if (item?.actType) return String(item.actType).toLowerCase();
+    if (item?.type) return String(item.type).toLowerCase();
+    if (item?.itemType) return String(item.itemType).toLowerCase();
+    if (item?.contentType) return String(item.contentType).toLowerCase();
+    return currentUniType === 'ad' ? 'ad' :
+      currentUniType === 'column' ? 'column' :
+      currentUniType === 'staff' ? 'staff' : 'news';
+  };
 
   const canUserEditItem = (item) => {
     if (!currentUser || !item) return false;
@@ -8964,7 +9033,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const canUserEditOrDeleteItem = (item) => canUserEditItem(item) || canUserDeleteItem(item);
 
   const canCreateOwnStaffDossier = (role = getUserRoleInfo(currentUser), user = currentUser) => {
-    if (!role || role.level !== 'journalist' || !user) return false;
+    if (!role || role.rank < ROLE_HIERARCHY.journalist.rank || !user) return false;
     return !getCurrentUserStaffDossier(user);
   };
 
@@ -9364,7 +9433,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // RBAC: reader modal actions must reflect the actual role and item ownership.
     // Never expose destructive actions to users/journalists for published content.
     const modalStore = type === 'ad' ? adsState : type === 'column' ? columnsState : type === 'staff' ? staffState.members : newsState;
-    const modalItem = (Array.isArray(modalStore) ? modalStore.find(x => x.id === id) : null) || { id, actType: type };
+    const modalRawItem = Array.isArray(modalStore) ? modalStore.find(x => x.id === id) : null;
+    const modalItem = modalRawItem ? { ...modalRawItem, actType: modalRawItem.actType || type } : { id, actType: type };
     const canEditModalItem = !!currentUser && canUserEditItem(modalItem);
     const canDeleteModalItem = !!currentUser && canUserDeleteItem(modalItem);
     const modalEditBtn = $('#modal-article-edit-btn');
@@ -10022,6 +10092,33 @@ document.addEventListener('DOMContentLoaded', () => {
     return found ? found.src : LSN_SKINS[0].src;
   };
 
+  const renderStaffSkinPicker = () => {
+    const wrap = $('#uni-staff-skin-picker');
+    const grid = $('#uni-staff-skin-grid');
+    const selectedEl = $('#uni-staff-skin-selected');
+    const visible = currentUniType === 'staff' && currentEditingId !== 'staff-intro' && !!currentUser;
+    if (wrap) wrap.hidden = !visible;
+    if (!visible || !grid) return;
+    grid.innerHTML = '';
+    LSN_SKINS.forEach((skin) => {
+      const card = document.createElement('button');
+      card.type = 'button';
+      card.className = 'uni-staff-skin-card' + (currentArtPreset === skin.id && !currentPhotoData ? ' is-selected' : '');
+      card.innerHTML = `<img src="${skin.src}" alt="${escapeHtml(skin.label)}"><strong>${escapeHtml(skin.label)}</strong>`;
+      card.addEventListener('click', () => {
+        currentArtPreset = skin.id;
+        currentPhotoData = '';
+        renderQuickArtChips();
+        renderStaffSkinPicker();
+      });
+      grid.appendChild(card);
+    });
+    if (selectedEl) {
+      const selected = LSN_SKINS.find(x => x.id === currentArtPreset);
+      selectedEl.textContent = currentPhotoData ? 'Своя фотография' : (selected ? selected.label : 'Не выбран');
+    }
+  };
+
   const STAFF_ACCENT_MODES = ['sky', 'indigo', 'amber', 'teal'];
   let staffPage = 0;
 
@@ -10233,7 +10330,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // "а у журналистов не должно быть это окно вообще с ролями"
     // "Так же рекламу, колонки со статьями не может добавлять, редактировать, журналист или читатель."
     const permTab = $('[data-uni-type="permissions"]');
-    if (permTab) permTab.hidden = roleInfo.level !== 'admin';
+    if (permTab) permTab.hidden = !roleInfo.canManageRoles;
 
     const adTab = $('[data-uni-type="ad"]');
     if (adTab) adTab.hidden = !roleInfo.canManageAds;
@@ -10242,7 +10339,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (colTab) colTab.hidden = !roleInfo.canManageColumns;
 
     const staffTab = $('[data-uni-type="staff"]');
-    if (staffTab) staffTab.hidden = !roleInfo.canManageStaff;
+    if (staffTab) {
+      staffTab.hidden = !(roleInfo.rank >= ROLE_HIERARCHY.journalist.rank);
+      staffTab.textContent = roleInfo.level === 'journalist' ? 'Моё досье и состав' : 'Интро и состав';
+    }
 
     const myActTab = $('[data-uni-type="my-activities"]');
     if (myActTab) myActTab.hidden = !roleInfo.isJournalist;
@@ -10353,7 +10453,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (qStaff) {
         qStaff.hidden = !(roleInfo.canManageStaff || canCreateOwnStaffDossier(roleInfo, currentUser));
-        qStaff.textContent = roleInfo.level === 'journalist' ? '+ Моя анкета' : '+ Сотрудник';
+        qStaff.textContent = roleInfo.level === 'journalist' ? '+ Моё досье' : '+ Сотрудник';
       }
     }
   };
@@ -10699,6 +10799,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (clearBtn) clearBtn.hidden = true;
       }
     }
+    if (typeof renderStaffSkinPicker === 'function') renderStaffSkinPicker();
   };
 
   const renderUniItemsList = () => {
@@ -10738,25 +10839,35 @@ document.addEventListener('DOMContentLoaded', () => {
         listEl.appendChild(introCard);
       }
 
-      // New button behavior for staff: management may add anyone; a journalist
-      // may create exactly one personal dossier and then edit that dossier.
+      // Staff: management may add anyone; every journalist-or-higher role may create one personal dossier.
+      const myDossierBtn = $('#uni-my-dossier-btn');
+      if (myDossierBtn) {
+        const canPersonal = roleInfo.rank >= ROLE_HIERARCHY.journalist.rank;
+        myDossierBtn.hidden = !canPersonal || !!myDossier;
+      }
       if (newBtn) {
-        if (roleInfo.level === 'journalist') {
-          newBtn.hidden = !!myDossier;
-          newBtn.textContent = '+ Моя анкета';
-        } else if (roleInfo.canManageStaff) {
+        if (roleInfo.canManageStaff) {
           newBtn.hidden = false;
           newBtn.textContent = '+ Сотрудник';
+        } else if (roleInfo.level === 'journalist') {
+          newBtn.hidden = !!myDossier;
+          newBtn.textContent = '+ Моя анкета';
         } else {
           newBtn.hidden = true;
         }
       }
+    } else {
+      const myDossierBtn = $('#uni-my-dossier-btn');
+      if (myDossierBtn) myDossierBtn.hidden = true;
     }
 
     const items = getStoreForType(currentUniType);
-    const ordered = currentUniType === 'news'
-      ? [...items].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
+    const visibleItems = currentUniType === 'staff' && roleInfo.level === 'journalist'
+      ? items.filter(item => isOwnStaffDossier(item, currentUser))
       : items;
+    const ordered = currentUniType === 'news'
+      ? [...visibleItems].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
+      : visibleItems;
 
     ordered.forEach((item, idx) => {
       const card = document.createElement('div');
@@ -10862,6 +10973,16 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    if (!canUserEditItem(item)) {
+      if (currentUniType === 'news' && getUserRoleInfo(currentUser).level === 'journalist') {
+        flashUniSaved('🔒 Журналист может редактировать только собственные черновики.');
+      } else if (currentUniType === 'staff' && getUserRoleInfo(currentUser).level === 'journalist' && !isOwnStaffDossier(item, currentUser)) {
+        flashUniSaved('🔒 Можно редактировать только своё досье.');
+      } else {
+        flashUniSaved('🔒 У этой роли нет права редактировать этот материал.');
+      }
+      return;
+    }
     currentEditingId = item.id;
     if (formTitle) formTitle.textContent = 'Редактирование';
     $('#uni-item-id').value = item.id;
@@ -10949,7 +11070,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const addForm = $('#uni-add-journalist-form');
     const notice = $('#uni-perm-readonly-notice');
     const roleInfo = getUserRoleInfo(currentUser);
-    if (roleInfo.level !== 'admin') {
+    if (!roleInfo.canManageRoles) {
       const ws = $('#uni-permissions-workspace');
       if (ws) ws.hidden = true;
       return;
@@ -11022,7 +11143,7 @@ document.addEventListener('DOMContentLoaded', () => {
               ${selectOptions}
             </select>
             ${uRole.rank >= 2 ? `<button type="button" class="cab-ad-mini-btn cab-ad-mini-btn--del" data-revoke-login="${escapeHtml(u.id || u.username)}">Снять роль</button>` : ''}
-            ${uRole.level !== 'admin' ? `<button type="button" class="cab-ad-mini-btn cab-ad-mini-btn--del" data-delete-account="${escapeHtml(u.id || u.username)}">Удалить аккаунт</button>` : ''}
+            ${getUserRoleInfo(currentUser).canDeleteUsers && uRole.level !== 'admin' ? `<button type="button" class="cab-ad-mini-btn cab-ad-mini-btn--del" data-delete-account="${escapeHtml(u.id || u.username)}">Удалить аккаунт</button>` : ''}
           </div>
         `;
       } else {
@@ -11066,10 +11187,10 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Listen to role changes & revocation
-  $('#uni-journalists-list')?.addEventListener('change', (e) => {
+  $('#uni-journalists-list')?.addEventListener('change', async (e) => {
     const sel = e.target.closest('[data-change-role]');
     if (!sel) return;
-    if (getUserRoleInfo(currentUser).level !== 'admin') return;
+    if (!getUserRoleInfo(currentUser).canManageRoles) return;
     const identifier = sel.dataset.changeRole;
     const newLvl = sel.value;
 
@@ -11081,15 +11202,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!canUserManageTargetUser(currentUser, targetUser)) {
       alert('🔒 Запрещено: вы не можете изменить роль этому пользователю или самому себе.');
-      if (roleInfo.level !== 'admin') { if (contentWs) contentWs.hidden = false; if (permsWs) permsWs.hidden = true; return; }
+      if (!roleInfo.canManageRoles) { if (contentWs) contentWs.hidden = false; if (permsWs) permsWs.hidden = true; return; }
       loadAdminProfiles().then(() => renderPermissionsList());
       return;
     }
 
     const actorRole = getUserRoleInfo(currentUser);
     const newRoleInfo = ROLE_HIERARCHY[newLvl];
-    if (actorRole.level !== 'admin' || !newRoleInfo) {
-      alert('🔒 Только администратор может назначать роли.');
+    if (!actorRole.canManageRoles || !newRoleInfo || newRoleInfo.level === 'admin' || newRoleInfo.rank >= actorRole.rank) {
+      alert('🔒 Можно назначать только роли ниже собственной.');
       renderPermissionsList();
       return;
     }
@@ -11097,16 +11218,22 @@ document.addEventListener('DOMContentLoaded', () => {
     targetUser.role = newLvl;
     targetUser.roleTitle = newRoleInfo.title;
 
-    if (sb && targetUser.id) {
-      sb.from('profiles')
+    if (sb && targetUser.uuid) {
+      const { error } = await sb.from('profiles')
         .update({ role: newLvl, role_title: targetUser.roleTitle })
-        .eq('user_id_code', targetUser.id)
-        .then(({ error }) => {
-          if (error) console.warn('Supabase role update:', error.message);
-        });
+        .eq('id', targetUser.uuid);
+      if (error) {
+        console.error('Supabase role update:', error);
+        await loadAdminProfiles();
+        renderPermissionsList();
+        alert('⚠️ Роль не изменена: ' + (error.message || 'сервер отклонил операцию'));
+        return;
+      }
+    } else {
+      alert('⚠️ Не найден UUID пользователя. Роль не изменена.');
+      return;
     }
-    saveUsersDb();
-    saveJournalistsList();
+    await loadAdminProfiles();
     renderPermissionsList();
     syncRoleVisibilityUI();
     flashUniSaved(`Роль для ${targetUser.username} изменена на: ${newRoleInfo.title}`);
@@ -11148,10 +11275,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  $('#uni-journalists-list')?.addEventListener('click', (e) => {
+  $('#uni-journalists-list')?.addEventListener('click', async (e) => {
     const btn = e.target.closest('[data-revoke-login]');
     if (!btn) return;
-    if (getUserRoleInfo(currentUser).level !== 'admin') return;
+    if (!getUserRoleInfo(currentUser).canManageRoles) return;
     const identifier = btn.dataset.revokeLogin;
 
     const targetUser = usersDb.find(x =>
@@ -11187,17 +11314,23 @@ document.addEventListener('DOMContentLoaded', () => {
     targetUser.role = 'user';
     targetUser.roleTitle = ROLE_HIERARCHY.user.title;
 
-    if (sb && targetUser.id) {
-      sb.from('profiles')
+    if (sb && targetUser.uuid) {
+      const { error } = await sb.from('profiles')
         .update({ role: 'user', role_title: ROLE_HIERARCHY.user.title })
-        .eq('user_id_code', targetUser.id)
-        .then(({ error }) => {
-          if (error) console.warn('Supabase role revoke:', error.message);
-        });
+        .eq('id', targetUser.uuid);
+      if (error) {
+        console.error('Supabase role revoke:', error);
+        await loadAdminProfiles();
+        renderPermissionsList();
+        alert('⚠️ Не удалось снять роль: ' + (error.message || 'сервер отклонил операцию'));
+        return;
+      }
+    } else {
+      alert('⚠️ Не найден UUID пользователя.');
+      return;
     }
 
-    saveUsersDb();
-    saveJournalistsList();
+    await loadAdminProfiles();
     renderPermissionsList();
     syncRoleVisibilityUI();
     flashUniSaved(`Роль для ${targetUser.username} снята (пользователь стал обычным читателем)`);
@@ -11205,7 +11338,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   $('#uni-add-journalist-form')?.addEventListener('submit', (e) => {
     e.preventDefault();
-    if (getUserRoleInfo(currentUser).level !== 'admin') {
+    if (!getUserRoleInfo(currentUser).canManageRoles) {
       alert('Доступ запрещен.');
       return;
     }
@@ -11216,8 +11349,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const actorRole = getUserRoleInfo(currentUser);
     const newRoleInfo = ROLE_HIERARCHY[roleLevel];
-    if (actorRole.level !== 'admin' || !newRoleInfo) {
-      alert('🔒 Только администратор может назначать роли.');
+    if (!actorRole.canManageRoles || !newRoleInfo || newRoleInfo.level === 'admin' || newRoleInfo.rank >= actorRole.rank) {
+      alert('🔒 Можно назначать только роли ниже собственной.');
       return;
     }
 
@@ -11237,7 +11370,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     } else {
       targetUser.role = roleLevel;
-      targetUser.roleTitle = roleTitle || newRoleInfo.title;
+      targetUser.roleTitle = newRoleInfo.title;
     }
 
     if (sb && targetUser.id) {
@@ -11393,7 +11526,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const roleInfo = getUserRoleInfo(currentUser);
 
     // Every cabinet section is explicitly gated by capability.
-    if (type === 'permissions' && roleInfo.level !== 'admin') {
+    if (type === 'permissions' && !roleInfo.canManageRoles) {
       type = 'news';
       flashUniSaved('🔒 Управление пользователями и ролями доступно только администратору');
     }
@@ -11401,7 +11534,7 @@ document.addEventListener('DOMContentLoaded', () => {
       type = 'news';
       flashUniSaved(
         roleInfo.level === 'journalist'
-          ? '🔒 Журналисту доступен только раздел новостей.'
+          ? '🔒 Журналисту доступны новости и собственное досье.'
           : '🔒 У этой роли нет доступа к выбранному разделу.'
       );
     }
@@ -11446,19 +11579,30 @@ document.addEventListener('DOMContentLoaded', () => {
     let defaultId = null;
 
     if (type === 'staff') {
-      if (!roleInfo.canManageStaff) {
-        if (newBtn) newBtn.hidden = true;
-        type = 'news';
-        currentUniType = 'news';
-        if (contentWs) contentWs.hidden = false;
-        flashUniSaved('🔒 Состав редакции доступен только руководству.');
-        defaultId = newsState[0]?.id || null;
-      } else {
+      const own = getCurrentUserStaffDossier(currentUser);
+      const myDossierBtn = $('#uni-my-dossier-btn');
+      if (myDossierBtn) {
+        myDossierBtn.hidden = !(roleInfo.rank >= ROLE_HIERARCHY.journalist.rank) || !!own;
+      }
+      if (roleInfo.canManageStaff) {
         if (newBtn) {
           newBtn.hidden = false;
           newBtn.textContent = '+ Сотрудник';
         }
-        defaultId = specificItemId || 'staff-intro';
+        defaultId = specificItemId || own?.id || 'staff-intro';
+      } else if (roleInfo.level === 'journalist') {
+        if (newBtn) {
+          newBtn.hidden = !!own;
+          newBtn.textContent = '+ Моё досье';
+        }
+        defaultId = specificItemId || own?.id || null;
+      } else {
+        if (newBtn) newBtn.hidden = true;
+        type = 'news';
+        currentUniType = 'news';
+        if (contentWs) contentWs.hidden = false;
+        flashUniSaved('🔒 У этой роли нет доступа к составу редакции.');
+        defaultId = newsState[0]?.id || null;
       }
     } else {
       if (newBtn) {
@@ -11515,7 +11659,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!btn.classList.contains('is-confirming')) {
       btn.classList.add('is-confirming');
       btn.dataset.origHtml = btn.innerHTML;
-      btn.innerHTML = 'вљ пёЏ Точно удалить?';
+      btn.innerHTML = '⚠️ Точно удалить?';
       btn.style.background = '#dc2626';
       btn.style.borderColor = '#ef4444';
       btn.style.color = '#fff';
@@ -11690,6 +11834,21 @@ document.addEventListener('DOMContentLoaded', () => {
     $('#uni-field-title')?.focus();
   });
 
+  $('#uni-my-dossier-btn')?.addEventListener('click', () => {
+    const roleInfo = getUserRoleInfo(currentUser);
+    if (!currentUser || roleInfo.rank < ROLE_HIERARCHY.journalist.rank) {
+      flashUniSaved('🔒 Анкета доступна журналисту и выше.');
+      return;
+    }
+    if (getCurrentUserStaffDossier(currentUser)) {
+      flashUniSaved('ℹ️ У вас уже есть анкета. Откройте своё досье для редактирования.');
+      return;
+    }
+    currentUniType = 'staff';
+    loadItemIntoUniForm(null);
+    $('#uni-field-title')?.focus();
+  });
+
   $('#uni-field-file')?.addEventListener('change', async (e) => {
     const file = e.target.files && e.target.files[0];
     const roleInfo = getUserRoleInfo(currentUser);
@@ -11708,7 +11867,7 @@ document.addEventListener('DOMContentLoaded', () => {
     flashUniSaved('Изображение убрано');
   });
 
-  const deleteUniItemById = (id) => {
+  const deleteUniItemById = async (id) => {
     if (!id || !currentUser) return;
     if (!canUserDeleteItem(getStoreForType(currentUniType).find(x => x.id === id))) return;
     if (id === 'staff-intro') return;
@@ -11722,35 +11881,37 @@ document.addEventListener('DOMContentLoaded', () => {
           : '🔒 Доступ запрещен для этой роли.');
       return;
     }
-    markIdAsDeleted(id);
-
-    if (currentUniType === 'news') {
-      newsState = newsState.filter(x => x.id !== id);
-      saveNewsState();
-      renderNewsSections();
-    } else if (currentUniType === 'ad') {
-      adsState = adsState.filter(x => x.id !== id);
-      saveAdsState();
-      renderAdsCarousel();
-    } else if (currentUniType === 'column') {
-      columnsState = columnsState.filter(x => x.id !== id);
-      saveColumnsState();
-      renderEditorialColumns();
-    } else if (currentUniType === 'staff') {
-      staffState.members = staffState.members.filter(x => x.id !== id);
-      saveStaffState();
-      renderStaffSection();
-      if (typeof renderSanRatingTableUI === 'function') renderSanRatingTableUI();
-      if (typeof checkSundayMondaySync === 'function') checkSundayMondaySync();
+    const removeLocal = () => {
+      markIdAsDeleted(id);
+      if (currentUniType === 'news') {
+        newsState = newsState.filter(x => x.id !== id);
+        saveNewsState();
+        renderNewsSections();
+      } else if (currentUniType === 'ad') {
+        adsState = adsState.filter(x => x.id !== id);
+        saveAdsState();
+        renderAdsCarousel();
+      } else if (currentUniType === 'column') {
+        columnsState = columnsState.filter(x => x.id !== id);
+        saveColumnsState();
+        renderEditorialColumns();
+      } else if (currentUniType === 'staff') {
+        staffState.members = staffState.members.filter(x => x.id !== id);
+        saveStaffState();
+        renderStaffSection();
+        if (typeof renderSanRatingTableUI === 'function') renderSanRatingTableUI();
+        if (typeof checkSundayMondaySync === 'function') checkSundayMondaySync();
+      }
+    };
+    if (sb && (currentUniType === 'news' || currentUniType === 'ad' || currentUniType === 'column')) {
+      const { error } = await sb.from('lsn_articles').delete().eq('id', id);
+      if (error) {
+        console.error('Supabase delete article:', error);
+        alert('⚠️ Удаление не выполнено: ' + (error.message || 'сервер отклонил операцию'));
+        return;
+      }
     }
-        if (sb) {
-      sb.from('lsn_articles')
-        .delete()
-        .eq('id', id)
-        .then(({ error }) => {
-          if (error) console.warn('Supabase delete article note:', error.message);
-        });
-    }
+    removeLocal();
     const updatedStore = getStoreForType(currentUniType);
     loadItemIntoUniForm(updatedStore[0]?.id || null);
     flashUniSaved('Удалено');
@@ -11767,7 +11928,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!delBtn.classList.contains('is-confirming')) {
         delBtn.classList.add('is-confirming');
         delBtn.dataset.origHtml = delBtn.innerHTML;
-        delBtn.innerHTML = 'вљ пёЏ Точно удалить?';
+        delBtn.innerHTML = '⚠️ Точно удалить?';
         delBtn.style.background = '#dc2626';
         delBtn.style.borderColor = '#ef4444';
         delBtn.style.color = '#fff';
@@ -11978,7 +12139,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let item = staffState.members.find(x => x.id === id);
         const isOwnDossier = item ? isOwnStaffDossier(item, currentUser) : false;
         if (!roleInfo.canManageStaff && !(roleInfo.level === 'journalist' && (isOwnDossier || !getCurrentUserStaffDossier(currentUser)))) {
-          flashUniSaved('🔒 Журналист может создать и редактировать только своё досье.');
+          flashUniSaved('🔒 Можно создать и редактировать только своё досье.');
           return;
         }
         if (!item) {
