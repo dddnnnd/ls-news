@@ -9276,6 +9276,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // stored HTML/attribute injection through article metadata or image_url.
   const isSafeSvgContent = (raw) => {
     try {
+      if (typeof raw !== 'string') return false;
       let svgStr = raw.replace(/^data:image\/svg\+xml;[^,]*,/, '');
       if (/base64/i.test(raw.split(',')[0])) {
         if (typeof atob === 'function') svgStr = atob(svgStr);
@@ -9283,8 +9284,39 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         svgStr = decodeURIComponent(svgStr);
       }
-      const dangerous = /<script|onload|onerror|onclick|onmouseover|onfocus|onblur|javascript:|href\s*=\s*['"]javascript:|<foreignObject|<iframe|<embed|<object/i;
-      return !dangerous.test(svgStr);
+      // 1. Decode named and numeric XML entities repeatedly to handle nested/double encoding
+      for (let i = 0; i < 4; i++) {
+        const prev = svgStr;
+        svgStr = svgStr
+          .replace(/&amp;/gi, '&')
+          .replace(/&lt;/gi, '<')
+          .replace(/&gt;/gi, '>')
+          .replace(/&quot;/gi, '"')
+          .replace(/&apos;/gi, "'");
+        svgStr = svgStr.replace(/&#x([0-9a-f]+);?/gi, (_, h) => String.fromCharCode(parseInt(h, 16)));
+        svgStr = svgStr.replace(/&#([0-9]+);?/g, (_, d) => String.fromCharCode(parseInt(d, 10)));
+        if (svgStr === prev) break;
+      }
+      // 2. Reject any script tags, active code wrappers or external inclusion tags
+      if (/<(?:\/)?(?:script|foreignobject|iframe|embed|object|handler|use)\b/i.test(svgStr)) {
+        return false;
+      }
+      // 3. Reject ANY event handler attribute (e.g. onload=, onbegin=, onpointerdown=, onmouseover=)
+      if (/\bon[a-z0-9_-]+\s*=/i.test(svgStr)) {
+        return false;
+      }
+      // 4. Reject javascript:, vbscript:, or data: URIs in any attribute (with whitespace stripping)
+      const normalizedNoWhitespace = svgStr.replace(/[\s\u0000-\u001f]+/g, '');
+      if (/(?:href|xlink:href|src|action)\s*=\s*['"]?(?:javascript|vbscript|data:(?!image\/))/i.test(svgStr) ||
+          /(?:href|xlink:href|src|action)=['"]?(?:javascript|vbscript|data:(?!image\/))/i.test(normalizedNoWhitespace)) {
+        return false;
+      }
+      // 5. Reject CSS url() with javascript or expression inside SVG styles
+      if (/url\s*\(\s*['"]?(?:javascript|data:(?!image\/))/i.test(svgStr) ||
+          /expression\s*\(/i.test(svgStr)) {
+        return false;
+      }
+      return true;
     } catch (_) {
       return false;
     }
@@ -11642,14 +11674,21 @@ document.addEventListener('DOMContentLoaded', () => {
     targetUser.roleTitle = ROLE_HIERARCHY.user.title;
 
     if (sb && targetUser.uuid) {
-      const { error } = await sb.from('profiles')
-        .update({ role: 'user', role_title: ROLE_HIERARCHY.user.title })
-        .eq('id', targetUser.uuid);
-      if (error) {
-        console.error('Supabase role revoke:', error);
+      let revokeError = null;
+      try {
+        const { error: rpcErr } = await sb.rpc('lsn_set_user_role', {
+          p_user_id: targetUser.uuid,
+          p_new_role: 'user'
+        });
+        if (rpcErr) revokeError = rpcErr;
+      } catch (err) {
+        revokeError = err;
+      }
+      if (revokeError) {
+        console.error('Supabase role revoke:', revokeError);
         await loadAdminProfiles();
         renderPermissionsList();
-        alert('⚠️ Не удалось снять роль: ' + (error.message || 'сервер отклонил операцию'));
+        alert('⚠️ Не удалось снять роль: ' + (revokeError.message || 'сервер отклонил операцию'));
         return;
       }
     } else {
