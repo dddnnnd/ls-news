@@ -1,28 +1,5 @@
-# Отчёт о восстановлении и объединении версий V12 и V13 (Merged Release)
+# Recovery note
 
-Данный релиз объединяет все преимущества версии **V12** и новые возможности **V13**:
+The previous V11 frontend explicitly removed old localStorage content keys for news, ads and columns and initialized these stores as empty arrays. Those browser records do not exist in the HTML backup and were absent from the inspected Supabase article table. Exact user-created ad text and uploaded image data therefore cannot be reconstructed from the available source files alone.
 
-### 1. Восстановленный контент и реклама (из V12)
-- Полностью восстановлены 3 авторских рекламных объявления **Ray Westblock** от вчерашнего дня:
-  1. `lsn-ad-announcements`: «Los Santos News принимает объявления» (`РЕКЛАМА · 102.2 FM`)
-  2. `lsn-ad-recruitment`: «Работайте вместе с Los Santos News» (`НАБОР В РЕДАКЦИЮ · 102.2 FM`)
-  3. `lsn-ad-business`: «Расскажите о своём деле всему Лос-Сантосу» (`ПАРТНЁРСКИЕ МАТЕРИАЛЫ · LSN`)
-- Удалены все моковые объявления (`Maze Bank`, `Motorsport`).
-- При первом старте реклама автоматически выгружается в Supabase (`status: 'published'`).
-
-### 2. Двухуровневый архив материалов Supabase (Cloud Archive)
-- При удалении статьи, рекламы или колонки из кабинета или модального окна материал **не стирается**, а мягко архивируется (`status = 'archived'`).
-- В Кабинете редакции доступна вкладка **«📦 Архив»** с живой выгрузкой из базы данных Supabase.
-- Кнопка **`↺ Восстановить на сайт`** мгновенно возвращает материал в активную ленту/карусель.
-- Кнопка **`🗑️ Удалить навсегда`** (с двухэтапным подтверждением для руководства) физически удаляет запись из базы данных.
-
-### 3. Инструменты резервного копирования JSON (из V13)
-- В шапке Кабинета для администратора доступна панель **JSON Backup & Restore**:
-  - `📥 Экспорт резервной копии` — скачивание полного дампа новостей, рекламы, колонок и состава в JSON.
-  - `📤 Восстановить из файла` — безопасный импорт контента из файла с автосинхронизацией в Supabase.
-
-### 4. Серверная часть и безопасность
-- Сохранены 3 Supabase Edge Functions: `admin-delete-user`, `username-available`, `username-login`.
-- Сохранены миграции Supabase (включая защиту от очистки при пустой базе).
-- Везде строго используется имя **Ray Westblock** (с буквой **a**).
-- Строгая валидация никнейма: формат `Имя Фамилия` (`/^[A-Za-zА-Яа-яЁё]+ [A-Za-zА-Яа-яЁё]+$/`).
+This recovery preserves any remaining legacy browser keys, restores defaults known from the previous HTML, provides the original 18-image album and custom photo upload, restores the known LSN recruitment ad, and adds an admin-only JSON content backup/restore feature. If you have a browser profile backup or JSON export from before the incident, keep it and import it from the admin cabinet after restoring the correct role.
