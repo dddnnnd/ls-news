@@ -8,7 +8,7 @@
   <meta http-equiv="Expires" content="0">
   <script>
     (function() {
-      var LSN_APP_VER = '20261025_EDITORIAL_V11';
+      var LSN_APP_VER = '20261025_EDITORIAL_V12';
       try {
         var lastVer = localStorage.getItem('lsn_app_ver');
         if (lastVer && lastVer !== LSN_APP_VER) {
@@ -7778,7 +7778,7 @@ h1, h2, h3, h4,
     <button id="cabinet-dialog-close" class="auth-dialog-close" type="button" aria-label="Закрыть кабинет">×</button>
 
     <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px;">
-      <h1 id="cabinet-title" style="margin:0; font-size:24px;">Кабинет журналиста</h1>
+      <h1 id="cabinet-title" style="margin:0; font-size:24px;">Редакционный кабинет</h1>
       <div style="display:flex; align-items:center; gap:10px;">
         <span class="lsn-staff-save-pill" id="uni-save-pill">Сохранено</span>
         <span id="cabinet-active-user-pill" style="font:700 12px var(--font-mono); color:var(--cyan); padding:5px 11px; border-radius:999px; background:rgba(100,232,255,0.08); border:1px solid rgba(100,232,255,0.22);"></span>
@@ -9003,7 +9003,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const getUserRoleInfo = (user) => {
     if (!user) return UNASSIGNED_USER_ROLE;
-    const roleKey = ROLE_HIERARCHY[user.role] ? user.role : 'user';
+    const normalizedRole = String(user.role || '').trim().toLowerCase();
+    const roleKey = ROLE_HIERARCHY[normalizedRole] ? normalizedRole : 'user';
     const conf = ROLE_HIERARCHY[roleKey];
     return { ...conf };
   };
@@ -9235,15 +9236,27 @@ document.addEventListener('DOMContentLoaded', () => {
     try { return localStorage.getItem('lsn_cleared_' + type) === 'true'; } catch (_) { return false; }
   };
 
-  const NEWS_STORAGE_KEY = 'lsn_news_store_v21';
-  // The database is the sole source of truth for news. Do not hydrate the feed
-  // from legacy browser caches: a deleted database row must not reappear after reload.
+  const NEWS_STORAGE_KEY = 'lsn_news_store_v20';
+  const LEGACY_DEMO_NEWS_IDS = new Set(['news-0-archive', 'news-1', 'news-2']);
   newsState = [];
   try {
-    ['lsn_news_store_v20','lsn_news_store_v18','lsn_news_store_v16','lsn_news_store_v12'].forEach(key => localStorage.removeItem(key));
-  } catch (_) {}
+    const rawN = localStorage.getItem(NEWS_STORAGE_KEY) || localStorage.getItem('lsn_news_store_v18') || localStorage.getItem('lsn_news_store_v16') || localStorage.getItem('lsn_news_store_v12');
+    if (rawN) {
+      const parsedN = JSON.parse(rawN);
+      if (Array.isArray(parsedN)) {
+        newsState = parsedN.filter(item =>
+          item && item.id &&
+          !LEGACY_DEMO_NEWS_IDS.has(String(item.id)) &&
+          !isItemDeleted(item.id)
+        );
+      }
+    }
+  } catch (_) { newsState = []; }
   const saveNewsState = () => {
-    try { localStorage.setItem(NEWS_STORAGE_KEY, JSON.stringify(newsState)); } catch (_) {}
+    try {
+      localStorage.setItem(NEWS_STORAGE_KEY, JSON.stringify(newsState));
+      localStorage.setItem('lsn_news_store_v18', JSON.stringify(newsState));
+    } catch (_) {}
   };
 
   const CLEAN_AD_BACKDROP_SVG = `<svg class="lsn-ad-svg" viewBox="0 0 520 320" preserveAspectRatio="xMidYMid slice">
@@ -9282,21 +9295,91 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 2) ADS STORE (MOCK ADS REMOVED PER USER INSTRUCTION: 100% EMPTY DEFAULT)
   const DEFAULT_ADS_DATA = [];
-  const MOCK_AD_IDS = [];
-  const ADS_STORAGE_KEY = 'lsn_ads_store_v21';
-  adsState = [];
-  try { ['lsn_ads_store_v20','lsn_ads_store_v18','lsn_ads_store_v12'].forEach(key => localStorage.removeItem(key)); } catch (_) {}
+  const MOCK_AD_IDS = ['ad-maze-bank', 'ad-legendary-motorsport', 'ad-diamond-vinewood'];
+  MOCK_AD_IDS.forEach(id => markIdAsDeleted(id));
+
+  const ADS_STORAGE_KEY = 'lsn_ads_store_v20';
+  if (isSectionCleared('ad')) {
+    adsState = [];
+  } else {
+    adsState = [];
+    try {
+      const rawAds = localStorage.getItem(ADS_STORAGE_KEY) || localStorage.getItem('lsn_ads_store_v18') || localStorage.getItem('lsn_ads_store_v12');
+      if (rawAds) {
+        const parsed = JSON.parse(rawAds);
+        if (Array.isArray(parsed)) {
+          adsState = parsed.filter(x => !isItemDeleted(x.id) && !MOCK_AD_IDS.includes(x.id));
+        }
+      }
+    } catch (_) {}
+  }
   const saveAdsState = () => {
-    try { localStorage.setItem(ADS_STORAGE_KEY, JSON.stringify(adsState)); } catch (_) {}
+    try {
+      localStorage.setItem(ADS_STORAGE_KEY, JSON.stringify(adsState));
+      localStorage.setItem('lsn_ads_store_v18', JSON.stringify(adsState));
+      localStorage.setItem('lsn_ads_store_v12', JSON.stringify(adsState));
+    } catch (_) {}
   };
 
   // 3) COLUMNS STORE (PRESERVING ROY WESTBLOCK'S CAREER & VACANCIES ARTICLES)
-  const DEFAULT_COLUMNS_DATA = [];
-  const COLUMNS_STORAGE_KEY = 'lsn_columns_store_v21';
-  columnsState = [];
-  try { ['lsn_columns_store_v20','lsn_columns_store_v18','lsn_columns_store_v12'].forEach(key => localStorage.removeItem(key)); } catch (_) {}
+  const DEFAULT_COLUMNS_DATA = [
+    {
+      id: 'col-career',
+      title: 'LOS SANTOS NEWS | КАРЬЕРА И МЕДИА',
+      subtitle: '10.000.000 вирт',
+      accent: 'amber',
+      author: 'Roy Westblock',
+      authorLogin: 'Roy Westblock',
+      img: '',
+      body: 'Редакция Los Santos News (волна 102.2 FM) объявляет о грандиозном призовом фонде в 10.000.000 вирт для активных сотрудников медиа-холдинга!\n\nМы ценим инициативу, честность и преданность журналистскому делу. Каждый репортёр, радиоведущий и редактор получает прямые премиальные выплаты за качественные эфиры, интервью с первыми лицами штата и оперативные репортажи.\n\n• Рекордные премии до 10.000.000 вирт по итогам активности недели;\n• Быстрое продвижение по карьерной лестнице от стажёра до руководящего состава;\n• Доступ к служебному вертолёту D193SA и студийному комплексу в районе Commerce.\n\nПрисоединяйтесь к сильнейшей радиокоманде штата San Andreas!'
+    },
+    {
+      id: 'col-1',
+      title: 'Работайте вместе с Los Santos News',
+      subtitle: 'КАБИНЕТ ЖУРНАЛИСТА · ВАКАНСИИ 102.2 FM',
+      accent: 'red',
+      author: 'Roy Westblock',
+      authorLogin: 'Roy Westblock',
+      img: '',
+      body: 'Независимая радиокомпания и редакция Los Santos News (волна 102.2 FM) приглашает в штат талантливых репортёров, радиоведущих прямого эфира, фотокорреспондентов и редакторов.\n\nНаш центральный офис в районе Commerce оснащён современной студией звукозаписи, автопарком фургонов SAN NEWS и собственным вертолётом D193SA для оперативных репортажей с воздуха.\n\n• Ежедневные премии за проведённые радиоэфиры, викторины и отредактированные объявления;\n• Быстрый карьерный рост от стажёра до программного и технического директора.'
+    },
+    {
+      id: 'col-2',
+      title: 'Читайте материалы, опубликованные редакцией',
+      subtitle: 'АНАЛИТИКА И РЕПОРТАЖИ LSN',
+      accent: 'cyan',
+      author: 'Roy Westblock',
+      authorLogin: 'Roy Westblock',
+      img: '',
+      body: 'Каждый день корреспонденты Los Santos News следят за главными событиями мегаполиса: от решений мэрии и финансовых сводок башни Maze Bank до ночных стритрейсерских заездов и светских приёмов на Вайнвуд-Хиллз.\n\nВсе спецрепортажи, аналитические обзоры и эксклюзивные интервью публикуются в нашей цифровой ленте и звучат в круглосуточном эфире на частоте 102.2 FM.'
+    }
+  ];
+
+  const COLUMNS_STORAGE_KEY = 'lsn_columns_store_v20';
+  if (isSectionCleared('column')) {
+    columnsState = [];
+  } else {
+    columnsState = JSON.parse(JSON.stringify(DEFAULT_COLUMNS_DATA)).filter(x => !isItemDeleted(x.id));
+    try {
+      const rawC = localStorage.getItem(COLUMNS_STORAGE_KEY) || localStorage.getItem('lsn_columns_store_v18') || localStorage.getItem('lsn_columns_store_v12');
+      if (rawC) {
+        const parsedC = JSON.parse(rawC);
+        if (Array.isArray(parsedC)) {
+          const map = new Map();
+          columnsState.forEach(item => map.set(item.id, item));
+          parsedC.forEach(item => {
+            if (!isItemDeleted(item.id)) map.set(item.id, item);
+          });
+          columnsState = Array.from(map.values()).filter(x => !isItemDeleted(x.id));
+        }
+      }
+    } catch (_) {}
+  }
   const saveColumnsState = () => {
-    try { localStorage.setItem(COLUMNS_STORAGE_KEY, JSON.stringify(columnsState)); } catch (_) {}
+    try {
+      localStorage.setItem(COLUMNS_STORAGE_KEY, JSON.stringify(columnsState));
+      localStorage.setItem('lsn_columns_store_v18', JSON.stringify(columnsState));
+    } catch (_) {}
   };
 
   const DEFAULT_STAFF_STATS = [
@@ -12756,19 +12839,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (error) {
         console.warn('Не удалось обновить редакционную ленту:', error.message);
-        if (!hasAuthoritativeArticleSnapshot) {
-          newsState = []; adsState = []; columnsState = [];
-          saveNewsState(); saveAdsState(); saveColumnsState();
-          renderNewsSections(); renderAdsCarousel(); renderEditorialColumns();
-        }
+        // Network/API errors must not erase the locally cached editorial view.
+        // A successful empty query remains authoritative and is handled below.
         return false;
       }
       if (!Array.isArray(data)) {
-        if (!hasAuthoritativeArticleSnapshot) {
-          newsState = []; adsState = []; columnsState = [];
-          saveNewsState(); saveAdsState(); saveColumnsState();
-          renderNewsSections(); renderAdsCarousel(); renderEditorialColumns();
-        }
+        // Network/API errors must not erase the locally cached editorial view.
+        // A successful empty query remains authoritative and is handled below.
         return false;
       }
 
@@ -12825,12 +12902,9 @@ document.addEventListener('DOMContentLoaded', () => {
       hasAuthoritativeArticleSnapshot = true;
       return true;
     } catch (e) {
+      // A failed request is not proof that content was deleted. Keep the last
+      // successful snapshot/cache visible and let the user retry.
       console.warn('Не удалось обновить редакционную ленту:', e);
-      if (!hasAuthoritativeArticleSnapshot) {
-        newsState = []; adsState = []; columnsState = [];
-        saveNewsState(); saveAdsState(); saveColumnsState();
-        renderNewsSections(); renderAdsCarousel(); renderEditorialColumns();
-      }
       return false;
     }
   };
@@ -12844,7 +12918,7 @@ document.addEventListener('DOMContentLoaded', () => {
     refreshBtn.disabled = true;
     refreshBtn.textContent = 'Обновление…';
     const ok = await syncArticlesFromCloud();
-    refreshBtn.textContent = ok ? 'Обновлено' : 'Не удалось обновить';
+    refreshBtn.textContent = ok ? 'Обновлено' : 'Нет связи — данные сохранены';
     refreshBtn.classList.toggle('is-refresh-error', !ok);
     refreshBtn.disabled = false;
     setTimeout(() => {
@@ -12879,6 +12953,267 @@ document.addEventListener('DOMContentLoaded', () => {
   syncSupabaseSessionAndProfiles();
 });
 </script>
+
+
+<style id="lsn-cabinet-polish-v12">
+/* Editorial workspace redesign — intentionally scoped to the cabinet. */
+#cabinet-dialog.auth-dialog--wide {
+  width: min(1220px, calc(100vw - 28px));
+  max-width: 1220px;
+  max-height: 96vh;
+  padding: 0;
+  border: 1px solid rgba(106, 209, 188, .24);
+  border-radius: 24px;
+  background: #0a1016;
+  color: #edf4f6;
+  box-shadow: 0 30px 100px rgba(0,0,0,.68), 0 0 0 1px rgba(255,255,255,.025);
+  overflow: hidden;
+}
+#cabinet-dialog.auth-dialog--wide::backdrop {
+  background: rgba(3,7,11,.78);
+  backdrop-filter: blur(12px) saturate(.8);
+}
+#cabinet-dialog .auth-modal-card {
+  position: relative;
+  max-height: 96vh;
+  overflow: auto;
+  padding: clamp(18px, 2.4vw, 30px);
+  background:
+    radial-gradient(ellipse at 8% 0%, rgba(106,209,188,.075), transparent 32rem),
+    linear-gradient(150deg, #0e151d 0%, #0a1016 62%, #0d131b 100%);
+  border: 0;
+  border-radius: inherit;
+  scrollbar-color: #304b50 #0b1117;
+}
+#cabinet-dialog #cabinet-title {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding-left: 2px;
+  font-size: clamp(23px, 2.2vw, 30px) !important;
+  line-height: 1.15;
+  letter-spacing: -.035em;
+  color: #f4f8f8;
+}
+#cabinet-dialog #cabinet-title::before {
+  content: "LOS SANTOS NEWS  /  EDITORIAL";
+  color: #72cdbb;
+  font: 800 9px/1.2 var(--font-mono, monospace);
+  letter-spacing: .19em;
+}
+#cabinet-dialog #cabinet-active-user-pill {
+  color: #d7eee8 !important;
+  border-color: rgba(106,209,188,.24) !important;
+  background: rgba(106,209,188,.075) !important;
+  padding: 8px 12px !important;
+  letter-spacing: -.01em;
+}
+#cabinet-dialog #uni-save-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.09);
+  background: rgba(255,255,255,.035);
+  font-size: 10px;
+  letter-spacing: .04em;
+}
+#cabinet-dialog .uni-type-bar {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+  padding: 11px;
+  margin: 18px 0 16px;
+  border: 1px solid rgba(255,255,255,.075);
+  border-radius: 15px;
+  background: rgba(3,8,12,.52);
+}
+#cabinet-dialog .uni-type-btn {
+  min-height: 40px;
+  padding: 9px 14px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: #98aab4;
+  font: 700 12px/1.15 var(--font-sans, system-ui);
+  transition: color .18s ease, background .18s ease, border-color .18s ease, transform .18s ease;
+}
+#cabinet-dialog .uni-type-btn:hover {
+  color: #e6f5f1;
+  border-color: rgba(106,209,188,.2);
+  background: rgba(106,209,188,.05);
+}
+#cabinet-dialog .uni-type-btn.is-active {
+  color: #e5fff8;
+  border-color: rgba(106,209,188,.42);
+  background: linear-gradient(135deg, rgba(106,209,188,.19), rgba(106,209,188,.07));
+  box-shadow: inset 0 1px rgba(255,255,255,.05), 0 5px 18px rgba(0,0,0,.14);
+}
+#cabinet-dialog .cab-ads-layout {
+  grid-template-columns: minmax(280px, .84fr) minmax(0, 1.16fr);
+  align-items: stretch;
+  gap: 14px;
+}
+#cabinet-dialog .cab-ads-list-col,
+#cabinet-dialog .cab-ads-form-col {
+  min-width: 0;
+  padding: clamp(14px, 1.8vw, 21px);
+  border-radius: 16px;
+  border: 1px solid rgba(150,183,194,.13);
+  background: linear-gradient(155deg, rgba(18,29,38,.94), rgba(11,18,25,.96));
+  box-shadow: 0 12px 30px rgba(0,0,0,.13), inset 0 1px rgba(255,255,255,.025);
+}
+#cabinet-dialog .cab-ads-col-header {
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 13px;
+  padding-bottom: 13px;
+  border-bottom-color: rgba(255,255,255,.075);
+}
+#cabinet-dialog .cab-ads-col-header h3 {
+  font-size: 13px !important;
+  font-weight: 800;
+  letter-spacing: .015em;
+}
+#cabinet-dialog .cab-ads-items {
+  max-height: min(52vh, 580px);
+  gap: 9px;
+  padding: 2px 4px 4px 0;
+}
+#cabinet-dialog .cab-ad-item {
+  position: relative;
+  padding: 14px 14px 13px;
+  border: 1px solid rgba(145,176,188,.12);
+  border-radius: 12px;
+  background: rgba(5,11,16,.48);
+  box-shadow: none;
+}
+#cabinet-dialog .cab-ad-item:hover {
+  border-color: rgba(106,209,188,.29);
+  background: rgba(16,31,38,.76);
+}
+#cabinet-dialog .cab-ad-item.is-editing {
+  border-color: rgba(106,209,188,.62);
+  background: linear-gradient(135deg, rgba(39,83,82,.24), rgba(5,12,17,.7));
+  box-shadow: inset 3px 0 #6ad1bc;
+}
+#cabinet-dialog .cab-ad-item__tag {
+  color: #75cbb9 !important;
+  font-size: 9px;
+  letter-spacing: .12em;
+}
+#cabinet-dialog .cab-ad-item__title {
+  font-size: 14px;
+  line-height: 1.4;
+  letter-spacing: -.015em;
+}
+#cabinet-dialog .cab-ad-item__short {
+  color: #94a5af;
+  line-height: 1.55;
+}
+#cabinet-dialog .cab-ad-item__actions { gap: 6px; }
+#cabinet-dialog .cab-ad-mini-btn,
+#cabinet-dialog .lsn-staff-btn {
+  min-height: 34px;
+  padding: 8px 11px;
+  border-radius: 9px;
+  border: 1px solid rgba(142,177,186,.18);
+  background: rgba(255,255,255,.035);
+  color: #c8d7dc;
+  font-weight: 750;
+  transition: .18s ease;
+}
+#cabinet-dialog .cab-ad-mini-btn:hover,
+#cabinet-dialog .lsn-staff-btn:hover {
+  color: #eafffa;
+  border-color: rgba(106,209,188,.48);
+  background: rgba(106,209,188,.09);
+}
+#cabinet-dialog .lsn-staff-btn--primary,
+#cabinet-dialog .cab-ad-form-actions button[type="submit"] {
+  color: #071512;
+  border-color: #74d4be;
+  background: linear-gradient(135deg, #9ce4d4, #63cbb4);
+  box-shadow: 0 6px 18px rgba(80,199,174,.14);
+}
+#cabinet-dialog .cab-ad-mini-btn--del {
+  color: #dca5a9;
+  border-color: rgba(220,122,133,.2);
+}
+#cabinet-dialog .cab-ad-form { gap: 15px; }
+#cabinet-dialog .cab-ad-form label {
+  gap: 7px;
+  color: #b4c5cc;
+  font-size: 11.5px;
+  letter-spacing: .01em;
+}
+#cabinet-dialog .cab-ad-form input[type="text"],
+#cabinet-dialog .cab-ad-form input[type="url"],
+#cabinet-dialog .cab-ad-form input[type="number"],
+#cabinet-dialog .cab-ad-form input[type="email"],
+#cabinet-dialog .cab-ad-form select,
+#cabinet-dialog .cab-ad-form textarea {
+  width: 100%;
+  min-height: 42px;
+  padding: 11px 12px;
+  border: 1px solid rgba(145,179,190,.17);
+  border-radius: 10px;
+  background: #080e13;
+  color: #edf5f5;
+  font: 500 13px/1.5 var(--font-sans, system-ui);
+  box-shadow: inset 0 1px 2px rgba(0,0,0,.22);
+}
+#cabinet-dialog .cab-ad-form textarea { min-height: 138px; resize: vertical; }
+#cabinet-dialog .cab-ad-form input:focus,
+#cabinet-dialog .cab-ad-form select:focus,
+#cabinet-dialog .cab-ad-form textarea:focus {
+  outline: 0;
+  border-color: rgba(106,209,188,.72);
+  box-shadow: 0 0 0 3px rgba(106,209,188,.105);
+}
+#cabinet-dialog .uni-extra-box,
+#cabinet-dialog .cab-ad-photo-box {
+  padding: 14px;
+  border: 1px solid rgba(145,179,190,.14);
+  border-radius: 12px;
+  background: rgba(5,12,17,.52);
+}
+#cabinet-dialog .cab-ad-form-actions {
+  position: sticky;
+  bottom: -1px;
+  z-index: 2;
+  padding: 13px 0 2px;
+  margin-top: 0;
+  background: linear-gradient(180deg, rgba(11,18,25,0), #0b1219 24%);
+}
+#cabinet-dialog .auth-dialog-close {
+  color: #a6b8c0;
+  border-color: rgba(255,255,255,.11);
+  background: rgba(255,255,255,.035);
+  border-radius: 10px;
+}
+#cabinet-dialog .auth-dialog-close:hover {
+  color: #fff;
+  border-color: rgba(106,209,188,.4);
+  background: rgba(106,209,188,.08);
+}
+@media (max-width: 900px) {
+  #cabinet-dialog.auth-dialog--wide { width: calc(100vw - 16px); max-height: 98vh; border-radius: 18px; }
+  #cabinet-dialog .auth-modal-card { max-height: 98vh; padding: 15px; }
+  #cabinet-dialog .cab-ads-layout { grid-template-columns: minmax(0,1fr); }
+  #cabinet-dialog .cab-ads-items { max-height: 32vh; }
+}
+@media (max-width: 560px) {
+  #cabinet-dialog .uni-type-bar { gap: 5px; padding: 7px; }
+  #cabinet-dialog .uni-type-btn { flex: 1 1 calc(50% - 5px); min-height: 38px; padding: 8px; font-size: 11px; }
+  #cabinet-dialog #cabinet-title { font-size: 22px !important; }
+  #cabinet-dialog .cab-ads-list-col, #cabinet-dialog .cab-ads-form-col { padding: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #cabinet-dialog *, #cabinet-dialog *::before, #cabinet-dialog *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; }
+}
+</style>
 
 </body>
 

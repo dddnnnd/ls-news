@@ -26,3 +26,13 @@ Leaked-password checking against HaveIBeenPwned is unavailable on the current Su
 ## Release verification
 
 Run `supabase/tests/security_invariants.sql` in the existing database. After deployment, also complete the end-to-end smoke test in `README.md`. No automated static test can prove that a web app is completely free of defects or that every production integration works under all conditions.
+
+
+## Administrator recovery
+
+`supabase/sql/restore_primary_admin.sql` is a manual, account-specific recovery script for the previously recorded primary administrator (Ray Westblock). It is not included in automated GitHub Pages deployment. Confirm the account first; never make an unauthenticated bootstrap Edge Function that can assign administrator privileges.
+
+
+## Administrator recovery
+
+`supabase/sql/restore_primary_admin.sql` is a manual, account-specific recovery script for the previously recorded primary administrator (Ray Westblock). It is not included in automated GitHub Pages deployment. Confirm the account first; never make an unauthenticated bootstrap Edge Function that can assign administrator privileges.

@@ -1,24 +1,15 @@
-# V11 release verification
+# V12 Repair Check Log
 
-Checked against the existing Supabase project on 25 October 2026.
+- Preserved the V11 HTML hardening changes (UUID ids, safe image URL and color handling, article content rendered as text).
+- Restored read-and-save compatibility for existing v20/v18/v16/v12 localStorage keys; application startup no longer deletes those keys.
+- Restored the previous default editorial column content.
+- A successful Supabase query is authoritative; empty result remains empty for news, preventing deleted news from being recreated from a stale browser cache. Failed network requests no longer clear the visible cache.
+- Added an idempotent SQL migration for durable LSN house-advertisements and editorial columns. No news items are seeded.
+- Redesigned only the editorial cabinet's layout, tabs, cards, form controls and responsive behavior; homepage styling and sections are preserved.
+- Admin recovery is a manual SQL script for the previously designated primary admin only. It is intentionally not an automatically deployed privilege-escalation path.
+- Requires live post-deploy browser smoke test. Exact custom ads that existed only in browser localStorage cannot be reconstructed from a clean checkout if the prior V11 script has already removed those keys; the content migration restores editable, database-backed LSN ads and columns.
 
-## Passed
 
-- All inline JavaScript blocks pass `node --check`.
-- All three Edge Function TypeScript sources pass TypeScript syntax transpilation.
-- HTML parser completed; 5 forms, 77 buttons, 36 inputs; no duplicate literal element IDs.
-- No service-role key, Supabase secret key, or database connection string is embedded in `index.html`.
-- Database role ranks match the required five-role hierarchy.
-- `profiles`, `lsn_articles`, `lsn_site_banners`, `lsn_radio_ratings`, and `storage.objects` have RLS enabled.
-- Clients cannot directly delete profiles or read/write the private rate-limit table.
-- Legacy username-to-email and username-availability RPCs are not executable by `anon` or `authenticated`.
-- Tested transactions confirm: no self-role change; no equal-rank role assignment; journalist cannot publish or delete articles; deleted/test rows are rolled back.
-- Rate-limit test confirms the second request exceeds a one-request test window and is rejected.
-- Production Edge Functions are active: `admin-delete-user` v1, `username-login` v2, `username-available` v2.
-- Supabase Security Advisor reports only the leaked-password-protection warning on the current Free plan.
+## Live database state
 
-## Not claimed
-
-A browser-driven end-to-end run against the final public GitHub Pages URL has not been completed in this environment. The first production smoke test after Pages deployment must verify sign-in, signup, feed refresh after delete, article publishing, and Storage uploads with test accounts.
-
-A static check cannot mathematically guarantee that software has no defects. Keep backups and review future schema changes before applying them.
+The V12 restoration SQL is packaged but was not applied to the live project in this run. Run the content migration once in Supabase SQL Editor. The administrator recovery script is manual and targets the previously recorded Ray Westblock profile only; run `inspect_profile_roles.sql` first if the account name is uncertain.

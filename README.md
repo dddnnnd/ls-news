@@ -1,4 +1,4 @@
-# Los Santos News — V11
+# Los Santos News — V12
 
 Production-oriented static frontend for Los Santos News with Supabase Auth, role-based authorization, editorial storage, and server-side username login.
 
@@ -10,13 +10,19 @@ Production-oriented static frontend for Los Santos News with Supabase Auth, role
 - `supabase/functions/username-login/index.ts` — username login without returning account email; includes server-side rate limits.
 - `supabase/functions/username-available/index.ts` — server-side username availability check; includes rate limits.
 - `supabase/migrations/20261025002211_add_server_side_edge_function_rate_limits.sql` — migration for the hashed-key rate-limit table and atomic rate-limit RPC.
+- `supabase/migrations/20261025011000_restore_lsn_advertising_and_columns.sql` — idempotently restores the LSN advertisement and editorial-column content without reseeding news.
+- `supabase/migrations/20261025011000_restore_lsn_advertising_and_columns.sql` — idempotently restores the LSN advertisement and editorial-column content without reseeding news.
+- `supabase/migrations/20261025011000_restore_lsn_advertising_and_columns.sql` — idempotently restores the LSN advertisement and editorial-column content without reseeding news.
 - `supabase/sql/current_security_reconciliation.sql` — final SQL reconciliation for the **existing LSN database schema**.
+- `supabase/sql/restore_primary_admin.sql` — manual recovery for the previously designated Ray Westblock admin only; run only if this is the correct account.
+- `supabase/sql/restore_primary_admin.sql` — manual recovery for the previously designated Ray Westblock admin only; run only if this is the correct account.
+- `supabase/sql/restore_primary_admin.sql` — manual recovery for the previously designated Ray Westblock admin only; run only if this is the correct account.
 - `supabase/tests/security_invariants.sql` — read-only checks of critical security invariants.
 - `SECURITY.md` — security notes and release checklist.
 
 ## Current production status
 
-The existing Supabase project has already been updated with the current policies and functions. The `index.html` is the deployable frontend. Before putting the site into public use, complete the smoke test below on the actual hosting domain and confirm sign-in, signup, publishing, image uploads, and account deletion with test accounts.
+The existing Supabase project already has the V11 security policies and Edge Functions. The V12 website preserves old local-cache keys instead of deleting them and modernizes the editorial cabinet. A successful empty cloud query remains authoritative for news, so deleted news is not resurrected from a stale browser cache. The V12 content-restoration migration has **not** been applied to the live database in this run; run it once in Supabase SQL Editor to restore database-backed house ads and columns. This repair preserves legacy local caches rather than deleting them and modernizes the editorial cabinet. A successful empty cloud query remains authoritative for news, so deleted news does not get resurrected from stale local caches. This repair preserves legacy local caches rather than deleting them and modernizes the editorial cabinet. A successful empty cloud query remains authoritative for news, so deleted news does not get resurrected from stale local caches. Before putting the site into public use, complete the smoke test below on the actual hosting domain and confirm sign-in, signup, publishing, image uploads, and account deletion with test accounts.
 
 The Supabase Security Advisor's remaining finding is leaked-password protection. Supabase Free does not offer the HaveIBeenPwned password check; this release does not bypass that product restriction.
 
@@ -47,11 +53,11 @@ Supabase's hosted Edge Function runtime supplies the project environment variabl
 
 ## SQL files: read before applying
 
-The production database already has a history of migrations. The `supabase/migrations` directory in this package contains the rate-limiter migration added for this release; it is not a complete reconstruction of every historical migration that created the site's base schema. Do **not** assume this repository is a blank-project bootstrap or blindly run `supabase db push` against the existing production project without reconciling migration history.
+The production database already has a history of migrations. The `supabase/migrations` directory contains the rate-limiter and advertising/content restoration migrations added for this release; it is not a complete reconstruction of every historical migration that created the site's base schema. Do **not** assume this repository is a blank-project bootstrap or blindly run `supabase db push` against the existing production project without reconciling migration history.
 
-`supabase/sql/current_security_reconciliation.sql` is a consolidation/reconciliation script for the existing LSN schema. It expects the existing tables, triggers, `article-images` bucket, and prior base schema. Keep a database backup before applying it. The active production project has already received the changes represented by this release.
+`supabase/sql/current_security_reconciliation.sql` is a consolidation/reconciliation script for the existing LSN schema. It expects the existing tables, triggers, `article-images` bucket, and prior base schema. Keep a database backup before applying it. The active production project has already received the V11 security baseline. Apply the V12 content migration separately as described above; it is deliberately not run by the GitHub Pages workflow.
 
-To run the read-only invariant checks in Supabase SQL Editor, open `supabase/tests/security_invariants.sql` and execute it. It raises an exception if a critical privilege, role hierarchy, or RLS invariant is missing.
+To restore the editorial advertisements and columns in the existing project, apply `supabase/migrations/20261025011000_restore_lsn_advertising_and_columns.sql` once. It adds a small set of LSN house-advertisements and restored columns; it does not reinsert news rows. If the site account lost its admin role, open `supabase/sql/restore_primary_admin.sql` in Supabase SQL Editor only after confirming Ray Westblock is the account you use. To run the read-only invariant checks, open `supabase/tests/security_invariants.sql` and execute it. It raises an exception if a critical privilege, role hierarchy, or RLS invariant is missing.
 
 ## Post-deploy smoke test
 
