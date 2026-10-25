@@ -1,38 +1,16 @@
-# Security notes — Los Santos News
+# Security notes — LSN Recovery V13
 
-## Trust boundaries
+- Authorization is enforced by Supabase grants, RLS, database triggers and Edge Functions, not by client-side buttons alone.
+- The five supported profile roles are `admin`, `director`, `deputy`, `journalist`, `user` with ranks 5 through 1.
+- `service_role` credentials are used only inside server-side Edge Functions and must not be added to static files or GitHub Secrets for the Pages-only workflow.
+- Public username-login and username-availability endpoints use server-side request limits through `lsn_consume_edge_rate_limit`. The rate limiter key stores only SHA-256 hashes of the scope/address/identity tuple.
+- Account deletion is restricted to admins; self-deletion and deletion of any admin account are refused.
+- `profiles` cannot be deleted directly by `authenticated`; deletion should flow through the guarded Auth admin function.
+- Legacy tables remain in place to preserve recoverable records; client grants are removed and deny-all RLS policies are used.
+- The public login lookup RPCs `lsn_login_email_by_username` and `lsn_username_available` are revoked; login/availability checks live in server-side Edge Functions.
+- User-supplied content is rendered as text. Images are restricted to passive raster data URLs, validated SVG album art, or HTTP(S) URLs.
+- The application no longer removes legacy content keys during startup. It reads old cache versions and offers admin backup export/import.
+- `lsn_editorial_state` is a server marker to distinguish a truly initialized cloud feed from an empty database during first recovery. Execute its migration once before using cross-device editorial recovery.
+- Leaked password detection via HaveIBeenPwned is unavailable on the current Supabase Free plan. Choose strong unique passwords; enable that check if the project plan later supports it.
 
-- Browser code is public. The Supabase publishable/anonymous key is not a secret.
-- Supabase service-role credentials belong only in the hosted Edge Function environment and must never appear in HTML, JavaScript, Git history, issue screenshots, or client logs.
-- Database grants and RLS policies are both used. Critical profile and article operations are additionally enforced in PostgreSQL triggers.
-- Username-to-email resolution is performed server-side by `username-login`. The old public RPCs `lsn_login_email_by_username` and `lsn_username_available` have client execution revoked.
-- Username login and availability checks have a server-side atomic rate limiter. If the rate-limit service is unavailable, those endpoints fail closed rather than skipping the limit.
-- `admin-delete-user` validates the caller's JWT and role in the database. It refuses self-deletion and deletion of any account with the `admin` role.
-
-## Five-role policy
-
-| Role | Rank | Expected access |
-|---|---:|---|
-| `admin` | 5 | Manages staff and editorial data; account deletion is server-side and cannot target self or another admin. Cannot self-promote/change own role. |
-| `director` | 4 | Manages lower-ranked staff and editorial operations; cannot assign an equal/higher role. |
-| `deputy` | 3 | Manages journalists/users and editorial operations; cannot assign an equal/higher role. |
-| `journalist` | 2 | Creates own draft news and uploads own article images; cannot publish, delete, or modify published material. |
-| `user` | 1 | Read-only for editorial data; cannot write articles or upload article images. |
-
-## Current limitation
-
-Leaked-password checking against HaveIBeenPwned is unavailable on the current Supabase Free plan. This limitation is not bypassed by client code. Use strong unique passwords and upgrade the Supabase plan if that control is required.
-
-## Release verification
-
-Run `supabase/tests/security_invariants.sql` in the existing database. After deployment, also complete the end-to-end smoke test in `README.md`. No automated static test can prove that a web app is completely free of defects or that every production integration works under all conditions.
-
-
-## Administrator recovery
-
-`supabase/sql/restore_primary_admin.sql` is a manual, account-specific recovery script for the previously recorded primary administrator (Ray Westblock). It is not included in automated GitHub Pages deployment. Confirm the account first; never make an unauthenticated bootstrap Edge Function that can assign administrator privileges.
-
-
-## Administrator recovery
-
-`supabase/sql/restore_primary_admin.sql` is a manual, account-specific recovery script for the previously recorded primary administrator (Ray Westblock). It is not included in automated GitHub Pages deployment. Confirm the account first; never make an unauthenticated bootstrap Edge Function that can assign administrator privileges.
+No static or database checks can guarantee absence of all runtime faults. Complete the live-browser smoke test after deploy.

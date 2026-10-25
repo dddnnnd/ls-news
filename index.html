@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 
 <html lang="ru">
 
@@ -8,7 +8,7 @@
   <meta http-equiv="Expires" content="0">
   <script>
     (function() {
-      var LSN_APP_VER = '20261025_EDITORIAL_V12';
+      var LSN_APP_VER = '20261025_RECOVERY_V13_FINAL';
       try {
         var lastVer = localStorage.getItem('lsn_app_ver');
         if (lastVer && lastVer !== LSN_APP_VER) {
@@ -7785,6 +7785,13 @@ h1, h2, h3, h4,
       </div>
     </div>
 
+    <div id="lsn-content-backup-tools" style="display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px;" hidden>
+      <button type="button" class="lsn-staff-btn" id="lsn-export-content-backup">рџ“Ґ Р­РєСЃРїРѕСЂС‚ СЂРµР·РµСЂРІРЅРѕР№ РєРѕРїРёРё</button>
+      <label class="lsn-staff-btn" for="lsn-import-content-backup" style="cursor:pointer;margin:0;">рџ“¤ Р’РѕСЃСЃС‚Р°РЅРѕРІРёС‚СЊ РёР· С„Р°Р№Р»Р°
+        <input type="file" id="lsn-import-content-backup" accept="application/json,.json" hidden>
+      </label>
+      <span style="align-self:center;color:#94a3b8;font-size:11px;">РќРѕРІРѕСЃС‚Рё, СЂРµРєР»Р°РјР°, РєРѕР»РѕРЅРєРё Рё СЃРѕСЃС‚Р°РІ СЂРµРґР°РєС†РёРё (JSON)</span>
+    </div>
     <!-- CLEAN CATEGORY TABS (NO ICONS, NO EXTRA SUBTITLES) -->
     <div class="uni-type-bar" role="tablist">
       <button type="button" class="uni-type-btn is-active" data-uni-type="news">Новости</button>
@@ -7792,7 +7799,7 @@ h1, h2, h3, h4,
       <button type="button" class="uni-type-btn" data-uni-type="column">Колонки</button>
       <button type="button" class="uni-type-btn" data-uni-type="staff">Интро и состав</button>
       <button type="button" class="uni-type-btn" data-uni-type="my-activities" id="uni-tab-my-activities">⚡ Мои активности</button>
-      <button type="button" class="uni-type-btn" data-uni-type="permissions" id="uni-permissions-tab" hidden>Доступ и роли</button>
+      <button type="button" class="uni-type-btn" data-uni-type="permissions" id="uni-permissions-tab" hidden>Доступ и роли</button><button type="button" class="uni-type-btn" data-uni-type="archive" id="uni-tab-archive">📦 Архив</button>
     </div>
 
     <!-- UNIFIED WORKSPACE -->
@@ -7801,7 +7808,7 @@ h1, h2, h3, h4,
       <div class="cab-ads-list-col">
         <div class="cab-ads-col-header">
           <h3 style="margin:0; font-size:16px; color:#fff;" id="uni-list-title">Список</h3>
-          <button type="button" class="lsn-staff-btn" id="uni-clear-all-btn" style="color:#ff8c9a; border-color:rgba(255,82,101,0.35); font-size:11.5px; padding:6px 10px; margin-right:6px;" hidden>🗑️ Удалить все</button><button type="button" class="lsn-staff-btn" id="uni-my-dossier-btn" hidden>+ Моя анкета</button><button type="button" class="lsn-staff-btn lsn-staff-btn--primary" id="uni-new-item-btn">
+          <button type="button" class="lsn-staff-btn" id="uni-restore-ads-btn" style="color:#38bdf8; border-color:rgba(56,189,248,0.35); font-size:11.5px; padding:6px 10px; margin-right:6px;" hidden>↺ Восстановить рекламу</button><button type="button" class="lsn-staff-btn" id="uni-clear-all-btn" style="color:#ff8c9a; border-color:rgba(255,82,101,0.35); font-size:11.5px; padding:6px 10px; margin-right:6px;" hidden>🗑️ Удалить все</button><button type="button" class="lsn-staff-btn" id="uni-my-dossier-btn" hidden>+ Моя анкета</button><button type="button" class="lsn-staff-btn lsn-staff-btn--primary" id="uni-new-item-btn">
             Добавить
           </button>
         </div>
@@ -8051,6 +8058,32 @@ h1, h2, h3, h4,
 
         <div class="my-act-list" id="my-act-items-list">
           <!-- Populated dynamically by renderMyActivitiesList() -->
+        </div>
+      </div>
+    </section>
+    <!-- C. SUPABASE PERSISTENT ARCHIVE WORKSPACE (#uni-archive-workspace) -->
+    <section id="uni-archive-workspace" hidden>
+      <div class="my-act-container">
+        <div class="my-act-header">
+          <div>
+            <h3 style="margin:0 0 6px 0; font-size:19px; color:#fff; display:flex; align-items:center; gap:10px;">
+              <span>📦 Архив материалов (Supabase Cloud Storage)</span>
+              <span class="my-act-counter" id="archive-counter">0 в архиве</span>
+            </h3>
+            <p style="margin:0; font-size:13px; color:#94a3b8;">
+              Материалы, снятые с публикации, надёжно сохраняются в облаке Supabase. Вы можете вернуть их на сайт в 1 клик или удалить физически навсегда.
+            </p>
+          </div>
+          <div class="my-act-filters" role="group">
+            <button type="button" class="my-act-filter-btn is-active" data-archive-filter="all">Все</button>
+            <button type="button" class="my-act-filter-btn" data-archive-filter="ad">Реклама</button>
+            <button type="button" class="my-act-filter-btn" data-archive-filter="news">Новости</button>
+            <button type="button" class="my-act-filter-btn" data-archive-filter="column">Колонки</button>
+          </div>
+        </div>
+
+        <div class="my-act-list" id="archive-items-list">
+          <!-- Populated dynamically by renderArchiveList() -->
         </div>
       </div>
     </section>
@@ -9132,6 +9165,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const canOpenEditorialType = (type, role = getUserRoleInfo(currentUser)) => {
+    if (type === 'archive') return role && role.rank >= ROLE_HIERARCHY.journalist.rank;
     return canCreateEditorialType(type, role) ||
       (type === 'news' && role.level === 'journalist') ||
       (type === 'staff' && role.level === 'journalist');
@@ -9211,6 +9245,13 @@ document.addEventListener('DOMContentLoaded', () => {
       const raw = localStorage.getItem(DELETED_ITEMS_KEY);
       return raw ? JSON.parse(raw) : [];
     } catch (_) { return []; }
+  };
+  const unmarkIdAsDeleted = (id) => {
+    if (!id) return;
+    try {
+      const list = getDeletedIds().filter(x => x !== id);
+      localStorage.setItem(DELETED_ITEMS_KEY, JSON.stringify(list));
+    } catch (_) {}
   };
   const markIdAsDeleted = (id) => {
     if (!id) return;
@@ -9293,10 +9334,42 @@ document.addEventListener('DOMContentLoaded', () => {
     <line x1="0" y1="259" x2="520" y2="259" stroke="#f43f5e" stroke-width="2" opacity="0.75" />
   </svg>`;
 
-    // 2) ADS STORE (MOCK ADS REMOVED PER USER INSTRUCTION: 100% EMPTY DEFAULT)
-  const DEFAULT_ADS_DATA = [];
-  const MOCK_AD_IDS = ['ad-maze-bank', 'ad-legendary-motorsport', 'ad-diamond-vinewood'];
-  MOCK_AD_IDS.forEach(id => markIdAsDeleted(id));
+  // 2) ADS STORE (OFFICIAL RAY WESTBLOCK ADS RESTORED)
+  const DEFAULT_ADS_DATA = [
+    {
+      id: 'lsn-ad-announcements',
+      title: 'Los Santos News принимает объявления',
+      tag: 'РЕКЛАМА · 102.2 FM',
+      author: 'Ray Westblock',
+      authorLogin: 'Ray Westblock',
+      shortText: 'Продажа, покупка, услуги и предложения для жителей штата — передайте материал редакции Los Santos News.',
+      fullText: 'Нужно рассказать жителям Сан-Андреаса о товаре, услуге или важном предложении? Редакция Los Santos News принимает объявления для публикации на сайте и в эфире 102.2 FM. Подготовьте понятный текст и отправьте его редакции — мы поможем представить ваше предложение аудитории.',
+      customImg: '',
+      titleColor: ''
+    },
+    {
+      id: 'lsn-ad-recruitment',
+      title: 'Работайте вместе с Los Santos News',
+      tag: 'НАБОР В РЕДАКЦИЮ · 102.2 FM',
+      author: 'Ray Westblock',
+      authorLogin: 'Ray Westblock',
+      shortText: 'Редакция приглашает репортёров, радиоведущих прямого эфира, фотокорреспондентов и редакторов.',
+      fullText: 'Независимая радиокомпания и редакция Los Santos News приглашает в штат талантливых репортёров, радиоведущих прямого эфира, фотокорреспондентов и редакторов. Центральный офис в районе Commerce оснащён современной студией звукозаписи, автопарком и собственным вертолётом для оперативных репортажей с воздуха. Сотрудникам доступны премии за активную работу, развитие в редакции и участие в эфирах. Присоединяйтесь к команде волны 102.2 FM.',
+      customImg: '',
+      titleColor: ''
+    },
+    {
+      id: 'lsn-ad-business',
+      title: 'Расскажите о своём деле всему Лос-Сантосу',
+      tag: 'ПАРТНЁРСКИЕ МАТЕРИАЛЫ · LSN',
+      author: 'Ray Westblock',
+      authorLogin: 'Ray Westblock',
+      shortText: 'Реклама бизнеса, услуг и набора сотрудников — через редакцию Los Santos News.',
+      fullText: 'Los Santos News помогает доводить важные предложения до жителей штата. Принимаем рекламные материалы о бизнесе, услугах, продаже и покупке, вакансиях и специальных предложениях. Текст должен быть понятным, корректным и соответствовать правилам проекта. Для размещения свяжитесь с редакцией.',
+      customImg: '',
+      titleColor: ''
+    }
+  ];
 
   const ADS_STORAGE_KEY = 'lsn_ads_store_v20';
   if (isSectionCleared('ad')) {
@@ -9307,12 +9380,53 @@ document.addEventListener('DOMContentLoaded', () => {
       const rawAds = localStorage.getItem(ADS_STORAGE_KEY) || localStorage.getItem('lsn_ads_store_v18') || localStorage.getItem('lsn_ads_store_v12');
       if (rawAds) {
         const parsed = JSON.parse(rawAds);
-        if (Array.isArray(parsed)) {
-          adsState = parsed.filter(x => !isItemDeleted(x.id) && !MOCK_AD_IDS.includes(x.id));
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          adsState = parsed.filter(x => !isItemDeleted(x.id));
         }
       }
     } catch (_) {}
+    if (adsState.length === 0) {
+      adsState = JSON.parse(JSON.stringify(DEFAULT_ADS_DATA)).filter(x => !isItemDeleted(x.id));
+    }
   }
+  const restoreDefaultAds = () => {
+    markSectionCleared('ad', false);
+    DEFAULT_ADS_DATA.forEach(a => {
+      unmarkIdAsDeleted(a.id);
+      const idx = adsState.findIndex(x => x.id === a.id);
+      if (idx >= 0) adsState[idx] = JSON.parse(JSON.stringify(a));
+      else adsState.push(JSON.parse(JSON.stringify(a)));
+    });
+    activeAdIdx = 0;
+    saveAdsState();
+    renderAdsCarousel();
+    if (typeof renderUniItemsList === 'function' && currentUniType === 'ad') {
+      renderUniItemsList();
+      loadItemIntoUniForm(adsState[0]?.id || null);
+    }
+    if (sb) {
+      const toUpload = DEFAULT_ADS_DATA.map(a => ({
+        id: a.id,
+        type: 'ad',
+        title: a.title,
+        category: a.tag || 'Los Santos News · Партнёры',
+        lead: a.shortText,
+        body: a.fullText,
+        author: a.author || 'Ray Westblock',
+        author_name: a.author || 'Ray Westblock',
+        author_id: currentUser?.uuid || null,
+        status: 'published',
+        published_at: new Date().toISOString(),
+        metadata: { titleColor: a.titleColor || '' }
+      }));
+      sb.from('lsn_articles').upsert(toUpload).then(({ error }) => {
+        if (error) console.warn('Supabase restore ads note:', error.message);
+      });
+    }
+    flashUniSaved('Официальная реклама LSN успешно восстановлена!');
+  };
+  window.restoreDefaultAds = restoreDefaultAds;
+
   const saveAdsState = () => {
     try {
       localStorage.setItem(ADS_STORAGE_KEY, JSON.stringify(adsState));
@@ -9321,15 +9435,15 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (_) {}
   };
 
-  // 3) COLUMNS STORE (PRESERVING ROY WESTBLOCK'S CAREER & VACANCIES ARTICLES)
+  // 3) COLUMNS STORE (PRESERVING RAY WESTBLOCK'S CAREER & VACANCIES ARTICLES)
   const DEFAULT_COLUMNS_DATA = [
     {
       id: 'col-career',
       title: 'LOS SANTOS NEWS | КАРЬЕРА И МЕДИА',
       subtitle: '10.000.000 вирт',
       accent: 'amber',
-      author: 'Roy Westblock',
-      authorLogin: 'Roy Westblock',
+      author: 'Ray Westblock',
+      authorLogin: 'Ray Westblock',
       img: '',
       body: 'Редакция Los Santos News (волна 102.2 FM) объявляет о грандиозном призовом фонде в 10.000.000 вирт для активных сотрудников медиа-холдинга!\n\nМы ценим инициативу, честность и преданность журналистскому делу. Каждый репортёр, радиоведущий и редактор получает прямые премиальные выплаты за качественные эфиры, интервью с первыми лицами штата и оперативные репортажи.\n\n• Рекордные премии до 10.000.000 вирт по итогам активности недели;\n• Быстрое продвижение по карьерной лестнице от стажёра до руководящего состава;\n• Доступ к служебному вертолёту D193SA и студийному комплексу в районе Commerce.\n\nПрисоединяйтесь к сильнейшей радиокоманде штата San Andreas!'
     },
@@ -9338,8 +9452,8 @@ document.addEventListener('DOMContentLoaded', () => {
       title: 'Работайте вместе с Los Santos News',
       subtitle: 'КАБИНЕТ ЖУРНАЛИСТА · ВАКАНСИИ 102.2 FM',
       accent: 'red',
-      author: 'Roy Westblock',
-      authorLogin: 'Roy Westblock',
+      author: 'Ray Westblock',
+      authorLogin: 'Ray Westblock',
       img: '',
       body: 'Независимая радиокомпания и редакция Los Santos News (волна 102.2 FM) приглашает в штат талантливых репортёров, радиоведущих прямого эфира, фотокорреспондентов и редакторов.\n\nНаш центральный офис в районе Commerce оснащён современной студией звукозаписи, автопарком фургонов SAN NEWS и собственным вертолётом D193SA для оперативных репортажей с воздуха.\n\n• Ежедневные премии за проведённые радиоэфиры, викторины и отредактированные объявления;\n• Быстрый карьерный рост от стажёра до программного и технического директора.'
     },
@@ -9348,8 +9462,8 @@ document.addEventListener('DOMContentLoaded', () => {
       title: 'Читайте материалы, опубликованные редакцией',
       subtitle: 'АНАЛИТИКА И РЕПОРТАЖИ LSN',
       accent: 'cyan',
-      author: 'Roy Westblock',
-      authorLogin: 'Roy Westblock',
+      author: 'Ray Westblock',
+      authorLogin: 'Ray Westblock',
       img: '',
       body: 'Каждый день корреспонденты Los Santos News следят за главными событиями мегаполиса: от решений мэрии и финансовых сводок башни Maze Bank до ночных стритрейсерских заездов и светских приёмов на Вайнвуд-Хиллз.\n\nВсе спецрепортажи, аналитические обзоры и эксклюзивные интервью публикуются в нашей цифровой ленте и звучат в круглосуточном эфире на частоте 102.2 FM.'
     }
@@ -10337,6 +10451,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Category Tabs in Cabinet:
     // "а у журналистов не должно быть это окно вообще с ролями"
     // "Так же рекламу, колонки со статьями не может добавлять, редактировать, журналист или читатель."
+    const backupTools = #lsn-content-backup-tools;
+    if (backupTools) backupTools.hidden = roleInfo.level !== 'admin';
+
     const permTab = $('[data-uni-type="permissions"]');
     if (permTab) permTab.hidden = !roleInfo.canManageRoles;
 
@@ -10678,7 +10795,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btn) { btn.disabled = true; btn.textContent = 'Регистрация…'; }
     try {
       // Безопасность: нельзя создавать новый аккаунт поверх активной сессии
-      // (например, когда сейчас открыт аккаунт Roy Westblock). Иначе Supabase
+      // (например, когда сейчас открыт аккаунт Ray Westblock). Иначе Supabase
       // может сохранить текущую сессию и интерфейс продолжит показывать admin.
       const { data: activeSession } = await sb.auth.getSession();
       if (activeSession?.session?.user) {
@@ -11522,7 +11639,7 @@ document.addEventListener('DOMContentLoaded', () => {
     delBtn.textContent = 'Удаление…';
     try {
       if (sb && isCloudType && isUuid) {
-        const { data, error } = await sb.from('lsn_articles').delete().eq('id', id).select('id');
+        const { data, error } = await sb.from('lsn_articles').update({ status: 'archived', updated_at: new Date().toISOString() }).eq('id', id).select('id');
         if (error || !Array.isArray(data) || data.length === 0) {
           throw error || new Error('Сервер не подтвердил удаление. Проверьте права доступа.');
         }
@@ -11552,6 +11669,278 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // ==========================================
+  // SUPABASE & LOCAL ARCHIVE ENGINE (TWO-TIER)
+  // ==========================================
+  const ARCHIVE_STORAGE_KEY = 'lsn_archive_store_v12';
+  let archiveFilter = 'all';
+
+  const getLocalArchive = () => {
+    try {
+      const raw = localStorage.getItem(ARCHIVE_STORAGE_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch (_) { return []; }
+  };
+
+  const saveLocalArchive = (items) => {
+    try {
+      localStorage.setItem(ARCHIVE_STORAGE_KEY, JSON.stringify(items));
+    } catch (_) {}
+  };
+
+  const saveItemToLocalArchive = (item) => {
+    if (!item || !item.id) return;
+    const current = getLocalArchive();
+    const idx = current.findIndex(x => x.id === item.id);
+    if (idx >= 0) current[idx] = item;
+    else current.unshift(item);
+    saveLocalArchive(current);
+  };
+
+  const removeFromLocalArchive = (id) => {
+    const current = getLocalArchive().filter(x => x.id !== id);
+    saveLocalArchive(current);
+  };
+
+  const renderArchiveList = async () => {
+    const listEl = #archive-items-list;
+    const counterEl = #archive-counter;
+    if (!listEl) return;
+
+    listEl.innerHTML = '<div style="padding:24px; text-align:center; color:#94a3b8;">Р—Р°РіСЂСѓР·РєР° Р°СЂС…РёРІР° РёР· Supabase...</div>';
+
+    let items = [...getLocalArchive()];
+
+    if (sb) {
+      try {
+        const { data, error } = await sb
+          .from('lsn_articles')
+          .select('*')
+          .eq('status', 'archived')
+          .order('updated_at', { ascending: false });
+
+        if (!error && Array.isArray(data)) {
+          data.forEach(row => {
+            const actType = row.type || 'news';
+            const exists = items.some(x => x.id === row.id);
+            if (!exists) {
+              items.push({
+                id: row.id,
+                actType: actType,
+                title: row.title || 'Р‘РµР· РЅР°Р·РІР°РЅРёСЏ',
+                category: row.category || '',
+                tag: row.category || '',
+                subtitle: row.category || '',
+                lead: row.lead || '',
+                shortText: row.lead || '',
+                excerpt: row.lead || row.excerpt || '',
+                body: row.body || '',
+                fullText: row.body || '',
+                author: row.author_name || row.author || 'Ray Westblock',
+                author_id: row.author_id,
+                img: safeImageUrl(row.image_url),
+                customImg: safeImageUrl(row.image_url),
+                archivedAt: row.updated_at || row.created_at || new Date().toISOString()
+              });
+            }
+          });
+        }
+      } catch (err) {
+        console.warn('Archive cloud fetch error:', err);
+      }
+    }
+
+    if (counterEl) {
+      counterEl.textContent = items.length + ' РІ Р°СЂС…РёРІРµ';
+    }
+
+    const filtered = archiveFilter === 'all'
+      ? items
+      : items.filter(x => (x.actType || 'news') === archiveFilter);
+
+    if (filtered.length === 0) {
+      listEl.innerHTML = '<div style=\"padding:40px 20px; text-align:center; color:#64748b; background:rgba(15,23,42,0.4); border-radius:12px; border:1px dashed rgba(255,255,255,0.08);\">' +
+        '<div style=\"font-size:32px; margin-bottom:8px;\">рџ“¦</div>' +
+        '<div style=\"font-size:15px; font-weight:600; color:#e2e8f0;\">Р’ Р°СЂС…РёРІРµ РїСѓСЃС‚Рѕ</div>' +
+        '<div style=\"font-size:13px; margin-top:4px;\">РЎРЅСЏС‚С‹Рµ СЃ РїСѓР±Р»РёРєР°С†РёРё РјР°С‚РµСЂРёР°Р»С‹ Рё РѕР±СЉСЏРІР»РµРЅРёСЏ СЃРѕС…СЂР°РЅСЏСЋС‚СЃСЏ Р·РґРµСЃСЊ Рё РјРѕРіСѓС‚ Р±С‹С‚СЊ РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅС‹ РІ 1 РєР»РёРє.</div>' +
+      '</div>';
+      return;
+    }
+
+    const typeLabels = {
+      ad: 'Р РµРєР»Р°РјР° / РћР±СЉСЏРІР»РµРЅРёРµ',
+      news: 'РќРѕРІРѕСЃС‚СЊ',
+      column: 'РљРѕР»РѕРЅРєР°',
+      staff: 'Р”РѕСЃСЊРµ / РЎРѕСЃС‚Р°РІ'
+    };
+    const typeBadges = {
+      ad: 'background:#059669; color:#fff;',
+      news: 'background:#2563eb; color:#fff;',
+      column: 'background:#d97706; color:#fff;',
+      staff: 'background:#7c3aed; color:#fff;'
+    };
+
+    listEl.innerHTML = filtered.map(item => {
+      const type = item.actType || 'news';
+      const label = typeLabels[type] || 'РњР°С‚РµСЂРёР°Р»';
+      const badgeStyle = typeBadges[type] || 'background:#475569; color:#fff;';
+      const title = escapeHtml(item.title || 'Р‘РµР· РЅР°Р·РІР°РЅРёСЏ');
+      const preview = escapeHtml(item.lead || item.shortText || item.excerpt || makeShortPreview(item.body || item.fullText || '', 120));
+      const author = escapeHtml(item.author || 'Р РµРґР°РєС†РёСЏ LSN');
+      const dateStr = item.archivedAt ? new Date(item.archivedAt).toLocaleString('ru-RU', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }) : 'РќРµРґР°РІРЅРѕ';
+
+      return '<div class=\"my-act-item\" style=\"display:flex; justify-content:space-between; align-items:center; gap:16px; padding:16px 20px; background:rgba(30,41,59,0.7); border:1px solid rgba(255,255,255,0.08); border-radius:10px; margin-bottom:10px; transition:border-color 0.2s ease;\">' +
+        '<div style=\"flex:1; min-width:0;\">' +
+          '<div style=\"display:flex; align-items:center; gap:8px; margin-bottom:6px;\">' +
+            '<span style=\"font-size:11px; font-weight:700; padding:2px 8px; border-radius:4px; text-transform:uppercase; ' + badgeStyle + '\">' + label + '</span>' +
+            '<span style=\"font-size:12px; color:#64748b;\">РђСЂС…РёРІРёСЂРѕРІР°РЅРѕ: ' + dateStr + '</span>' +
+            '<span style=\"font-size:12px; color:#94a3b8;\">В· РђРІС‚РѕСЂ: ' + author + '</span>' +
+          '</div>' +
+          '<h4 style=\"margin:0 0 4px 0; font-size:16px; font-weight:600; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;\">' + title + '</h4>' +
+          '<p style=\"margin:0; font-size:13px; color:#94a3b8; line-height:1.4; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;\">' + preview + '</p>' +
+        '</div>' +
+        '<div style=\"display:flex; gap:8px; flex-shrink:0;\">' +
+          '<button type=\"button\" class=\"uni-sec-btn\" data-archive-restore=\"' + item.id + '\" style=\"padding:8px 14px; font-size:13px; font-weight:600; color:#10b981; border:1px solid rgba(16,185,129,0.3); background:rgba(16,185,129,0.1); border-radius:8px; cursor:pointer; display:flex; align-items:center; gap:6px;\">' +
+            '<span>в†є</span> Р’РѕСЃСЃС‚Р°РЅРѕРІРёС‚СЊ РЅР° СЃР°Р№С‚' +
+          '</button>' +
+          '<button type=\"button\" class=\"uni-sec-btn\" data-archive-hard-delete=\"' + item.id + '\" style=\"padding:8px 14px; font-size:13px; font-weight:600; color:#f87171; border:1px solid rgba(248,113,113,0.3); background:rgba(248,113,113,0.08); border-radius:8px; cursor:pointer; display:flex; align-items:center; gap:6px;\">' +
+            '<span>рџ—‘пёЏ</span> РЈРґР°Р»РёС‚СЊ РЅР°РІСЃРµРіРґР°' +
+          '</button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  };
+
+  const restoreFromArchive = async (id) => {
+    if (!id || !currentUser) return;
+    const localItems = getLocalArchive();
+    const item = localItems.find(x => x.id === id);
+    const type = item?.actType || 'news';
+
+    unmarkIdAsDeleted(id);
+
+    if (type === 'ad') {
+      const adObj = {
+        id: item?.id || id,
+        title: item?.title || 'РћР±СЉСЏРІР»РµРЅРёРµ',
+        tag: item?.tag || item?.category || 'Los Santos News В· РџР°СЂС‚РЅС‘СЂС‹',
+        author: item?.author || currentUser.nickname || 'Ray Westblock',
+        authorLogin: item?.authorLogin || currentUser.nickname || 'Ray Westblock',
+        shortText: item?.shortText || item?.lead || '',
+        fullText: item?.fullText || item?.body || '',
+        customImg: item?.customImg || item?.img || '',
+        titleColor: item?.titleColor || ''
+      };
+      const idx = adsState.findIndex(x => x.id === id);
+      if (idx >= 0) adsState[idx] = adObj;
+      else adsState.push(adObj);
+      saveAdsState();
+      renderAdsCarousel();
+    } else if (type === 'column') {
+      const colObj = {
+        id: item?.id || id,
+        title: item?.title || 'РљРѕР»РѕРЅРєР°',
+        subtitle: item?.subtitle || item?.category || 'РњРЅРµРЅРёРµ',
+        author: item?.author || currentUser.nickname || 'Ray Westblock',
+        body: item?.body || item?.fullText || '',
+        img: item?.img || item?.customImg || '',
+        accent: item?.accent || 'amber',
+        titleColor: item?.titleColor || ''
+      };
+      const idx = columnsState.findIndex(x => x.id === id);
+      if (idx >= 0) columnsState[idx] = colObj;
+      else columnsState.push(colObj);
+      saveColumnsState();
+      renderEditorialColumns();
+    } else {
+      const newsObj = {
+        id: item?.id || id,
+        title: item?.title || 'РќРѕРІРѕСЃС‚СЊ',
+        category: item?.category || 'РќРѕРІРѕСЃС‚Рё',
+        author: item?.author || currentUser.nickname || 'Ray Westblock',
+        body: item?.body || item?.fullText || '',
+        excerpt: item?.excerpt || item?.lead || '',
+        img: item?.img || '',
+        createdAt: item?.createdAt || Date.now(),
+        important: !!item?.important,
+        status: 'published'
+      };
+      const idx = newsState.findIndex(x => x.id === id);
+      if (idx >= 0) newsState[idx] = newsObj;
+      else newsState.unshift(newsObj);
+      saveNewsState();
+      renderNewsSections();
+    }
+
+    removeFromLocalArchive(id);
+
+    if (sb) {
+      try {
+        await sb.from('lsn_articles').update({
+          status: 'published',
+          published_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }).eq('id', id);
+      } catch (err) {
+        console.warn('Supabase restore note:', err);
+      }
+    }
+
+    flashUniSaved('вњ… РњР°С‚РµСЂРёР°Р» СѓСЃРїРµС€РЅРѕ РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅ РЅР° СЃР°Р№С‚!');
+    renderArchiveList();
+  };
+
+  const permanentlyDeleteFromArchive = async (id, btn) => {
+    if (!id || !currentUser) return;
+    const roleInfo = getUserRoleInfo(currentUser);
+    if (roleInfo.rank < ROLE_HIERARCHY.deputy.rank && roleInfo.level !== 'admin') {
+      flashUniSaved('рџ”’ РћРєРѕРЅС‡Р°С‚РµР»СЊРЅРѕРµ С„РёР·РёС‡РµСЃРєРѕРµ СѓРґР°Р»РµРЅРёРµ РёР· Р±Р°Р·С‹ РґРѕСЃС‚СѓРїРЅРѕ СЂСѓРєРѕРІРѕРґСЃС‚РІСѓ (Р—Р°Рј. РґРёСЂРµРєС‚РѕСЂР° / Р”РёСЂРµРєС‚РѕСЂ / РђРґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂ).');
+      return;
+    }
+
+    if (btn && !btn.classList.contains('is-confirming')) {
+      btn.classList.add('is-confirming');
+      btn.dataset.origHtml = btn.innerHTML;
+      btn.innerHTML = 'вљ пёЏ РЈРґР°Р»РёС‚СЊ РЅР°РІСЃРµРіРґР° РёР· Р±Р°Р·С‹?';
+      btn.style.background = '#dc2626';
+      btn.style.borderColor = '#ef4444';
+      btn.style.color = '#fff';
+      const timer = setTimeout(() => {
+        if (btn && btn.isConnected) {
+          btn.classList.remove('is-confirming');
+          btn.innerHTML = btn.dataset.origHtml || 'рџ—‘пёЏ РЈРґР°Р»РёС‚СЊ РЅР°РІСЃРµРіРґР°';
+          btn.style.background = '';
+          btn.style.borderColor = '';
+          btn.style.color = '';
+        }
+      }, 3500);
+      btn._resetTimer = timer;
+      return;
+    }
+
+    if (btn && btn._resetTimer) clearTimeout(btn._resetTimer);
+    btn.disabled = true;
+    btn.innerHTML = 'РЈРґР°Р»РµРЅРёРµ РёР· Р±Р°Р·С‹...';
+
+    if (sb) {
+      try {
+        await sb.from('lsn_articles').delete().eq('id', id);
+      } catch (err) {
+        console.warn('Supabase hard delete error:', err);
+      }
+    }
+
+    removeFromLocalArchive(id);
+    markIdAsDeleted(id);
+
+    flashUniSaved('рџ—‘пёЏ РњР°С‚РµСЂРёР°Р» РЅР°РІСЃРµРіРґР° СѓРґР°Р»С‘РЅ РёР· Р±Р°Р·С‹ РґР°РЅРЅС‹С… Supabase');
+    renderArchiveList();
+  };
+
+  window.renderArchiveList = renderArchiveList;
+  window.restoreFromArchive = restoreFromArchive;
+  window.permanentlyDeleteFromArchive = permanentlyDeleteFromArchive;
+
   const switchUniCategory = (type, specificItemId = null) => {
     const roleInfo = getUserRoleInfo(currentUser);
 
@@ -11560,7 +11949,7 @@ document.addEventListener('DOMContentLoaded', () => {
       type = 'news';
       flashUniSaved('🔒 Управление пользователями и ролями доступно только администратору');
     }
-    if (!canOpenEditorialType(type, roleInfo) && type !== 'my-activities') {
+    if (!canOpenEditorialType(type, roleInfo) && type !== 'my-activities' && type !== 'archive') {
       type = 'news';
       flashUniSaved(
         roleInfo.level === 'journalist'
@@ -11575,6 +11964,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const contentWs = $('#uni-content-workspace');
     const permsWs = $('#uni-permissions-workspace');
     const myActWs = $('#uni-my-activities-workspace');
+
+    const archiveWs = #uni-archive-workspace;
+    if (type === 'archive') {
+      if (contentWs) contentWs.hidden = true;
+      if (permsWs) permsWs.hidden = true;
+      if (myActWs) myActWs.hidden = true;
+      if (archiveWs) archiveWs.hidden = false;
+      renderArchiveList();
+      return;
+    }
+    if (archiveWs) archiveWs.hidden = true;
 
     if (type === 'my-activities') {
       if (contentWs) contentWs.hidden = true;
@@ -11747,7 +12147,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const validCloudId = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(id || ''));
     if (sb && validCloudId && ['news', 'ad', 'column'].includes(type)) {
       sb.from('lsn_articles')
-        .delete()
+        .update({ status: 'archived', updated_at: new Date().toISOString() })
         .eq('id', id)
         .select('id')
         .then(({ data, error }) => {
@@ -11819,7 +12219,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (listError) throw listError;
         if (Array.isArray(rows) && rows.length) {
           const { data: deletedRows, error: deleteError } = await sb.from('lsn_articles')
-            .delete().eq('type', currentUniType).select('id');
+        .update({ status: 'archived', updated_at: new Date().toISOString() })
           if (deleteError) throw deleteError;
           if (!Array.isArray(deletedRows) || deletedRows.length !== rows.length) {
             throw new Error('Сервер подтвердил удаление не всех материалов.');
@@ -11918,53 +12318,78 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const deleteUniItemById = async (id) => {
     if (!id || !currentUser) return;
-    if (!canUserDeleteItem(getStoreForType(currentUniType).find(x => x.id === id))) return;
-    if (id === 'staff-intro') return;
     const store = getStoreForType(currentUniType);
     const item = store.find(x => x.id === id);
-    if (item && !canUserDeleteItem(item)) {
+    if (!item) return;
+    if (!canUserDeleteItem(item)) {
       alert(currentUniType === 'ad'
-        ? '🔒 Удалять объявления может только руководство.'
+        ? 'Удалять объявления может только руководство.'
         : currentUniType === 'column'
-          ? '🔒 Удалять колонки может только руководство.'
-          : '🔒 Доступ запрещен для этой роли.');
+          ? 'Удалять колонки может только руководство.'
+          : 'Доступ запрещен для этой роли.');
       return;
     }
-    const removeLocal = () => {
-      markIdAsDeleted(id);
-      if (currentUniType === 'news') {
-        newsState = newsState.filter(x => x.id !== id);
-        saveNewsState();
-        renderNewsSections();
-      } else if (currentUniType === 'ad') {
-        adsState = adsState.filter(x => x.id !== id);
-        saveAdsState();
-        renderAdsCarousel();
-      } else if (currentUniType === 'column') {
-        columnsState = columnsState.filter(x => x.id !== id);
-        saveColumnsState();
-        renderEditorialColumns();
-      } else if (currentUniType === 'staff') {
-        staffState.members = staffState.members.filter(x => x.id !== id);
-        saveStaffState();
-        renderStaffSection();
-        if (typeof renderSanRatingTableUI === 'function') renderSanRatingTableUI();
-        if (typeof checkSundayMondaySync === 'function') checkSundayMondaySync();
-      }
-    };
+    if (id === 'staff-intro') return;
+
+    // 1. Move to local archive
+    const archivedItem = Object.assign({}, item, {
+      actType: currentUniType,
+      archivedAt: new Date().toISOString()
+    });
+    saveItemToLocalArchive(archivedItem);
+
+    // 2. Soft-delete on Supabase (status = 'archived')
     const validCloudId = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(id || ''));
-    if (sb && validCloudId && (currentUniType === 'news' || currentUniType === 'ad' || currentUniType === 'column')) {
-      const { data: deletedRows, error } = await sb.from('lsn_articles').delete().eq('id', id).select('id');
-      if (error || !Array.isArray(deletedRows) || deletedRows.length === 0) {
-        console.error('Supabase delete article:', error || 'No row was deleted');
-        alert('Удаление не подтверждено сервером. Материал оставлен без изменений.');
-        return;
+    if (sb && (currentUniType === 'news' || currentUniType === 'ad' || currentUniType === 'column')) {
+      try {
+        if (validCloudId) {
+          await sb.from('lsn_articles').update({ status: 'archived', updated_at: new Date().toISOString() }).eq('id', id);
+        } else {
+          await sb.from('lsn_articles').upsert({
+            id: id,
+            type: currentUniType,
+            title: item.title || '',
+            category: item.category || item.tag || item.subtitle || '',
+            lead: item.excerpt || item.shortText || '',
+            body: item.body || item.fullText || '',
+            author: item.author || currentUser?.nickname || 'Ray Westblock',
+            author_name: item.author || currentUser?.nickname || 'Ray Westblock',
+            author_id: currentUser?.uuid || null,
+            status: 'archived',
+            updated_at: new Date().toISOString()
+          });
+        }
+      } catch (err) {
+        console.warn('Supabase archive update note:', err);
       }
     }
-    removeLocal();
+
+    // 3. Remove from active store
+    markIdAsDeleted(id);
+    if (currentUniType === 'news') {
+      newsState = newsState.filter(x => x.id !== id);
+      saveNewsState();
+      renderNewsSections();
+    } else if (currentUniType === 'ad') {
+      adsState = adsState.filter(x => x.id !== id);
+      saveAdsState();
+      renderAdsCarousel();
+    } else if (currentUniType === 'column') {
+      columnsState = columnsState.filter(x => x.id !== id);
+      saveColumnsState();
+      renderEditorialColumns();
+    } else if (currentUniType === 'staff') {
+      staffState.members = staffState.members.filter(x => x.id !== id);
+      saveStaffState();
+      renderStaffSection();
+      if (typeof renderSanRatingTableUI === 'function') renderSanRatingTableUI();
+      if (typeof checkSundayMondaySync === 'function') checkSundayMondaySync();
+    }
+
     const updatedStore = getStoreForType(currentUniType);
     loadItemIntoUniForm(updatedStore[0]?.id || null);
-    flashUniSaved('Удалено');
+    renderUniItemsList();
+    flashUniSaved('Материал перемещён в Архив Supabase');
   };
 
   $('#uni-items-list')?.addEventListener('click', (e) => {
@@ -11996,6 +12421,29 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       if (delBtn._resetTimer) clearTimeout(delBtn._resetTimer);
       deleteUniItemById(delBtn.dataset.uniDel);
+    }
+  });
+
+  // Archive workspace event delegation
+  $('#uni-archive-workspace')?.addEventListener('click', (e) => {
+    const filterBtn = e.target.closest('[data-archive-filter]');
+    if (filterBtn) {
+      archiveFilter = filterBtn.dataset.archiveFilter || 'all';
+      $$('[data-archive-filter]').forEach(b => b.classList.toggle('is-active', b === filterBtn));
+      renderArchiveList();
+      return;
+    }
+
+    const restoreBtn = e.target.closest('[data-archive-restore]');
+    if (restoreBtn) {
+      restoreFromArchive(restoreBtn.dataset.archiveRestore);
+      return;
+    }
+
+    const hardDelBtn = e.target.closest('[data-archive-hard-delete]');
+    if (hardDelBtn) {
+      permanentlyDeleteFromArchive(hardDelBtn.dataset.archiveHardDelete, hardDelBtn);
+      return;
     }
   });
 
@@ -12827,6 +13275,160 @@ document.addEventListener('DOMContentLoaded', () => {
   renderEditorialColumns();
   renderStaffSection();
 
+  // ==========================================
+  // V13 EDITORIAL BACKUP & RESTORE SUITE (JSON)
+  // ==========================================
+  const EDITORIAL_BOOTSTRAP_LOCAL_KEY = 'lsn_cloud_editorial_initialized_v1';
+  const isUuidValue = (value) => /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(value || ''));
+
+  const readEditorialInitialized = async () => {
+    if (sb) {
+      try {
+        const { data, error } = await sb.from('lsn_editorial_state').select('initialized').eq('id', true).maybeSingle();
+        if (!error && data) return !!data.initialized;
+      } catch (_) {}
+    }
+    try { return localStorage.getItem(EDITORIAL_BOOTSTRAP_LOCAL_KEY) === 'true'; } catch (_) { return false; }
+  };
+
+  const markEditorialInitialized = async () => {
+    let serverMarked = false;
+    if (sb && currentUser && getUserRoleInfo(currentUser).rank >= 3) {
+      try {
+        const { data, error } = await sb.rpc('lsn_mark_editorial_state_initialized');
+        serverMarked = !error && data === true;
+        if (error) console.warn('Editorial migration marker RPC is unavailable:', error.message);
+      } catch (e) { console.warn('Editorial marker was not written to Supabase:', e); }
+    }
+    try { localStorage.setItem(EDITORIAL_BOOTSTRAP_LOCAL_KEY, 'true'); } catch (_) {}
+    return serverMarked;
+  };
+
+  const mapLocalItemToCloudRow = (type, item) => {
+    if (!item || !String(item.title || '').trim() || isItemDeleted(item.id)) return null;
+    const oldId = String(item.id || '');
+    const id = isUuidValue(oldId) ? oldId : createArticleUuid();
+    item.id = id;
+    const authorId = currentUser?.uuid || null;
+    const authorName = item.author || item.author_name || currentUser?.fullName || currentUser?.nickname || 'Ray Westblock';
+    const category = type === 'ad' ? (item.tag || item.category || 'Р РµРєР»Р°РјР°') : type === 'column' ? (item.subtitle || item.category || 'РљРѕР»РѕРЅРєР°') : (item.category || 'РќРѕРІРѕСЃС‚Рё');
+    const body = String(item.body || item.fullText || '');
+    const image = safeImageUrl(item.img || item.customImg || item.image_url || '');
+    const status = type === 'news' ? (item.status === 'draft' ? 'draft' : 'published') : 'published';
+    return {
+      id, type, title: String(item.title).slice(0, 140), category, body,
+      excerpt: String(item.excerpt || item.shortText || makeShortPreview(body, 160)).slice(0,240),
+      lead: String(item.lead || item.excerpt || item.shortText || makeShortPreview(body, 160)).slice(0,240),
+      author_name: String(authorName).slice(0,100), author_id: authorId,
+      image_url: image, status, updated_at: new Date().toISOString(),
+      metadata: { accent: item.accent || 'amber', titleColor: item.titleColor || '' }
+    };
+  };
+
+  const LSN_BACKUP_SCHEMA = 'lsn-editorial-backup-v1';
+  const downloadEditorialBackup = () => {
+    const payload = {
+      schema: LSN_BACKUP_SCHEMA,
+      exportedAt: new Date().toISOString(),
+      content: {
+        news: newsState,
+        ads: adsState,
+        columns: columnsState,
+        staff: staffState,
+        deletedIds: getDeletedIds(),
+        cleared: ['news','ad','column'].reduce((acc, type) => { acc[type] = isSectionCleared(type); return acc; }, {})
+      }
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = lsn-content-backup-.json;
+    document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    flashUniSaved('Р РµР·РµСЂРІРЅР°СЏ РєРѕРїРёСЏ СЃРєР°С‡Р°РЅР°');
+  };
+
+  const validateBackupArray = (value, max, label) => {
+    if (!Array.isArray(value) || value.length > max) throw new Error(РќРµРєРѕСЂСЂРµРєС‚РЅС‹Р№ СЂР°Р·РґРµР» В«В»);
+    for (const item of value) {
+      if (!item || typeof item !== 'object' || typeof item.id !== 'string' || typeof item.title !== 'string') {
+        throw new Error(Р’ СЂРµР·РµСЂРІРЅРѕР№ РєРѕРїРёРё РїРѕРІСЂРµР¶РґС‘РЅ СЂР°Р·РґРµР» В«В»);
+      }
+      if (item.title.length > 160 || String(item.body || item.fullText || '').length > 20000) {
+        throw new Error(РЎР»РёС€РєРѕРј Р±РѕР»СЊС€РѕР№ РјР°С‚РµСЂРёР°Р» РІ СЂР°Р·РґРµР»Рµ В«В»);
+      }
+    }
+    return value;
+  };
+
+  const restoreEditorialBackup = async (file) => {
+    if (!file || file.size > 12 * 1024 * 1024) throw new Error('Р¤Р°Р№Р» СЂРµР·РµСЂРІРЅРѕР№ РєРѕРїРёРё РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РјРµРЅСЊС€Рµ 12 РњР‘');
+    const backup = JSON.parse(await file.text());
+    if (!backup || backup.schema !== LSN_BACKUP_SCHEMA || !backup.content) throw new Error('Р¤Р°Р№Р» РЅРµ СЏРІР»СЏРµС‚СЃСЏ СЂРµР·РµСЂРІРЅРѕР№ РєРѕРїРёРµР№ Los Santos News');
+    const role = getUserRoleInfo(currentUser);
+    if (role.level !== 'admin') throw new Error('Р’РѕСЃСЃС‚Р°РЅР°РІР»РёРІР°С‚СЊ РєРѕРЅС‚РµРЅС‚ РјРѕР¶РµС‚ С‚РѕР»СЊРєРѕ Р°РґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂ');
+    const content = backup.content;
+    const incomingNews = validateBackupArray(content.news || [], 500, 'РќРѕРІРѕСЃС‚Рё');
+    const incomingAds = validateBackupArray(content.ads || [], 250, 'Р РµРєР»Р°РјР°');
+    const incomingColumns = validateBackupArray(content.columns || [], 250, 'РљРѕР»РѕРЅРєРё');
+    if (!content.staff || typeof content.staff !== 'object' || !Array.isArray(content.staff.members)) throw new Error('РќРµРєРѕСЂСЂРµРєС‚РЅС‹Р№ СЃРѕСЃС‚Р°РІ СЂРµРґР°РєС†РёРё');
+
+    const explicitRestoreIds = new Set([...incomingNews, ...incomingAds, ...incomingColumns].map(item => String(item.id)));
+    try {
+      localStorage.setItem(DELETED_ITEMS_KEY, JSON.stringify(getDeletedIds().filter(id => !explicitRestoreIds.has(String(id)))));
+    } catch (_) {}
+    const merge = (current, incoming) => {
+      const map = new Map((current || []).filter(x => x && x.id && !explicitRestoreIds.has(String(x.id)) && !isItemDeleted(x.id)).map(x => [String(x.id), x]));
+      incoming.forEach(item => { if (item && item.id) map.set(String(item.id), item); });
+      return Array.from(map.values()).filter(x => x && x.id);
+    };
+    newsState = merge(newsState, incomingNews);
+    adsState = merge(adsState, incomingAds);
+    columnsState = merge(columnsState, incomingColumns);
+    staffState = content.staff;
+    if (Array.isArray(content.deletedIds)) {
+      try {
+        const keep = new Set(getDeletedIds());
+        content.deletedIds.slice(0,2000).forEach(id => { if (typeof id === 'string' && !explicitRestoreIds.has(id)) keep.add(id); });
+        localStorage.setItem(DELETED_ITEMS_KEY, JSON.stringify(Array.from(keep)));
+      } catch (_) {}
+    }
+    if (content.cleared && typeof content.cleared === 'object') {
+      ['news','ad','column'].forEach(type => {
+        if (content.cleared[type] === true) markSectionCleared(type, true);
+        else markSectionCleared(type, false);
+      });
+    }
+    saveNewsState(); saveAdsState(); saveColumnsState(); saveStaffState();
+    renderNewsSections(); renderAdsCarousel(); renderEditorialColumns(); renderStaffSection();
+    if (sb) {
+      const rows = [];
+      const addRestored = (type, list) => (list || []).forEach(item => {
+        const row = mapLocalItemToCloudRow(type, item);
+        if (row) rows.push(row);
+      });
+      addRestored('news', newsState); addRestored('ad', adsState); addRestored('column', columnsState);
+      if (rows.length) {
+        const { error } = await sb.from('lsn_articles').upsert(rows, { onConflict: 'id' });
+        if (error) console.warn('Supabase backup restore sync error:', error.message);
+      }
+    }
+    await markEditorialInitialized();
+    const synced = await syncArticlesFromCloud();
+    flashUniSaved('РљРѕРЅС‚РµРЅС‚ СѓСЃРїРµС€РЅРѕ РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅ РёР· СЂРµР·РµСЂРІРЅРѕР№ РєРѕРїРёРё');
+  };
+
+  #lsn-export-content-backup?.addEventListener('click', downloadEditorialBackup);
+  #lsn-import-content-backup?.addEventListener('change', async (event) => {
+    const input = event.currentTarget;
+    const file = input?.files?.[0];
+    if (!file) return;
+    try { await restoreEditorialBackup(file); }
+    catch (error) {
+      console.error('Backup restore failed:', error);
+      flashUniSaved(РћС€РёР±РєР° РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёСЏ: );
+    } finally { if (input) input.value = ''; }
+  });
+
   // Mobile & Cross-device Cloud Sync. The database is the source of truth.
   let hasAuthoritativeArticleSnapshot = false;
   const syncArticlesFromCloud = async () => {
@@ -12851,7 +13453,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Do not seed demo content into an empty database. Empty result is a valid,
       // authoritative state (for example after an editor deletes all news).
-      const cloudNews = data.filter(row => row.type === 'news').map(row => ({
+      // Sync cloud archived items into local archive store
+      const cloudArchived = data.filter(row => row.status === 'archived');
+      if (cloudArchived.length > 0) {
+        const localArch = getLocalArchive();
+        cloudArchived.forEach(row => {
+          if (!localArch.some(x => x.id === row.id)) {
+            localArch.push({
+              id: row.id,
+              actType: row.type || 'news',
+              title: row.title || 'Р‘РµР· РЅР°Р·РІР°РЅРёСЏ',
+              category: row.category || '',
+              tag: row.category || '',
+              lead: row.lead || '',
+              shortText: row.lead || '',
+              excerpt: row.lead || row.excerpt || '',
+              body: row.body || '',
+              fullText: row.body || '',
+              author: row.author_name || row.author || 'Ray Westblock',
+              author_id: row.author_id,
+              img: safeImageUrl(row.image_url),
+              customImg: safeImageUrl(row.image_url),
+              archivedAt: row.updated_at || row.created_at || new Date().toISOString()
+            });
+          }
+        });
+        saveLocalArchive(localArch);
+      }
+
+      const cloudNews = data.filter(row => row.type === 'news' && row.status !== 'archived').map(row => ({
         id: row.id,
         title: row.title,
         category: row.category || 'Новости',
@@ -12868,7 +13498,7 @@ document.addEventListener('DOMContentLoaded', () => {
       saveNewsState();
       renderNewsSections();
 
-      const cloudColumns = data.filter(row => row.type === 'column').map(row => ({
+      const cloudColumns = data.filter(row => row.type === 'column' && row.status !== 'archived').map(row => ({
         id: row.id,
         title: row.title,
         subtitle: row.category || 'Колонка',
@@ -12884,7 +13514,7 @@ document.addEventListener('DOMContentLoaded', () => {
       saveColumnsState();
       renderEditorialColumns();
 
-      const cloudAds = data.filter(row => row.type === 'ad').map(row => ({
+      const cloudAds = data.filter(row => row.type === 'ad' && row.status !== 'archived').map(row => ({
         id: row.id,
         title: row.title,
         tag: row.category || 'Los Santos News · Партнёры',
@@ -12896,9 +13526,32 @@ document.addEventListener('DOMContentLoaded', () => {
         author_id: row.author_id || null, published_at: row.published_at || null,
         metadata: row.metadata || {}
       }));
-      adsState = cloudAds;
-      saveAdsState();
-      renderAdsCarousel();
+      if (cloudAds.length > 0) {
+        adsState = cloudAds;
+        saveAdsState();
+        renderAdsCarousel();
+      } else {
+        // Keep existing ads and upload to Supabase so they are never lost!
+        if (adsState.length > 0 && sb) {
+          const toSeed = adsState.map(a => ({
+            id: a.id,
+            type: 'ad',
+            title: a.title,
+            category: a.tag || 'Los Santos News · Партнёры',
+            lead: a.shortText || makeShortPreview(a.fullText || '', 165),
+            body: a.fullText || '',
+            author: a.author || 'Ray Westblock',
+            author_name: a.author || 'Ray Westblock',
+            author_id: currentUser?.uuid || null,
+            status: 'published',
+            published_at: new Date().toISOString(),
+            metadata: { titleColor: a.titleColor || '' }
+          }));
+          sb.from('lsn_articles').upsert(toSeed).then(({ error }) => {
+            if (error) console.warn('Supabase persistent ads seed note:', error.message);
+          });
+        }
+      }
       hasAuthoritativeArticleSnapshot = true;
       return true;
     } catch (e) {

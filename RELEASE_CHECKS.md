@@ -1,15 +1,15 @@
-# V12 Repair Check Log
+# V13 release checks
 
-- Preserved the V11 HTML hardening changes (UUID ids, safe image URL and color handling, article content rendered as text).
-- Restored read-and-save compatibility for existing v20/v18/v16/v12 localStorage keys; application startup no longer deletes those keys.
-- Restored the previous default editorial column content.
-- A successful Supabase query is authoritative; empty result remains empty for news, preventing deleted news from being recreated from a stale browser cache. Failed network requests no longer clear the visible cache.
-- Added an idempotent SQL migration for durable LSN house-advertisements and editorial columns. No news items are seeded.
-- Redesigned only the editorial cabinet's layout, tabs, cards, form controls and responsive behavior; homepage styling and sections are preserved.
-- Admin recovery is a manual SQL script for the previously designated primary admin only. It is intentionally not an automatically deployed privilege-escalation path.
-- Requires live post-deploy browser smoke test. Exact custom ads that existed only in browser localStorage cannot be reconstructed from a clean checkout if the prior V11 script has already removed those keys; the content migration restores editable, database-backed LSN ads and columns.
+Static validations executed during packaging:
+- `node --check` passed for all inline JavaScript blocks in `index.html`.
+- HTML parsing found no duplicate IDs.
+- The V12 cabinet polish override and premium media picker are absent; the classic photo upload and site illustration album markup is present.
+- The unwanted public `Подать объявление` button/label is absent.
+- There are no startup `localStorage.removeItem()` calls for the news/ad/column content keys.
+- The previous HTML and V12 HTML are included under `recovery/backups/` for manual rollback.
 
+This package cannot recover client-local ad records that a previous release explicitly erased; no such JSON backup is present in the available files, and the live Supabase table was empty when examined. It restores the known built-in LSN news/columns, adds the known LSN recruitment advertisement, restores the image album/editor, and protects future saves with an export/import feature and one-time cloud migration marker.
 
-## Live database state
+Still required after deployment: run admin recovery SQL if the exact account check matches, then test sign-in, role management, media upload, content upsert/delete and feed refresh in a live browser. The editorial-state marker migrations are already applied to production.
 
-The V12 restoration SQL is packaged but was not applied to the live project in this run. Run the content migration once in Supabase SQL Editor. The administrator recovery script is manual and targets the previously recorded Ray Westblock profile only; run `inspect_profile_roles.sql` first if the account name is uncertain.
+Live Supabase check: the editorial marker row exists and is pending (`initialized=false`); the database currently contains three published `column` rows and no `news`/`ad` rows, so the next management session can restore the built-in/available local news and LSN advertisement instead of treating the partial table as complete. The marker migrations 20261025084552 and 20261025084553 are applied. Admin role restoration was not executed via this session; see the manual, account-specific SQL script.
