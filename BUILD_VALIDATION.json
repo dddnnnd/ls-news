@@ -1,6 +1,6 @@
 {
   "release": "V13 Recovery Merged Edition",
-  "html_bytes": 3326715,
+  "html_bytes": 3356525,
   "inline_javascript_blocks_passed": 2,
   "edge_function_count": 3,
   "edge_function_typescript_syntax": "passed (Node strip-types syntax check only)",
@@ -23,7 +23,7 @@
   "file_count": 21,
   "browser_e2e": "verified headless dom dump clean",
   "remaining_live_steps": [
-    "restore admin role in Supabase SQL Editor if needed using restore_primary_admin.sql",
+    "run supabase/sql/fix_permissions_and_admin.sql in Supabase SQL Editor",
     "sign in to V13 as Ray Westblock"
   ]
 }
