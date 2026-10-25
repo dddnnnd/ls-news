@@ -30,7 +30,7 @@ supabase functions deploy username-login --no-verify-jwt
 supabase functions deploy username-available --no-verify-jwt
 supabase functions deploy username-password-reset --no-verify-jwt
 ```
-Публичные функции `username-login` и `username-available` проверяют входные данные и используют серверный ограничитель частоты запросов. `admin-delete-user` требует JWT и отдельно проверяет роль `admin`. Секретный/service-role ключ остаётся только в серверной среде и никогда не должен появляться в `index.html` или GitHub.
+Публичные функции `username-login`, `username-available` и `username-password-reset` проверяют входные данные и используют серверный ограничитель частоты запросов. `admin-delete-user` требует JWT и отдельно проверяет роль `admin`. Секретный/service-role ключ остаётся только в серверной среде и никогда не должен появляться в `index.html` или GitHub.
 ## Проверки и пределы гарантий
 Статический HTML разобран; встроенный JavaScript проверен через `node --check`; дублирующихся ID не обнаружено. Эти проверки не заменяют браузерный тест на опубликованном домене. После публикации проверьте вход, регистрацию, сохранение материала, загрузку фото, выбор иллюстрации, удаление и повторное обновление ленты.
 На Supabase Free проверка паролей через HaveIBeenPwned остаётся недоступной по ограничению тарифа; сборка не пытается обходить это ограничение.

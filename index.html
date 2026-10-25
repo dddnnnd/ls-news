@@ -13,8 +13,12 @@
         var lastVer = localStorage.getItem('lsn_app_ver');
         if (lastVer && lastVer !== LSN_APP_VER) {
           localStorage.setItem('lsn_app_ver', LSN_APP_VER);
-          if (!window.location.search.includes('v=')) {
-            window.location.replace(window.location.pathname + '?v=' + Date.now() + window.location.hash);
+          var searchStr = window.location.search || '';
+          var hashStr = window.location.hash || '';
+          var isAuthCallback = searchStr.indexOf('code=') !== -1 || searchStr.indexOf('type=recovery') !== -1 || hashStr.indexOf('access_token') !== -1 || hashStr.indexOf('type=recovery') !== -1;
+          if (!isAuthCallback && searchStr.indexOf('v=') === -1) {
+            var sep = searchStr.indexOf('?') !== -1 ? '&' : '?';
+            window.location.replace(window.location.pathname + searchStr + sep + 'v=' + Date.now() + hashStr);
           }
         } else {
           localStorage.setItem('lsn_app_ver', LSN_APP_VER);
@@ -6014,7 +6018,6 @@ html[data-font-theme="comfortaa"] {
 }
 
 /* Cursor glow CSS removed */
-}
 
 /* Staff Slider Controls & Carousel Grid */
 .lsn-staff-slider-controls {
@@ -7998,50 +8001,26 @@ h1, h2, h3, h4,
           </div>
         </div>
       </div>
-      <div class="cab-ads-layout">
-        <div class="cab-ads-list-col">
-          <div class="cab-ads-col-header">
-            <h3 style="margin:0; font-size:16px; color:#fff;">Сотрудники и роли орг. LSN</h3>
+      <div style="margin-top:14px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:12px; flex-wrap:wrap;">
+          <div>
+            <h3 style="margin:0; font-size:16px; color:#fff;">Пользователи и роли портала</h3>
+            <span style="font-size:12px; color:#94a3b8;">Назначайте должности в один клик через выпадающий список у каждого пользователя</span>
           </div>
-          <div class="cab-ads-items" id="uni-journalists-list"></div>
+          <input type="search" id="uni-perm-search" placeholder="🔍 Поиск по имени или логину..." style="background:#131822; color:#fff; border:1px solid rgba(255,255,255,0.15); border-radius:10px; padding:8px 14px; font-size:13px; width:280px; max-width:100%;">
         </div>
-
-        <div class="cab-ads-form-col">
-          <div class="cab-ads-col-header">
-            <h3 style="margin:0; font-size:16px; color:#fff;" id="uni-perm-form-title">Выдать полномочия / роль</h3>
-          </div>
-          <div id="uni-perm-readonly-notice" style="padding:14px; background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.25); border-radius:12px; margin-bottom:14px; color:#fef3c7; font-size:13px;" hidden>
-            🔒 Управление ролями и зарегистрированными пользователями доступно только <b>Администратору</b>. Пользователь должен уже иметь аккаунт на портале.</div>
-          <form id="uni-add-journalist-form" class="cab-ad-form">
-            <label>
-              Выберите зарегистрированный аккаунт на портале
-              <select id="uni-select-registered-user" style="background:#131822; color:#fff; border:1px solid rgba(255,255,255,0.15); border-radius:10px; padding:10px 12px; font-size:13px; width:100%; margin-bottom:4px;">
-                <option value="">-- Выбрать из зарегистрированных пользователей --</option>
-              </select>
-            </label>
-            <label>
-              Зарегистрированный пользователь (имя и фамилия)
-              <input type="text" id="uni-new-journalist-login" required maxlength="60" placeholder="Например: Julian Reed">
-            </label>
-            <label>
-              Назначаемый уровень полномочий
-              <select id="uni-new-journalist-level" style="background:#131822; color:#fff; border:1px solid rgba(255,255,255,0.15); border-radius:10px; padding:10px 12px; font-size:13.5px; width:100%;">
-                <option value="director">👑 Генеральный директор</option>
-                <option value="deputy">⭐ Заместитель генерального директора</option>
-                <option value="journalist" selected>📝 Журналист</option>
-                <option value="user">👤 Пользователь</option>
-              </select>
-            </label>
-            <label>
-              Отображаемая должность в редакции
-              <input type="text" id="uni-new-journalist-role" maxlength="60" placeholder="Например: Специальный корреспондент">
-            </label>
-            <button type="submit" class="lsn-staff-btn lsn-staff-btn--primary" id="uni-perm-submit-btn" style="justify-self:start; padding:10px 22px;">
-              Выдать полномочия
-            </button>
-          </form>
+        <div id="uni-perm-readonly-notice" style="padding:14px; background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.25); border-radius:12px; margin-bottom:14px; color:#fef3c7; font-size:13px;" hidden>
+          🔒 Управление ролями доступно только <b>Администратору</b>.
         </div>
+        <div class="cab-ads-items" id="uni-journalists-list" style="max-height:480px; overflow-y:auto; padding-right:4px;"></div>
       </div>
+      <!-- Hidden elements for backward compatibility -->
+      <form id="uni-add-journalist-form" style="display:none;" hidden>
+        <select id="uni-select-registered-user"></select>
+        <input type="text" id="uni-new-journalist-login">
+        <select id="uni-new-journalist-level"></select>
+        <input type="text" id="uni-new-journalist-role">
+      </form>
     </section>
 
     <!-- C. MY ACTIVITIES WORKSPACE (#uni-my-activities-workspace) -->
@@ -8088,6 +8067,7 @@ h1, h2, h3, h4,
             <button type="button" class="my-act-filter-btn" data-archive-filter="ad">Реклама</button>
             <button type="button" class="my-act-filter-btn" data-archive-filter="news">Новости</button>
             <button type="button" class="my-act-filter-btn" data-archive-filter="column">Колонки</button>
+            <button type="button" class="my-act-filter-btn" data-archive-filter="staff">Досье / Состав</button>
           </div>
         </div>
 
@@ -10583,7 +10563,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (myActTab) myActTab.hidden = !roleInfo.isJournalist;
 
     const archiveTab = $('[data-uni-type="archive"]');
-    if (archiveTab) archiveTab.hidden = !roleInfo.isManagement;
+    if (archiveTab) archiveTab.hidden = !(roleInfo && roleInfo.rank >= 4);
 
     const loggedInBox = $('#auth-logged-in-box');
     const guestForms = $('#auth-guest-forms');
@@ -11193,7 +11173,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const inMain = isInMainNews(item);
         statusHtml = inMain
           ? `<div class="cab-ad-item__tag" style="color:${item.important ? '#f43f5e' : '#fbbf24'};">${item.important ? '🔥 Важная (4 дн)' : '⚡ В эфире'} • ${formatMainLeft(item)}</div>`
-          : `<div class="cab-ad-item__tag" style="color:#94a3b8;">📁 В архиве</div>`;
+          : `<div class="cab-ad-item__tag" style="color:#94a3b8;">📰 В ленте новостей</div>`;
         if (!inMain) bumpHtml = `<button type="button" class="cab-ad-mini-btn" data-uni-bump="${item.id}">Поднять в эфир</button>`;
       } else if (currentUniType === 'staff') {
         statusHtml = `<div class="cab-ad-item__tag" style="color:#94a3b8;">Сотрудник #${idx + 1} • ${escapeHtml(item.role || '')}</div>`;
@@ -11396,16 +11376,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const selectRoleLevel = $('#uni-new-journalist-level');
 
     if (notice) notice.hidden = roleInfo.canManageRoles;
-    if (addForm) addForm.hidden = !roleInfo.canManageRoles;
+    if (addForm) { addForm.hidden = true; addForm.style.display = 'none'; }
 
     if (!listEl) return;
     listEl.innerHTML = '';
+
+    const searchInput = $('#uni-perm-search');
+    const query = (searchInput?.value || '').trim().toLowerCase();
 
     // Get visible users according to hierarchy:
     // - Admin sees all
     // - Leader sees leader, deputy, journalist, reader (Admins hidden)
     // - Deputy sees deputy, journalist, reader (Admins and Leader hidden)
-    const visibleUsers = getVisibleUsersForActor(currentUser);
+    let visibleUsers = getVisibleUsersForActor(currentUser);
+    if (query) {
+      visibleUsers = visibleUsers.filter(u => {
+        const uName = (u.username || '').toLowerCase();
+        const uFull = (u.fullName || '').toLowerCase();
+        const uEmail = (u.email || '').toLowerCase();
+        return uName.includes(query) || uFull.includes(query) || uEmail.includes(query);
+      });
+    }
     const allowedAssignable = getAllowedAssignableRoles(currentUser);
 
     // Update the dropdown for role level in the form
@@ -11504,6 +11495,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Listen to role changes & revocation
+  $('#uni-perm-search')?.addEventListener('input', () => { renderPermissionsList(); });
   $('#uni-journalists-list')?.addEventListener('change', async (e) => {
     const sel = e.target.closest('[data-change-role]');
     if (!sel) return;
@@ -11729,18 +11721,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const isUserAuthor = (item) => {
       if (!item || !currentUser) return false;
-      const uId = String(currentUser.uuid || '').trim();
-      const uNick = String(currentUser.nickname || currentUser.username || '').trim().toLowerCase();
+      const uId = String(currentUser.uuid || currentUser.id || '').trim();
+      const uNick = String(currentUser.username || currentUser.nickname || '').trim().toLowerCase();
       const uFull = String(currentUser.fullName || '').trim().toLowerCase();
 
       const aId = String(item.author_id || item.authorId || '').trim();
       const aLogin = String(item.authorLogin || item.login || '').trim().toLowerCase();
       const aName = String(item.author_name || item.author || '').trim().toLowerCase();
 
+      // Explicit ID match
       if (uId && aId && uId === aId) return true;
-      if (uNick && aLogin && uNick === aLogin) return true;
-      if (uNick && aName && (aName === uNick || aName.includes(uNick))) return true;
-      if (uFull && aName && (aName === uFull || aName.includes(uFull))) return true;
+      // Strict login match (ignore generic placeholder 'editor_lsn')
+      if (uNick && aLogin && uNick === aLogin && aLogin !== 'editor_lsn') return true;
+      // Strict exact name equality (never substring 'includes')
+      if (uNick && aName && uNick === aName) return true;
+      if (uFull && aName && uFull === aName) return true;
       return false;
     };
 
@@ -11833,7 +11828,12 @@ document.addEventListener('DOMContentLoaded', () => {
       if (sb && isCloudType && isUuid) {
         let updateRes = await sb.from('lsn_articles').update({ status: 'archived', updated_at: new Date().toISOString() }).eq('id', id).select('id');
         if (updateRes.error && (updateRes.error.message?.includes('status') || updateRes.error.code === '23514')) {
-          updateRes = await sb.from('lsn_articles').update({ status: 'draft', metadata: { archived: true }, updated_at: new Date().toISOString() }).eq('id', id).select('id');
+          const { data: curMeta } = await sb.from('lsn_articles').select('metadata').eq('id', id).maybeSingle();
+          updateRes = await sb.from('lsn_articles').update({
+            status: 'draft',
+            metadata: { ...(curMeta?.metadata || {}), archived: true },
+            updated_at: new Date().toISOString()
+          }).eq('id', id).select('id');
         }
         const data = updateRes.data;
         const error = updateRes.error;
@@ -11913,7 +11913,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const { data, error } = await sb
           .from('lsn_articles')
           .select('*')
-          .eq('status', 'archived')
+          .or('status.eq.archived,and(status.eq.draft,metadata->>archived.eq.true)')
           .order('updated_at', { ascending: false });
 
         if (!error && Array.isArray(data)) {
@@ -11982,27 +11982,29 @@ document.addEventListener('DOMContentLoaded', () => {
       const type = item.actType || 'news';
       const label = typeLabels[type] || 'Материал';
       const badgeStyle = typeBadges[type] || 'background:#475569; color:#fff;';
-      const title = escapeHtml(item.title || 'Без названия');
-      const preview = escapeHtml(item.lead || item.shortText || item.excerpt || makeShortPreview(item.body || item.fullText || '', 120));
-      const author = escapeHtml(item.author || 'Редакция LSN');
+      const title = escapeHtml(item.title || item.name || 'Без названия');
+      const preview = escapeHtml(item.lead || item.shortText || item.excerpt || item.role || makeShortPreview(item.body || item.fullText || item.bio || '', 120));
+      const author = escapeHtml(item.author || item.author_name || 'Редакция LSN');
       const dateStr = item.archivedAt ? new Date(item.archivedAt).toLocaleString('ru-RU', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }) : 'Недавно';
 
-      return '<div class="my-act-item" style="display:flex; justify-content:space-between; align-items:center; gap:16px; padding:16px 20px; background:rgba(30,41,59,0.7); border:1px solid rgba(255,255,255,0.08); border-radius:10px; margin-bottom:10px; transition:border-color 0.2s ease;">' +
-        '<div style="flex:1; min-width:0;">' +
-          '<div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">' +
-            '<span style="font-size:11px; font-weight:700; padding:2px 8px; border-radius:4px; text-transform:uppercase; ' + badgeStyle + '">' + label + '</span>' +
-            '<span style="font-size:12px; color:#64748b;">Архивировано: ' + dateStr + '</span>' +
-            '<span style="font-size:12px; color:#94a3b8;">· Автор: ' + author + '</span>' +
+      return '<div class="archive-card" style="display:flex; flex-direction:column; justify-content:space-between; padding:16px 18px; background:linear-gradient(135deg, rgba(30,41,59,0.85) 0%, rgba(15,23,42,0.95) 100%); border:1px solid rgba(255,255,255,0.08); border-radius:14px; box-shadow:0 4px 16px rgba(0,0,0,0.25); min-height:170px; transition:transform .15s ease, border-color .15s ease;">' +
+        '<div>' +
+          '<div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px; margin-bottom:10px; flex-wrap:wrap;">' +
+            '<span style="font-size:11px; font-weight:800; letter-spacing:0.04em; padding:3px 9px; border-radius:6px; text-transform:uppercase; ' + badgeStyle + '">' + label + '</span>' +
+            '<span style="font-size:11.5px; color:#64748b; font-weight:500;">' + dateStr + '</span>' +
           '</div>' +
-          '<h4 style="margin:0 0 4px 0; font-size:16px; font-weight:600; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + title + '</h4>' +
-          '<p style="margin:0; font-size:13px; color:#94a3b8; line-height:1.4; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">' + preview + '</p>' +
+          '<h4 style="margin:0 0 6px 0; font-size:15px; font-weight:700; color:#fff; line-height:1.35; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">' + title + '</h4>' +
+          '<div style="font-size:12px; color:#94a3b8; margin-bottom:8px; display:flex; align-items:center; gap:5px;">' +
+            '<span>👤 Автор:</span> <b style="color:#cbd5e1; font-weight:600;">' + author + '</b>' +
+          '</div>' +
+          '<p style="margin:0; font-size:12.5px; color:#64748b; line-height:1.4; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">' + preview + '</p>' +
         '</div>' +
-        '<div style="display:flex; gap:8px; flex-shrink:0;">' +
-          '<button type="button" class="uni-sec-btn" data-archive-restore="' + item.id + '" style="padding:8px 14px; font-size:13px; font-weight:600; color:#10b981; border:1px solid rgba(16,185,129,0.3); background:rgba(16,185,129,0.1); border-radius:8px; cursor:pointer; display:flex; align-items:center; gap:6px;">' +
-            '<span>↺</span> Восстановить на сайт' +
+        '<div style="display:flex; gap:8px; margin-top:14px; padding-top:12px; border-top:1px solid rgba(255,255,255,0.06); width:100%;">' +
+          '<button type="button" class="uni-sec-btn" data-archive-restore="' + item.id + '" style="flex:1; justify-content:center; padding:9px 10px; font-size:12.5px; font-weight:700; color:#34d399; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); border-radius:8px; cursor:pointer; display:flex; align-items:center; gap:6px; transition:all 0.15s ease;">' +
+            '<span>↺</span> Восстановить' +
           '</button>' +
-          '<button type="button" class="uni-sec-btn" data-archive-hard-delete="' + item.id + '" style="padding:8px 14px; font-size:13px; font-weight:600; color:#f87171; border:1px solid rgba(248,113,113,0.3); background:rgba(248,113,113,0.08); border-radius:8px; cursor:pointer; display:flex; align-items:center; gap:6px;">' +
-            '<span>🗑️</span> Удалить навсегда' +
+          '<button type="button" class="uni-sec-btn" data-archive-hard-delete="' + item.id + '" style="flex:1; justify-content:center; padding:9px 10px; font-size:12.5px; font-weight:700; color:#f87171; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.25); border-radius:8px; cursor:pointer; display:flex; align-items:center; gap:6px; transition:all 0.15s ease;">' +
+            '<span>🗑️</span> Удалить' +
           '</button>' +
         '</div>' +
       '</div>';
@@ -12013,7 +12015,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!id || !currentUser) return;
     const localItems = getLocalArchive();
     let item = localItems.find(x => x.id === id);
-    if (!item && sb) {
+    const validCloudId = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(id || ''));
+    if (!item && sb && validCloudId) {
       try {
         const { data: row } = await sb.from('lsn_articles').select('*').eq('id', id).maybeSingle();
         if (row) {
@@ -12040,14 +12043,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     const type = item?.actType || 'news';
 
-    if (sb) {
+    if (sb && validCloudId) {
       try {
-        const { error } = await sb.from('lsn_articles')
-          .update({ status: 'published', updated_at: new Date().toISOString() })
-          .eq('id', id);
-        if (error) {
-          console.error('Supabase restore error:', error);
-          flashUniSaved('⚠️ Ошибка восстановления из базы Supabase: ' + error.message);
+        const { data: curRow } = await sb.from('lsn_articles').select('metadata').eq('id', id).maybeSingle();
+        let cleanMeta = {};
+        if (curRow && curRow.metadata && typeof curRow.metadata === 'object') {
+          cleanMeta = { ...curRow.metadata };
+          delete cleanMeta.archived;
+        }
+        const { data: updatedRows, error: updateErr } = await sb.from('lsn_articles')
+          .update({
+            status: 'published',
+            metadata: cleanMeta,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', id)
+          .select('id');
+        if (updateErr || !Array.isArray(updatedRows) || updatedRows.length === 0) {
+          console.error('Supabase restore error:', updateErr);
+          flashUniSaved('⚠️ Ошибка восстановления из базы Supabase: ' + (updateErr?.message || 'запись не обновлена или нет прав доступа'));
           return;
         }
       } catch (err) {
@@ -12092,6 +12106,24 @@ document.addEventListener('DOMContentLoaded', () => {
       else columnsState.push(colObj);
       saveColumnsState();
       renderEditorialColumns();
+    } else if (type === 'staff') {
+      const staffObj = {
+        id: item?.id || id,
+        name: item?.title || item?.name || 'Сотрудник LSN',
+        role: item?.category || item?.role || 'Сотрудник редакции',
+        badge: item?.badge || 'В ШТАТЕ 102.2 FM',
+        skinId: item?.skinId || 'skin_editor',
+        authorLogin: item?.authorLogin || currentUser?.username || 'editor_lsn',
+        customImg: item?.customImg || item?.img || '',
+        bio: item?.body || item?.fullText || item?.bio || 'Сотрудник редакции Los Santos News.'
+      };
+      const idx = staffState.members.findIndex(x => x.id === id);
+      if (idx >= 0) staffState.members[idx] = staffObj;
+      else staffState.members.push(staffObj);
+      saveStaffState();
+      renderStaffSection();
+      if (typeof renderSanRatingTableUI === 'function') renderSanRatingTableUI();
+      if (typeof checkSundayMondaySync === 'function') checkSundayMondaySync();
     } else {
       const newsObj = {
         id: item?.id || id,
@@ -12117,7 +12149,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     removeFromLocalArchive(id);
-    flashUniSaved('✅ Материал успешно восстановлен на сайт!');
+    flashUniSaved(type === 'staff' ? '✅ Анкета сотрудника возвращена в состав!' : '✅ Материал успешно восстановлен на сайт!');
     renderArchiveList();
   };
 
@@ -12132,7 +12164,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btn && !btn.classList.contains('is-confirming')) {
       btn.classList.add('is-confirming');
       btn.dataset.origHtml = btn.innerHTML;
-      btn.innerHTML = '⚠️ Удалить навсегда из базы?';
+      btn.innerHTML = '⚠️ Удалить навсегда?';
       btn.style.background = '#dc2626';
       btn.style.borderColor = '#ef4444';
       btn.style.color = '#fff';
@@ -12151,9 +12183,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (btn && btn._resetTimer) clearTimeout(btn._resetTimer);
     btn.disabled = true;
-    btn.innerHTML = 'Удаление из базы...';
+    btn.innerHTML = 'Удаление...';
 
-    if (sb) {
+    const validCloudId = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(id || ''));
+
+    if (sb && validCloudId) {
       try {
         // Strictly verify that the record in Supabase is actually archived before hard deleting it!
         const { error } = await sb.from('lsn_articles')
@@ -12177,7 +12211,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     removeFromLocalArchive(id);
-    flashUniSaved('🗑️ Материал навсегда удалён из базы данных Supabase');
+    flashUniSaved('🗑️ Материал навсегда удалён из архива');
     renderArchiveList();
   };
 
@@ -12187,8 +12221,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const switchUniCategory = (type, specificItemId = null) => {
     const roleInfo = getUserRoleInfo(currentUser);
-    if (type === 'archive' && !roleInfo.isManagement) {
-      flashUniSaved('🔒 Архив доступен только руководству редакции.');
+    if (type === 'archive' && !(roleInfo && roleInfo.rank >= 4)) {
+      flashUniSaved('🔒 Архив доступен только руководству редакции (Директор / Администратор).');
       type = 'news';
     }
 
@@ -12318,6 +12352,14 @@ document.addEventListener('DOMContentLoaded', () => {
   window.restoreFromArchive = restoreFromArchive;
   window.permanentlyDeleteFromArchive = permanentlyDeleteFromArchive;
   window.getCurrentUniType = () => currentUniType;
+  window.getLocalArchive = getLocalArchive;
+  window.saveLocalArchive = saveLocalArchive;
+  window.openUniversalReaderModal = openUniversalReaderModal;
+  window.isItemDeleted = isItemDeleted;
+  Object.defineProperty(window, 'newsState', { get: () => newsState, set: (v) => { newsState = v; }, configurable: true });
+  Object.defineProperty(window, 'adsState', { get: () => adsState, set: (v) => { adsState = v; }, configurable: true });
+  Object.defineProperty(window, 'columnsState', { get: () => columnsState, set: (v) => { columnsState = v; }, configurable: true });
+  Object.defineProperty(window, 'staffState', { get: () => staffState, set: (v) => { staffState = v; }, configurable: true });
 
   headerCabinetBtn?.addEventListener('click', () => openJournalistCabinet('news'));
   $('#auth-open-cabinet-from-profile')?.addEventListener('click', () => {
@@ -12372,10 +12414,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const type = lastOpenedModalItem.type || 'news';
     const id = lastOpenedModalItem.id;
     const modalStore = type === 'ad' ? adsState : type === 'column' ? columnsState : type === 'staff' ? staffState.members : newsState;
-    const modalItem = modalStore.find(x => x.id === id) || { id, actType: type };
+    const modalItem = (Array.isArray(modalStore) ? modalStore.find(x => x.id === id) : null) || { id, actType: type };
     if (getUserRoleInfo(currentUser).level === 'journalist') {
       btn.classList.remove('is-confirming');
       btn.innerHTML = btn.dataset.origHtml || '🗑️ Удалить новость';
+      btn.style.background = '';
+      btn.style.borderColor = '';
+      btn.style.color = '';
       flashUniSaved('🔒 Журналист не может удалять публикации.');
       return;
     }
@@ -12392,51 +12437,84 @@ document.addEventListener('DOMContentLoaded', () => {
           : '🔒 У вас нет права удалять эту публикацию');
       return;
     }
+
+    btn.classList.remove('is-confirming');
+    btn.innerHTML = btn.dataset.origHtml || '🗑️ Удалить новость';
+    btn.style.background = '';
+    btn.style.borderColor = '';
+    btn.style.color = '';
+
     const applyLocalDelete = () => {
       if (type === 'news') {
         newsState = newsState.filter(x => x.id !== id);
         saveNewsState();
         renderNewsSections();
       } else if (type === 'ad') {
-      adsState = adsState.filter(x => x.id !== id);
-      saveAdsState();
-      renderAdsCarousel();
+        adsState = adsState.filter(x => x.id !== id);
+        saveAdsState();
+        renderAdsCarousel();
       } else if (type === 'column') {
         columnsState = columnsState.filter(x => x.id !== id);
         saveColumnsState();
         renderEditorialColumns();
+      } else if (type === 'staff') {
+        staffState.members = staffState.members.filter(x => x.id !== id);
+        saveStaffState();
+        renderStaffSection();
+        if (typeof renderSanRatingTableUI === 'function') renderSanRatingTableUI();
+        if (typeof checkSundayMondaySync === 'function') checkSundayMondaySync();
       }
     };
 
-    const validCloudId = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(id || ''));
-    if (sb && validCloudId && ['news', 'ad', 'column'].includes(type)) {
-      (async () => {
-        let res = await sb.from('lsn_articles')
-          .update({ status: 'archived', updated_at: new Date().toISOString() })
-          .eq('id', id)
-          .select('id');
-        if (res.error && (res.error.message?.includes('status') || res.error.code === '23514')) {
-          res = await sb.from('lsn_articles')
-            .update({ status: 'draft', metadata: { archived: true }, updated_at: new Date().toISOString() })
-            .eq('id', id)
-            .select('id');
-        }
-        if (res.error || !Array.isArray(res.data) || res.data.length === 0) {
-          console.warn('Supabase delete article note:', res.error || 'No row was deleted');
-          flashUniSaved('Удаление не подтверждено сервером. Материал не изменён.');
-          return;
-        }
-        markIdAsDeleted(id);
-        applyLocalDelete();
-        articleDialog?.close();
-      })().catch(() => flashUniSaved('Не удалось удалить материал.'));
-      return;
-    }
+    // 1. Move to local archive immediately
+    const archivedItem = Object.assign({}, modalItem, {
+      actType: type,
+      archivedAt: new Date().toISOString()
+    });
+    saveItemToLocalArchive(archivedItem);
 
-    // Local-only legacy item fallback.
+    // 2. Mark ID as deleted and update screen immediately
+    markIdAsDeleted(id);
     applyLocalDelete();
     articleDialog?.close();
-    flashUniSaved('🗑️ Публикация удалена с портала');
+    flashUniSaved('🗑️ Публикация перемещена в архив');
+
+    // 3. Sync to Supabase in background
+    const validCloudId = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(id || ''));
+    if (sb && ['news', 'ad', 'column', 'staff'].includes(type)) {
+      (async () => {
+        try {
+          let res;
+          if (validCloudId) {
+            res = await sb.from('lsn_articles')
+              .update({ status: 'archived', updated_at: new Date().toISOString() })
+              .eq('id', id)
+              .select('id');
+            if (res.error && (res.error.message?.includes('status') || res.error.code === '23514')) {
+              const { data: curMeta } = await sb.from('lsn_articles').select('metadata').eq('id', id).maybeSingle();
+              res = await sb.from('lsn_articles')
+                .update({ status: 'draft', metadata: { ...(curMeta?.metadata || {}), archived: true }, updated_at: new Date().toISOString() })
+                .eq('id', id)
+                .select('id');
+            }
+          }
+          if (!res || res.error || !Array.isArray(res.data) || res.data.length === 0) {
+            const row = mapLocalItemToCloudRow(type, modalItem, true);
+            if (row) {
+              row.status = 'archived';
+              row.metadata = { ...(row.metadata || {}), archived: true };
+              let upsertRes = await sb.from('lsn_articles').upsert(row, { onConflict: 'id' }).select('id');
+              if (upsertRes.error && (upsertRes.error.message?.includes('status') || upsertRes.error.code === '23514')) {
+                row.status = 'draft';
+                await sb.from('lsn_articles').upsert(row, { onConflict: 'id' });
+              }
+            }
+          }
+        } catch (cloudErr) {
+          console.warn('Cloud archive note:', cloudErr);
+        }
+      })();
+    }
   });
 
   $('#uni-clear-all-btn')?.addEventListener('click', async (e) => {
@@ -12604,67 +12682,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (id === 'staff-intro') return;
 
-    // Soft-delete on Supabase (status = 'archived' or fallback to draft with archived metadata)
-    const validCloudId = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(id || ''));
-    if (sb && (currentUniType === 'news' || currentUniType === 'ad' || currentUniType === 'column')) {
-      try {
-        let updateRes;
-        if (validCloudId) {
-          updateRes = await sb.from('lsn_articles').update({ status: 'archived', updated_at: new Date().toISOString() }).eq('id', id).select('id');
-          if (updateRes.error && (updateRes.error.message?.includes('status') || updateRes.error.code === '23514')) {
-            updateRes = await sb.from('lsn_articles').update({ status: 'draft', metadata: { archived: true }, updated_at: new Date().toISOString() }).eq('id', id).select('id');
-          }
-        } else {
-          updateRes = await sb.from('lsn_articles').upsert({
-            id: id,
-            type: currentUniType,
-            title: item.title || '',
-            category: item.category || item.tag || item.subtitle || '',
-            lead: item.excerpt || item.shortText || '',
-            body: item.body || item.fullText || '',
-            author: item.author || currentUser?.nickname || 'Ray Westblock',
-            author_name: item.author || currentUser?.nickname || 'Ray Westblock',
-            author_id: currentUser?.uuid || null,
-            status: 'archived',
-            updated_at: new Date().toISOString()
-          }).select('id');
-          if (updateRes.error && (updateRes.error.message?.includes('status') || updateRes.error.code === '23514')) {
-            updateRes = await sb.from('lsn_articles').upsert({
-              id: id,
-              type: currentUniType,
-              title: item.title || '',
-              category: item.category || item.tag || item.subtitle || '',
-              lead: item.excerpt || item.shortText || '',
-              body: item.body || item.fullText || '',
-              author: item.author || currentUser?.nickname || 'Ray Westblock',
-              author_name: item.author || currentUser?.nickname || 'Ray Westblock',
-              author_id: currentUser?.uuid || null,
-              status: 'draft',
-              metadata: { archived: true },
-              updated_at: new Date().toISOString()
-            }).select('id');
-          }
-        }
-        if (updateRes.error || !Array.isArray(updateRes.data) || updateRes.data.length === 0) {
-          console.warn('Supabase archive update failed:', updateRes.error);
-          flashUniSaved('⚠️ Ошибка архивирования в базе: ' + (updateRes.error?.message || 'сервер отклонил запрос'));
-          return;
-        }
-      } catch (err) {
-        console.warn('Supabase archive update note:', err);
-        flashUniSaved('⚠️ Сбой соединения при архивировании: ' + (err?.message || 'сетевая ошибка'));
-        return;
-      }
-    }
-
-    // 1. Move to local archive
+    // 1. Move to local archive immediately
     const archivedItem = Object.assign({}, item, {
       actType: currentUniType,
       archivedAt: new Date().toISOString()
     });
     saveItemToLocalArchive(archivedItem);
 
-    // 2. Remove from active store ONLY after cloud confirmation
+    // 2. Remove from active store and update screen immediately
     markIdAsDeleted(id);
     if (currentUniType === 'news') {
       newsState = newsState.filter(x => x.id !== id);
@@ -12689,7 +12714,38 @@ document.addEventListener('DOMContentLoaded', () => {
     const updatedStore = getStoreForType(currentUniType);
     loadItemIntoUniForm(updatedStore[0]?.id || null);
     renderUniItemsList();
-    flashUniSaved('Материал перемещён в Архив Supabase');
+    flashUniSaved('Материал перемещён в Архив');
+
+    // 3. Sync cloud in background
+    const validCloudId = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(id || ''));
+    if (sb && ['news', 'ad', 'column', 'staff'].includes(currentUniType)) {
+      (async () => {
+        try {
+          let updateRes;
+          if (validCloudId) {
+            updateRes = await sb.from('lsn_articles').update({ status: 'archived', updated_at: new Date().toISOString() }).eq('id', id).select('id');
+            if (updateRes.error && (updateRes.error.message?.includes('status') || updateRes.error.code === '23514')) {
+              const { data: curMeta } = await sb.from('lsn_articles').select('metadata').eq('id', id).maybeSingle();
+              updateRes = await sb.from('lsn_articles').update({ status: 'draft', metadata: { ...(curMeta?.metadata || {}), archived: true }, updated_at: new Date().toISOString() }).eq('id', id).select('id');
+            }
+          }
+          if (!updateRes || updateRes.error || !Array.isArray(updateRes.data) || updateRes.data.length === 0) {
+            const cloudRow = mapLocalItemToCloudRow(currentUniType, item, true);
+            if (cloudRow) {
+              cloudRow.status = 'archived';
+              cloudRow.metadata = { ...(cloudRow.metadata || {}), archived: true };
+              let upsertRes = await sb.from('lsn_articles').upsert(cloudRow, { onConflict: 'id' }).select('id');
+              if (upsertRes.error && (upsertRes.error.message?.includes('status') || upsertRes.error.code === '23514')) {
+                cloudRow.status = 'draft';
+                await sb.from('lsn_articles').upsert(cloudRow, { onConflict: 'id' });
+              }
+            }
+          }
+        } catch (err) {
+          console.warn('Supabase archive update note:', err);
+        }
+      })();
+    }
   };
 
   $('#uni-items-list')?.addEventListener('click', (e) => {
@@ -12998,6 +13054,15 @@ document.addEventListener('DOMContentLoaded', () => {
             flashUniSaved('🔒 Недостаточно прав для изменения анкеты старшего сотрудника.');
             return;
           }
+        }
+        const newDossierRank = getStaffMemberRank({ role: sub, badge: '', name: title });
+        if (roleInfo.level === 'deputy' && newDossierRank >= 3) {
+          flashUniSaved('🔒 Заместитель не может назначать должности руководства (директор/администратор).');
+          return;
+        }
+        if (roleInfo.level === 'director' && newDossierRank >= 5) {
+          flashUniSaved('🔒 Генеральный директор не может назначать должности администратора.');
+          return;
         }
         if (!item) {
           item = { id, tone: 'amber', authorLogin: currentUser?.username || 'editor_lsn', author_id: currentUser?.uuid || null };
@@ -13629,8 +13694,17 @@ document.addEventListener('DOMContentLoaded', () => {
     if (sb) {
       try {
         const { data, error } = await sb.from('lsn_editorial_state').select('initialized').eq('id', true).maybeSingle();
-        if (!error && data) return !!data.initialized;
-      } catch (_) {}
+        if (!error && data !== null && typeof data === 'object') {
+          return !!data.initialized;
+        }
+        if (error) {
+          console.warn('lsn_editorial_state query warning:', error.message);
+          return null;
+        }
+      } catch (err) {
+        console.warn('lsn_editorial_state network error:', err);
+        return null;
+      }
     }
     try { return localStorage.getItem(EDITORIAL_BOOTSTRAP_LOCAL_KEY) === 'true'; } catch (_) { return false; }
   };
@@ -13641,19 +13715,37 @@ document.addEventListener('DOMContentLoaded', () => {
       try {
         const { data, error } = await sb.rpc('lsn_mark_editorial_state_initialized');
         serverMarked = !error && data === true;
-        if (error) console.warn('Editorial migration marker RPC is unavailable:', error.message);
+        if (serverMarked) {
+          try { localStorage.setItem(EDITORIAL_BOOTSTRAP_LOCAL_KEY, 'true'); } catch (_) {}
+        } else if (error) {
+          console.warn('Editorial migration marker RPC is unavailable:', error.message);
+        }
       } catch (e) { console.warn('Editorial marker was not written to Supabase:', e); }
+    } else if (!sb) {
+      try { localStorage.setItem(EDITORIAL_BOOTSTRAP_LOCAL_KEY, 'true'); } catch (_) {}
+      serverMarked = true;
     }
-    try { localStorage.setItem(EDITORIAL_BOOTSTRAP_LOCAL_KEY, 'true'); } catch (_) {}
     return serverMarked;
   };
 
-  const mapLocalItemToCloudRow = (type, item) => {
-    if (!item || isItemDeleted(item.id)) return null;
+  const getStableUuidForLocalId = (oldId) => {
+    if (isUuidValue(oldId)) return oldId;
+    if (STAFF_UUID_MAP && STAFF_UUID_MAP[oldId]) return STAFF_UUID_MAP[oldId];
+    let stableMap = {};
+    try { stableMap = JSON.parse(localStorage.getItem('lsn_stable_uuid_map') || '{}'); } catch (_) {}
+    if (stableMap[oldId]) return stableMap[oldId];
+    const newUuid = createArticleUuid();
+    stableMap[oldId] = newUuid;
+    try { localStorage.setItem('lsn_stable_uuid_map', JSON.stringify(stableMap)); } catch (_) {}
+    return newUuid;
+  };
+
+  const mapLocalItemToCloudRow = (type, item, allowDeleted = false) => {
+    if (!item || (!allowDeleted && isItemDeleted(item.id))) return null;
     const title = String(item.title || item.name || '').trim();
     if (!title) return null;
     const oldId = String(item.id || '');
-    const id = isUuidValue(oldId) ? oldId : (STAFF_UUID_MAP[oldId] || createArticleUuid());
+    const id = getStableUuidForLocalId(oldId);
     item.id = id;
     const authorId = currentUser?.uuid || null;
     const authorName = item.author || item.author_name || currentUser?.fullName || currentUser?.nickname || 'Ray Westblock';
@@ -13780,12 +13872,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const validateBackupArray = (value, max, label) => {
     if (!Array.isArray(value) || value.length > max) throw new Error(`Некорректный раздел «${label}»`);
+    const validIdRegex = /^[a-zA-Z0-9_\-]+$/;
     for (const item of value) {
       if (!item || typeof item !== 'object' || typeof item.id !== 'string' || typeof item.title !== 'string') {
         throw new Error(`В резервной копии повреждён раздел «${label}»`);
       }
+      const cleanId = String(item.id).trim();
+      if (!cleanId || cleanId.length > 64 || !validIdRegex.test(cleanId)) {
+        throw new Error(`Недопустимый идентификатор материала в разделе «${label}»`);
+      }
       if (item.title.length > 160 || String(item.body || item.fullText || '').length > 20000) {
         throw new Error(`Слишком большой материал в разделе «${label}»`);
+      }
+      const imgLen = String(item.img || item.customImg || item.image_url || '').length;
+      if (imgLen > 5000000) {
+        throw new Error(`Превышен допустимый размер вложения в разделе «${label}»`);
       }
     }
     return value;
@@ -13801,59 +13902,83 @@ document.addEventListener('DOMContentLoaded', () => {
     const incomingNews = validateBackupArray(content.news || [], 500, 'Новости');
     const incomingAds = validateBackupArray(content.ads || [], 250, 'Реклама');
     const incomingColumns = validateBackupArray(content.columns || [], 250, 'Колонки');
-    if (!content.staff || typeof content.staff !== 'object' || !Array.isArray(content.staff.members)) throw new Error('Некорректный состав редакции');
+    if (!content.staff || typeof content.staff !== 'object' || !Array.isArray(content.staff.members)) {
+      throw new Error('Некорректный состав редакции');
+    }
+    const validIdRegex = /^[a-zA-Z0-9_\-]+$/;
+    for (const m of content.staff.members) {
+      if (!m || typeof m !== 'object' || !m.id || !validIdRegex.test(String(m.id)) || !m.name) {
+        throw new Error('Повреждены данные сотрудника в составе редакции');
+      }
+      if (String(m.img || m.customImg || '').length > 5000000) {
+        throw new Error('Превышен размер фотографии сотрудника в составе редакции');
+      }
+    }
 
     const explicitRestoreIds = new Set([...incomingNews, ...incomingAds, ...incomingColumns].map(item => String(item.id)));
-    try {
-      localStorage.setItem(DELETED_ITEMS_KEY, JSON.stringify(getDeletedIds().filter(id => !explicitRestoreIds.has(String(id)))));
-    } catch (_) {}
     const merge = (current, incoming) => {
       const map = new Map((current || []).filter(x => x && x.id && !explicitRestoreIds.has(String(x.id)) && !isItemDeleted(x.id)).map(x => [String(x.id), x]));
       incoming.forEach(item => { if (item && item.id) map.set(String(item.id), item); });
       return Array.from(map.values()).filter(x => x && x.id);
     };
-    newsState = merge(newsState, incomingNews);
-    adsState = merge(adsState, incomingAds);
-    columnsState = merge(columnsState, incomingColumns);
-    staffState = content.staff;
-    if (Array.isArray(content.deletedIds)) {
-      try {
-        const keep = new Set(getDeletedIds());
-        content.deletedIds.slice(0,2000).forEach(id => { if (typeof id === 'string' && !explicitRestoreIds.has(id)) keep.add(id); });
-        localStorage.setItem(DELETED_ITEMS_KEY, JSON.stringify(Array.from(keep)));
-      } catch (_) {}
-    }
-    if (content.cleared && typeof content.cleared === 'object') {
-      ['news','ad','column'].forEach(type => {
-        if (content.cleared[type] === true) markSectionCleared(type, true);
-        else markSectionCleared(type, false);
-      });
-    }
-    saveNewsState(); saveAdsState(); saveColumnsState(); saveStaffState();
-    renderNewsSections(); renderAdsCarousel(); renderEditorialColumns(); renderStaffSection();
+
+    const targetNews = merge(newsState, incomingNews);
+    const targetAds = merge(adsState, incomingAds);
+    const targetColumns = merge(columnsState, incomingColumns);
+    const targetStaff = content.staff;
+
+    // Cloud upsert FIRST before local storage commit
     if (sb) {
       const rows = [];
       const addRestored = (type, list) => (list || []).forEach(item => {
         const row = mapLocalItemToCloudRow(type, item);
         if (row) rows.push(row);
       });
-      addRestored('news', newsState);
-      addRestored('ad', adsState);
-      addRestored('column', columnsState);
-      if (staffState && Array.isArray(staffState.members)) {
-        addRestored('staff', staffState.members);
+      addRestored('news', targetNews);
+      addRestored('ad', targetAds);
+      addRestored('column', targetColumns);
+      if (targetStaff && Array.isArray(targetStaff.members)) {
+        addRestored('staff', targetStaff.members);
       }
       if (rows.length) {
         const { error } = await sb.from('lsn_articles').upsert(rows, { onConflict: 'id' });
         if (error) {
           console.error('Supabase backup restore sync error:', error);
-          flashUniSaved('⚠️ Ошибка сохранения резервной копии в Supabase: ' + error.message);
-          return;
+          throw new Error('Ошибка сохранения резервной копии в Supabase: ' + error.message);
         }
       }
+      await markEditorialInitialized();
     }
-    await markEditorialInitialized();
-    flashUniSaved('✅ Контент успешно восстановлен из резервной копии');
+
+    // Safely commit to local storage after verified cloud upsert or in standalone mode
+    try {
+      localStorage.setItem(DELETED_ITEMS_KEY, JSON.stringify(getDeletedIds().filter(id => !explicitRestoreIds.has(String(id)))));
+    } catch (_) {}
+    newsState = targetNews;
+    adsState = targetAds;
+    columnsState = targetColumns;
+    staffState = targetStaff;
+    if (Array.isArray(content.deletedIds)) {
+      try {
+        const keep = new Set(getDeletedIds());
+        content.deletedIds.slice(0, 2000).forEach(id => { if (typeof id === 'string' && !explicitRestoreIds.has(id)) keep.add(id); });
+        localStorage.setItem(DELETED_ITEMS_KEY, JSON.stringify(Array.from(keep)));
+      } catch (_) {}
+    }
+    if (content.cleared && typeof content.cleared === 'object') {
+      ['news', 'ad', 'column'].forEach(type => {
+        if (content.cleared[type] === true) markSectionCleared(type, true);
+        else markSectionCleared(type, false);
+      });
+    }
+    saveNewsState(); saveAdsState(); saveColumnsState(); saveStaffState();
+    renderNewsSections(); renderAdsCarousel(); renderEditorialColumns(); renderStaffSection();
+
+    if (sb) {
+      flashUniSaved('✅ Контент успешно восстановлен из резервной копии и синхронизирован с облаком');
+    } else {
+      flashUniSaved('⚠️ Контент восстановлен локально. Облачная синхронизация недоступна.');
+    }
   };
 
   $('#lsn-export-content-backup')?.addEventListener('click', downloadEditorialBackup);
@@ -13890,10 +14015,11 @@ document.addEventListener('DOMContentLoaded', () => {
       const isEditorialInit = await readEditorialInitialized();
       let activeRows = data.filter(row => !isArchivedRow(row));
 
-      // Auto-bootstrap cloud ONLY when truly empty (0 total articles in DB) AND uninitialized
+      // Auto-bootstrap cloud ONLY when truly empty (0 total articles in DB) AND server confirms uninitialized (isEditorialInit === false)
+      // Never re-seed if isEditorialInit === true (intentional empty state) or if status is unknown/null
       const isDatabaseTrulyEmpty = (data.length === 0);
       const canCallerBootstrap = currentUser && getUserRoleInfo(currentUser).rank >= 3;
-      if (isDatabaseTrulyEmpty && !isEditorialInit && canCallerBootstrap) {
+      if (isDatabaseTrulyEmpty && isEditorialInit === false && canCallerBootstrap) {
         const seeded = await autoBootstrapEditorialToCloud();
         if (seeded) {
           const refetch = await sb.from('lsn_articles').select('*').order('created_at', { ascending: false });
@@ -13932,7 +14058,10 @@ document.addEventListener('DOMContentLoaded', () => {
         saveLocalArchive(localArch);
       }
 
-      const cloudNews = data.filter(row => row.type === 'news' && !isArchivedRow(row)).map(row => ({
+      const isPublishedRow = (row) => row && (row.status || 'published') === 'published' && !isArchivedRow(row);
+      const isDraftRow = (row) => row && row.status === 'draft' && !isArchivedRow(row);
+      window.editorialDraftsState = data.filter(isDraftRow);
+      const cloudNews = data.filter(row => row.type === 'news' && isPublishedRow(row)).map(row => ({
         id: row.id,
         title: row.title,
         category: row.category || 'Новости',
@@ -13957,7 +14086,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renderNewsSections();
       }
 
-      const cloudColumns = data.filter(row => row.type === 'column' && !isArchivedRow(row)).map(row => ({
+      const cloudColumns = data.filter(row => row.type === 'column' && isPublishedRow(row)).map(row => ({
         id: row.id,
         title: row.title,
         subtitle: row.category || 'Колонка',
@@ -13981,7 +14110,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renderEditorialColumns();
       }
 
-      const cloudAds = data.filter(row => row.type === 'ad' && !isArchivedRow(row)).map(row => ({
+      const cloudAds = data.filter(row => row.type === 'ad' && isPublishedRow(row)).map(row => ({
         id: row.id,
         title: row.title,
         tag: row.category || 'Los Santos News · Партнёры',
@@ -14093,6 +14222,9 @@ document.addEventListener('DOMContentLoaded', () => {
         try { localStorage.removeItem(SESSION_USER_KEY); } catch (_) {}
         syncRoleVisibilityUI();
         return;
+      }
+      if (event === 'PASSWORD_RECOVERY') {
+        flashUniSaved('🔑 Сессия восстановления пароля активирована. Задайте новый пароль в профиле.');
       }
       if (session?.user) {
         await syncSupabaseSessionAndProfiles();

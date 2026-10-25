@@ -1,7 +1,7 @@
 {
   "release": "V13 Recovery Verified Edition",
-  "html_bytes": 3368250,
-  "html_sha256": "31C2939FE891B9DE0A9D0A52E47E4E39044E4501239070AB0E9A387A8B923598",
+  "html_bytes": 3376668,
+  "html_sha256": "6337656BD32E772245440A4155E037C245675325E4613ED563CA7926D5CCB085",
   "inline_javascript_blocks_total": 2,
   "inline_javascript_blocks_passed": 2,
   "inline_javascript_syntax_errors": 0,
@@ -34,8 +34,15 @@
   "supabase_archive_system": true,
   "author_name": "Ray Westblock",
   "browser_headless_dom_tested": true,
+  "automated_test_suite": {
+    "total": 36,
+    "passed": 36,
+    "failed": 0,
+    "all_passed": true
+  },
   "remaining_manual_steps": [
     "Execute supabase/migrations/20261025091500_allow_archived_status_in_lsn_articles.sql in Supabase SQL Editor if archive status constraint is not yet applied",
+    "Execute supabase/migrations/20261025140000_strict_five_role_security_and_rls_hardening.sql in Supabase SQL Editor to enforce strict RLS and 5-role security",
     "Execute supabase/sql/restore_primary_admin.sql in Supabase SQL Editor if Ray Westblock profile requires admin role elevation",
     "Sign in to V13 as Ray Westblock to confirm profile sync"
   ]
