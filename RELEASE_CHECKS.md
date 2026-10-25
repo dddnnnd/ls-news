@@ -1,21 +1,15 @@
-# V14 login recovery validation
+# V13 release checks
 
-Checks performed for this package:
-- Both inline JavaScript blocks in `index.html` pass `node --check`.
-- The four Edge Function TypeScript sources pass a parser-level syntax check.
-- Password reset UI controls are present, the recovery callback handles `PASSWORD_RECOVERY`, and the frontend passes its current origin as a redirect candidate.
-- Static frontend checked for secret/service-role key patterns; none found.
-- Recovery SQL and Edge Function source are included in the package. The live `username-password-reset` Edge Function is deployed as version 2 with JWT verification disabled by design because the caller is signed out; its output does not reveal an email or account existence and it uses rate limiting.
+Static validations executed during packaging:
+- `node --check` passed for all inline JavaScript blocks in `index.html`.
+- HTML parsing found no duplicate IDs.
+- The V12 cabinet polish override and premium media picker are absent; the classic photo upload and site illustration album markup is present.
+- The unwanted public `Подать объявление` button/label is absent.
+- There are no startup `localStorage.removeItem()` calls for the news/ad/column content keys.
+- The previous HTML and V12 HTML are included under `recovery/backups/` for manual rollback.
 
-Diagnosis from the latest live attempt:
-- Supabase Auth recorded `Invalid login credentials` and the `username-login` endpoint returned HTTP 401. This indicates rejected username/password credentials rather than an RLS denial.
-- The recovery email has not been sent directly from this build environment. After deploying this `index.html`, click **Не помню пароль**, enter the account's username or email, then check the registered mailbox and Spam.
-- Supabase Auth must allow the current page URL in Authentication → URL Configuration. If the requested redirect is not allowlisted, Supabase uses the configured Site URL.
+This package cannot recover client-local ad records that a previous release explicitly erased; no such JSON backup is present in the available files, and the live Supabase table was empty when examined. It restores the known built-in LSN news/columns, adds the known LSN recruitment advertisement, restores the image album/editor, and protects future saves with an export/import feature and one-time cloud migration marker.
 
-Still requires the user-side flow after deploying:
-1. Request password recovery and open the email link on the same website.
-2. Set a new password and sign in.
-3. Check canonical role `profiles.role` separately. If the account signs in but has no admin permissions, run `supabase/sql/inspect_profile_roles.sql` in the Supabase SQL Editor and only then, if the account ID/name match the intended primary admin, use `supabase/sql/restore_primary_admin.sql`.
-4. After sign-in, test admin cabinet sections, new/edit/delete article, ad/column content, image picker/upload, and refresh feed.
+Still required after deployment: run admin recovery SQL if the exact account check matches, then test sign-in, role management, media upload, content upsert/delete and feed refresh in a live browser. The editorial-state marker migrations are already applied to production.
 
-The unavailable HaveIBeenPwned leaked-password check remains the known Free-plan limitation. The release does not claim that a live password reset or role restoration has completed until the user completes and verifies those steps.
+Live Supabase check: the editorial marker row exists and is pending (`initialized=false`); the database currently contains three published `column` rows and no `news`/`ad` rows, so the next management session can restore the built-in/available local news and LSN advertisement instead of treating the partial table as complete. The marker migrations 20261025084552 and 20261025084553 are applied. Admin role restoration was not executed via this session; see the manual, account-specific SQL script.
