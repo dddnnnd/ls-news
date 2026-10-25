@@ -8419,12 +8419,7 @@ document.addEventListener('DOMContentLoaded', () => {
       created_at: p.created_at,
       updated_at: p.updated_at
     }));
-    // Гарантируем корректный статус администратора для Ray Westblock
-    const ray = usersDb.find(u => u.email.toLowerCase() === 'deeeenchik80@gmail.com' || u.username.toLowerCase() === 'ray westblock');
-    if (ray) {
-      ray.role = 'admin';
-      ray.roleTitle = '🛡️ Администратор';
-    }
+    // Роли определяются строго серверной базой Supabase (profiles.role)
     journalistsList = usersDb.filter(u => u.role && u.role !== 'user').map(u => ({ login: u.username, roleTitle: u.roleTitle, roleLevel: u.role, id: u.id }));
     return usersDb;
   }
@@ -9117,7 +9112,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!item) return 0;
     const text = ((item.role || '') + ' ' + (item.badge || '') + ' ' + (item.name || '')).toLowerCase();
     const login = (item.authorLogin || item.login || '').toLowerCase();
-    if (text.includes('админ') || text.includes('admin') || login === 'ray westblock' || item.id === 'staff-admin') return 5;
+    if (text.includes('админ') || text.includes('admin') || item.id === 'staff-admin') return 5;
     if (text.includes('ген. директор') || text.includes('генеральный директор') || text.includes('руководство commerce') || item.id === 'staff-1') return 4;
     if (text.includes('заместитель') || text.includes('зам.') || text.includes('программный') || item.id === 'staff-2') return 3;
     if (text.includes('редактор') || text.includes('журналист') || text.includes('корреспондент')) return 2;
@@ -9279,12 +9274,32 @@ document.addEventListener('DOMContentLoaded', () => {
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   // Render user-submitted article data as text only. These helpers prevent
   // stored HTML/attribute injection through article metadata or image_url.
+  const isSafeSvgContent = (raw) => {
+    try {
+      let svgStr = raw.replace(/^data:image\/svg\+xml;[^,]*,/, '');
+      if (/base64/i.test(raw.split(',')[0])) {
+        if (typeof atob === 'function') svgStr = atob(svgStr);
+        else svgStr = Buffer.from(svgStr, 'base64').toString('utf8');
+      } else {
+        svgStr = decodeURIComponent(svgStr);
+      }
+      const dangerous = /<script|onload|onerror|onclick|onmouseover|onfocus|onblur|javascript:|href\s*=\s*['"]javascript:|<foreignObject|<iframe|<embed|<object/i;
+      return !dangerous.test(svgStr);
+    } catch (_) {
+      return false;
+    }
+  };
+
   const safeImageUrl = (value) => {
     const raw = String(value == null ? '' : value).trim();
     if (!raw) return '';
+    // 1. Safe raster data URLs (png, jpeg, webp, gif)
     if (/^data:image\/(?:png|jpe?g|webp|gif);base64,[a-z0-9+/=\s]+$/i.test(raw)) return raw;
-    if (/^data:image\/svg\+xml;(?:utf8|charset=utf-8),.+$/i.test(raw)) return raw;
-    if (/^data:image\/svg\+xml;base64,[a-z0-9+/=\s]+$/i.test(raw)) return raw;
+    // 2. SVG data URLs (Must be safe and strictly contain no scripts/event handlers/foreignObjects)
+    if (/^data:image\/svg\+xml;(?:utf8|charset=utf-8),.+$/i.test(raw) || /^data:image\/svg\+xml;base64,[a-z0-9+/=\s]+$/i.test(raw)) {
+      return isSafeSvgContent(raw) ? raw : '';
+    }
+    // 3. Safe HTTP/HTTPS URLs
     try {
       const parsed = new URL(raw, window.location.href);
       if (parsed.protocol === 'https:' || (parsed.protocol === 'http:' && parsed.origin === window.location.origin)) return parsed.href;
@@ -9482,6 +9497,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
   const restoreDefaultAds = async () => {
+    const roleInfo = getUserRoleInfo(currentUser);
+    if (!currentUser || !roleInfo.canManageAds) {
+      flashUniSaved('🔒 Восстановление рекламы доступно только руководству редакции.');
+      return;
+    }
     markSectionCleared('ad', false);
     DEFAULT_ADS_DATA.forEach(a => {
       unmarkIdAsDeleted(a.id);
@@ -9504,8 +9524,8 @@ document.addEventListener('DOMContentLoaded', () => {
         category: a.tag || 'Los Santos News · Партнёры',
         lead: a.shortText,
         body: a.fullText,
-        author: a.author || 'Ray Westblock',
-        author_name: a.author || 'Ray Westblock',
+        author: a.author || 'Редакция LSN',
+        author_name: a.author || 'Редакция LSN',
         author_id: currentUser?.uuid || null,
         status: 'published',
         published_at: new Date().toISOString(),
@@ -10792,7 +10812,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // =========================================================================
-  // LOGIN FORM: Надежная авторизация Supabase с мгновенным доступом для Ray Westblock
+  // LOGIN FORM: Надежная авторизация Supabase (роль определяется сервером)
   // =========================================================================
   $('#login-panel')?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -10812,7 +10832,6 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       let data = null;
       const cleanNick = identifier.replace(/\s+/g, ' ').trim();
-      const isRay = cleanNick.toLowerCase() === 'ray westblock' || identifier.toLowerCase() === 'deeeenchik80@gmail.com';
 
       if (identifier.includes('@')) {
         const result = await sb.auth.signInWithPassword({ email: identifier.toLowerCase(), password });
@@ -10840,18 +10859,7 @@ document.addEventListener('DOMContentLoaded', () => {
           console.warn('Edge username-login attempt:', edgeErr);
         }
 
-        // 2. Прямой вход для главного администратора Ray Westblock (email: deeeenchik80@gmail.com)
-        if (!signedIn && isRay) {
-          try {
-            const result = await sb.auth.signInWithPassword({ email: 'deeeenchik80@gmail.com', password });
-            if (!result.error && result.data?.user) {
-              data = result.data;
-              signedIn = true;
-            }
-          } catch (admErr) {
-            console.warn('Admin direct login fallback attempt:', admErr);
-          }
-        }
+        // 2. Авторизация по никнейму выполняется через серверные функции / профили
 
         // 3. Поиск email по профилю
         if (!signedIn) {
@@ -10893,17 +10901,17 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       const email = profile?.email || data.user.email || (identifier.includes('@') ? identifier.toLowerCase() : '');
-      const isMainAdmin = isRay || (email && email.toLowerCase() === 'deeeenchik80@gmail.com') ||
-                          (profile?.username && profile.username.toLowerCase() === 'ray westblock');
+      const serverRole = (profile && profile.role) ? String(profile.role).toLowerCase() : 'user';
+      const serverRoleTitle = (profile && profile.role_title) ? String(profile.role_title) : (ROLE_HIERARCHY[serverRole]?.title || 'Читатель');
 
       currentUser = {
         id: profile?.user_id_code || data.user.id.slice(0, 8),
         uuid: data.user.id,
-        username: profile?.username || data.user.user_metadata?.username || (isMainAdmin ? 'Ray Westblock' : cleanNick),
-        fullName: profile?.username || data.user.user_metadata?.full_name || (isMainAdmin ? 'Ray Westblock' : cleanNick),
+        username: profile?.username || data.user.user_metadata?.username || cleanNick,
+        fullName: profile?.username || data.user.user_metadata?.full_name || cleanNick,
         email: email,
-        role: profile?.role || (isMainAdmin ? 'admin' : (data.user.user_metadata?.role || 'user')),
-        roleTitle: profile?.role_title || (isMainAdmin ? '🛡️ Администратор' : (data.user.user_metadata?.role_title || 'Читатель'))
+        role: serverRole,
+        roleTitle: serverRoleTitle
       };
 
       try { localStorage.setItem(SESSION_USER_KEY, JSON.stringify(currentUser)); } catch (_) {}
@@ -10952,7 +10960,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btn) { btn.disabled = true; btn.textContent = 'Регистрация…'; }
     try {
       // Безопасность: нельзя создавать новый аккаунт поверх активной сессии
-      // (например, когда сейчас открыт аккаунт Ray Westblock). Иначе Supabase
+      // (например, когда сейчас открыт предыдущий аккаунт). Иначе Supabase
       // может сохранить текущую сессию и интерфейс продолжит показывать admin.
       const { data: activeSession } = await sb.auth.getSession();
       if (activeSession?.session?.user) {
@@ -11236,6 +11244,7 @@ document.addEventListener('DOMContentLoaded', () => {
       currentArtPreset = '';
       if (delBtn) delBtn.hidden = true;
       renderQuickArtChips();
+      if (typeof updateMediaUI === 'function') updateMediaUI();
       renderUniItemsList();
       return;
     }
@@ -11266,6 +11275,7 @@ document.addEventListener('DOMContentLoaded', () => {
       currentArtPreset = currentUniType === 'staff' ? 'skin_director' : '';
       if (delBtn) delBtn.hidden = true;
       renderQuickArtChips();
+      if (typeof updateMediaUI === 'function') updateMediaUI();
       renderUniItemsList();
       return;
     }
@@ -11290,6 +11300,7 @@ document.addEventListener('DOMContentLoaded', () => {
     currentArtPreset = item.skinId || '';
     if (delBtn) delBtn.hidden = !canUserDeleteItem(item);
     renderQuickArtChips();
+    if (typeof updateMediaUI === 'function') updateMediaUI();
     renderUniItemsList();
   };
 
@@ -11534,10 +11545,7 @@ document.addEventListener('DOMContentLoaded', () => {
           p_new_role: newLvl
         });
         if (rpcErr) {
-          const { error: directErr } = await sb.from('profiles')
-            .update({ role: newLvl, role_title: targetUser.roleTitle })
-            .eq('id', targetUser.uuid);
-          roleError = directErr;
+          roleError = rpcErr;
         }
       } catch (err) {
         roleError = err;
@@ -11699,10 +11707,7 @@ document.addEventListener('DOMContentLoaded', () => {
         p_new_role: roleLevel
       });
       if (rpcErr) {
-        const { error: directErr } = await sb.from('profiles')
-          .update({ role: roleLevel, role_title: newRoleInfo.title })
-          .eq('id', targetUser.uuid);
-        assignError = directErr;
+        assignError = rpcErr;
       }
     } catch (err) {
       assignError = err;
@@ -11957,7 +11962,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 excerpt: row.lead || row.excerpt || '',
                 body: row.body || '',
                 fullText: row.body || '',
-                author: row.author_name || row.author || 'Ray Westblock',
+                author: row.author_name || row.author || 'Редакция LSN',
                 author_id: row.author_id,
                 img: safeImageUrl(row.image_url),
                 customImg: safeImageUrl(row.image_url),
@@ -12024,10 +12029,10 @@ document.addEventListener('DOMContentLoaded', () => {
           '<p style="margin:0; font-size:12.5px; color:#64748b; line-height:1.4; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">' + preview + '</p>' +
         '</div>' +
         '<div style="display:flex; gap:8px; margin-top:14px; padding-top:12px; border-top:1px solid rgba(255,255,255,0.06); width:100%;">' +
-          '<button type="button" class="uni-sec-btn" data-archive-restore="' + item.id + '" style="flex:1; justify-content:center; padding:9px 10px; font-size:12.5px; font-weight:700; color:#34d399; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); border-radius:8px; cursor:pointer; display:flex; align-items:center; gap:6px; transition:all 0.15s ease;">' +
+          '<button type="button" class="uni-sec-btn" data-archive-restore="' + escapeHtml(item.id) + '" style="flex:1; justify-content:center; padding:9px 10px; font-size:12.5px; font-weight:700; color:#34d399; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); border-radius:8px; cursor:pointer; display:flex; align-items:center; gap:6px; transition:all 0.15s ease;">' +
             '<span>↺</span> Восстановить' +
           '</button>' +
-          '<button type="button" class="uni-sec-btn" data-archive-hard-delete="' + item.id + '" style="flex:1; justify-content:center; padding:9px 10px; font-size:12.5px; font-weight:700; color:#f87171; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.25); border-radius:8px; cursor:pointer; display:flex; align-items:center; gap:6px; transition:all 0.15s ease;">' +
+          '<button type="button" class="uni-sec-btn" data-archive-hard-delete="' + escapeHtml(item.id) + '" style="flex:1; justify-content:center; padding:9px 10px; font-size:12.5px; font-weight:700; color:#f87171; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.25); border-radius:8px; cursor:pointer; display:flex; align-items:center; gap:6px; transition:all 0.15s ease;">' +
             '<span>🗑️</span> Удалить' +
           '</button>' +
         '</div>' +
@@ -12056,8 +12061,8 @@ document.addEventListener('DOMContentLoaded', () => {
             excerpt: row.lead || row.excerpt || '',
             body: row.body || '',
             fullText: row.body || '',
-            author: row.author_name || row.author || 'Ray Westblock',
-            authorLogin: row.author_name || row.author || 'Ray Westblock',
+            author: row.author_name || row.author || 'Редакция LSN',
+            authorLogin: row.author_name || row.author || 'lsn_editorial',
             customImg: safeImageUrl(row.image_url),
             img: safeImageUrl(row.image_url),
             titleColor: row.metadata?.titleColor || ''
@@ -12102,8 +12107,8 @@ document.addEventListener('DOMContentLoaded', () => {
         id: item?.id || id,
         title: item?.title || 'Объявление',
         tag: item?.tag || item?.category || 'Los Santos News · Партнёры',
-        author: item?.author || currentUser.nickname || 'Ray Westblock',
-        authorLogin: item?.authorLogin || currentUser.nickname || 'Ray Westblock',
+        author: item?.author || currentUser?.fullName || currentUser?.username || 'Редакция LSN',
+        authorLogin: item?.authorLogin || currentUser?.username || 'lsn_editorial',
         shortText: item?.shortText || item?.lead || '',
         fullText: item?.fullText || item?.body || '',
         customImg: item?.customImg || item?.img || '',
@@ -12119,7 +12124,7 @@ document.addEventListener('DOMContentLoaded', () => {
         id: item?.id || id,
         title: item?.title || 'Колонка',
         subtitle: item?.subtitle || item?.category || 'Мнение',
-        author: item?.author || currentUser.nickname || 'Ray Westblock',
+        author: item?.author || currentUser?.fullName || currentUser?.username || 'Редакция LSN',
         body: item?.body || item?.fullText || '',
         img: item?.img || item?.customImg || '',
         accent: item?.accent || 'amber',
@@ -12153,8 +12158,8 @@ document.addEventListener('DOMContentLoaded', () => {
         id: item?.id || id,
         title: item?.title || 'Новость',
         category: item?.category || 'Новости',
-        author: item?.author || currentUser.nickname || 'Ray Westblock',
-        authorLogin: item?.authorLogin || currentUser.nickname || 'Ray Westblock',
+        author: item?.author || currentUser?.fullName || currentUser?.username || 'Редакция LSN',
+        authorLogin: item?.authorLogin || currentUser?.username || 'lsn_editorial',
         lead: item?.lead || item?.shortText || '',
         body: item?.body || item?.fullText || '',
         img: item?.img || item?.customImg || '',
@@ -12384,6 +12389,32 @@ document.addEventListener('DOMContentLoaded', () => {
   Object.defineProperty(window, 'adsState', { get: () => adsState, set: (v) => { adsState = v; }, configurable: true });
   Object.defineProperty(window, 'columnsState', { get: () => columnsState, set: (v) => { columnsState = v; }, configurable: true });
   Object.defineProperty(window, 'staffState', { get: () => staffState, set: (v) => { staffState = v; }, configurable: true });
+  Object.defineProperty(window, 'currentUniType', { get: () => currentUniType, set: (v) => { currentUniType = v; }, configurable: true });
+  Object.defineProperty(window, 'currentEditingId', { get: () => currentEditingId, set: (v) => { currentEditingId = v; }, configurable: true });
+  const canUserModifyCurrentImage = () => {
+    if (!currentUser) return false;
+    const roleInfo = getUserRoleInfo(currentUser);
+    if (roleInfo.level === 'user') return false;
+
+    // Редакционный материал о редакции (staff-intro)
+    if (currentUniType === 'staff' && currentEditingId === 'staff-intro') {
+      return roleInfo.rank >= 3;
+    }
+
+    // Редактирование существующего материала
+    if (currentEditingId) {
+      const store = getStoreForType(currentUniType);
+      const existing = store.find(x => x.id === currentEditingId);
+      if (existing) {
+        return canUserEditItem(existing);
+      }
+    }
+
+    // Создание нового материала
+    return canCreateEditorialType(currentUniType, roleInfo);
+  };
+
+  window.canUserModifyCurrentImage = canUserModifyCurrentImage;
 
   headerCabinetBtn?.addEventListener('click', () => openJournalistCabinet('news'));
   $('#auth-open-cabinet-from-profile')?.addEventListener('click', () => {
@@ -12675,16 +12706,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
   $('#uni-field-file')?.addEventListener('change', async (e) => {
     const file = e.target.files && e.target.files[0];
-    const roleInfo = getUserRoleInfo(currentUser);
-    if (!canCreateEditorialType(currentUniType, roleInfo)) {
+    if (!canUserModifyCurrentImage()) {
       e.target.value = '';
-      flashUniSaved('🔒 У этой роли нет права добавлять изображения в этот раздел.');
+      flashUniSaved('🔒 У этой роли нет права изменять изображение для этого материала.');
       return;
     }
     if (file) await handleMediaFile(file);
   });
 
   $('#uni-clear-photo-btn')?.addEventListener('click', () => {
+    if (!canUserModifyCurrentImage()) {
+      flashUniSaved('🔒 У этой роли нет права изменять изображение для этого материала.');
+      return;
+    }
     setCurrentPhoto('', {});
     const fileInput = $('#uni-field-file');
     if (fileInput) fileInput.value = '';
@@ -13055,6 +13089,31 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         saveStaffState();
         renderStaffSection();
+        if (sb) {
+          try {
+            const introUuid = STAFF_UUID_MAP['staff-intro'];
+            await sb.from('lsn_articles').upsert({
+              id: introUuid,
+              type: 'staff',
+              title: staffState.articleTitle,
+              category: staffState.articleKick,
+              lead: staffState.articleLead,
+              body: staffState.articleBody,
+              excerpt: makeShortPreview(staffState.articleLead || staffState.articleBody || '', 150),
+              image_url: safeImageUrl(staffState.articleImg) || null,
+              author_name: currentUser?.fullName || currentUser?.username || 'Редакция LSN',
+              author_id: currentUser?.uuid || null,
+              status: 'published',
+              metadata: {
+                isStaffIntro: true,
+                stats: staffState.stats
+              },
+              updated_at: new Date().toISOString()
+            }, { onConflict: 'id' });
+          } catch (cloudErr) {
+            console.warn('Supabase staff-intro cloud save note:', cloudErr);
+          }
+        }
         loadItemIntoUniForm('staff-intro');
         flashUniSaved('Сохранено');
       } else {
@@ -13101,6 +13160,31 @@ document.addEventListener('DOMContentLoaded', () => {
         item.skinId = currentArtPreset;
         saveStaffState();
         renderStaffSection();
+        if (sb) {
+          try {
+            const staffUuid = getStableUuidForLocalId(item.id);
+            await sb.from('lsn_articles').upsert({
+              id: staffUuid,
+              type: 'staff',
+              title: item.name,
+              category: item.role,
+              body: item.bio,
+              lead: makeShortPreview(item.bio || '', 150),
+              excerpt: makeShortPreview(item.bio || '', 150),
+              image_url: safeImageUrl(item.customImg) || null,
+              author_name: currentUser?.fullName || currentUser?.username || 'Редакция LSN',
+              author_id: item.author_id || currentUser?.uuid || null,
+              status: 'published',
+              metadata: {
+                skinId: item.skinId || 'skin_director',
+                badge: item.badge || ''
+              },
+              updated_at: new Date().toISOString()
+            }, { onConflict: 'id' });
+          } catch (cloudErr) {
+            console.warn('Supabase staff member save note:', cloudErr);
+          }
+        }
         loadItemIntoUniForm(item.id);
         flashUniSaved('Сохранено');
       }
@@ -13559,9 +13643,8 @@ document.addEventListener('DOMContentLoaded', () => {
       btn.className = 'uni-album-card' + (currentPhotoData === ill.src ? ' is-selected' : '');
       btn.innerHTML = `<span class="uni-album-card__tag">${escapeHtml(ill.tag)}</span><img class="uni-album-card__img" src="${ill.src}" alt="${escapeHtml(ill.title)}" loading="lazy"><span class="uni-album-card__title">${escapeHtml(ill.title)}</span>`;
       btn.addEventListener('click', () => {
-        const roleInfo = getUserRoleInfo(currentUser);
-        if (!canCreateEditorialType(currentUniType, roleInfo)) {
-          flashUniSaved('🔒 У этой роли нет права использовать иллюстрации в этом разделе.');
+        if (!canUserModifyCurrentImage()) {
+          flashUniSaved('🔒 У этой роли нет права изменять изображение для этого материала.');
           return;
         }
         setCurrentPhoto(ill.src, { name: ill.title, size: 0, width: 800, height: 500 });
@@ -13593,11 +13676,34 @@ document.addEventListener('DOMContentLoaded', () => {
   closeAlbumBtn?.addEventListener('click', () => { if (albumWrapEl) albumWrapEl.hidden = true; });
   albumSearchEl?.addEventListener('input', renderSiteAlbumGrid);
 
-  dropzoneEl?.addEventListener('click', () => $('#uni-field-file')?.click());
-  dropzoneEl?.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $('#uni-field-file')?.click(); } });
+  dropzoneEl?.addEventListener('click', () => {
+    if (!canUserModifyCurrentImage()) {
+      flashUniSaved('🔒 У этой роли нет права изменять изображение для этого материала.');
+      return;
+    }
+    $('#uni-field-file')?.click();
+  });
+  dropzoneEl?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      if (!canUserModifyCurrentImage()) {
+        flashUniSaved('🔒 У этой роли нет права изменять изображение для этого материала.');
+        return;
+      }
+      $('#uni-field-file')?.click();
+    }
+  });
   ['dragenter','dragover'].forEach(evt => dropzoneEl?.addEventListener(evt, e => { e.preventDefault(); dropzoneEl.classList.add('is-dragover'); }));
   ['dragleave','drop'].forEach(evt => dropzoneEl?.addEventListener(evt, e => { e.preventDefault(); dropzoneEl.classList.remove('is-dragover'); }));
-  dropzoneEl?.addEventListener('drop', e => { const file = e.dataTransfer?.files?.[0]; if (file) handleMediaFile(file); });
+  dropzoneEl?.addEventListener('drop', e => {
+    e.preventDefault();
+    if (!canUserModifyCurrentImage()) {
+      flashUniSaved('🔒 У этой роли нет права изменять изображение для этого материала.');
+      return;
+    }
+    const file = e.dataTransfer?.files?.[0];
+    if (file) handleMediaFile(file);
+  });
 
   updateMediaUI();
 
@@ -13772,7 +13878,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const id = getStableUuidForLocalId(oldId);
     item.id = id;
     const authorId = currentUser?.uuid || null;
-    const authorName = item.author || item.author_name || currentUser?.fullName || currentUser?.nickname || 'Ray Westblock';
+    const authorName = item.author || item.author_name || currentUser?.fullName || currentUser?.nickname || 'Редакция LSN';
     const category = type === 'ad' ? (item.tag || item.category || 'Реклама')
       : type === 'column' ? (item.subtitle || item.category || 'Колонка')
       : type === 'staff' ? (item.role || 'Сотрудник LSN')
@@ -14071,7 +14177,7 @@ document.addEventListener('DOMContentLoaded', () => {
               excerpt: row.lead || row.excerpt || '',
               body: row.body || '',
               fullText: row.body || '',
-              author: row.author_name || row.author || 'Ray Westblock',
+              author: row.author_name || row.author || 'Редакция LSN',
               author_id: row.author_id,
               img: safeImageUrl(row.image_url),
               customImg: safeImageUrl(row.image_url),
@@ -14160,7 +14266,23 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
 
-      const cloudStaff = data.filter(row => row.type === 'staff' && !isArchivedRow(row)).map(row => ({
+      const introRow = data.find(row => row.id === STAFF_UUID_MAP['staff-intro'] || (row.metadata && row.metadata.isStaffIntro));
+      if (introRow && !isArchivedRow(introRow)) {
+        staffState.articleTitle = introRow.title || staffState.articleTitle;
+        staffState.articleKick = introRow.category || staffState.articleKick;
+        staffState.articleLead = introRow.lead || staffState.articleLead;
+        staffState.articleBody = introRow.body || staffState.articleBody;
+        if (introRow.image_url) {
+          staffState.articleImg = safeImageUrl(introRow.image_url);
+        }
+        if (introRow.metadata && Array.isArray(introRow.metadata.stats)) {
+          staffState.stats = introRow.metadata.stats;
+        }
+        saveStaffState();
+        renderStaffSection();
+      }
+
+      const cloudStaff = data.filter(row => row.type === 'staff' && !isArchivedRow(row) && row.id !== STAFF_UUID_MAP['staff-intro'] && !(row.metadata && row.metadata.isStaffIntro)).map(row => ({
         id: row.id,
         name: row.title,
         role: row.category || 'Сотрудник LSN',

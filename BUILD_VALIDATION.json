@@ -1,7 +1,7 @@
 {
   "release": "V13 Recovery Verified Edition",
-  "html_bytes": 3377366,
-  "html_sha256": "C2BB6D83E0C2BFEE488154B2310394ACA16723B8CA52F34C92F7A7414649C26B",
+  "html_bytes": 3367876,
+  "html_sha256": "B908DE4A38F6D56CEA408C281BCC121497A18B87442A0E23C465F3FB1C1F088F",
   "inline_javascript_blocks_total": 2,
   "inline_javascript_blocks_passed": 2,
   "inline_javascript_syntax_errors": 0,
@@ -34,24 +34,8 @@
   "supabase_archive_system": true,
   "author_name": "Ray Westblock",
   "browser_headless_dom_tested": true,
-  "server_security": {
-    "profiles_trigger_protect_active": true,
-    "articles_guard_trigger_active": true,
-    "self_escalation_blocked": true,
-    "author_id_tampering_blocked": true,
-    "email_tampering_blocked": true,
-    "public_profiles_view_email_hidden": true,
-    "secure_role_rpc_active": true
-  },
-  "automated_test_suite": {
-    "total": 55,
-    "passed": 55,
-    "failed": 0,
-    "all_passed": true
-  },
   "remaining_manual_steps": [
     "Execute supabase/migrations/20261025091500_allow_archived_status_in_lsn_articles.sql in Supabase SQL Editor if archive status constraint is not yet applied",
-    "Execute supabase/migrations/20261025140000_strict_five_role_security_and_rls_hardening.sql in Supabase SQL Editor to enforce strict RLS and 5-role security",
     "Execute supabase/sql/restore_primary_admin.sql in Supabase SQL Editor if Ray Westblock profile requires admin role elevation",
     "Sign in to V13 as Ray Westblock to confirm profile sync"
   ]
