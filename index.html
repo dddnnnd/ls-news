@@ -8,7 +8,7 @@
   <meta http-equiv="Expires" content="0">
   <script>
     (function() {
-      var LSN_APP_VER = '20261025_FINAL';
+      var LSN_APP_VER = '20261025_EDITORIAL_V11';
       try {
         var lastVer = localStorage.getItem('lsn_app_ver');
         if (lastVer && lastVer !== LSN_APP_VER) {
@@ -6485,6 +6485,77 @@ h1, h2, h3, h4,
 .role-badge--moderator { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.35); }
 .role-badge--journalist { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.35); }
 .role-badge--reader { background: rgba(148, 163, 184, 0.15); color: #94a3b8; border: 1px solid rgba(148, 163, 184, 0.3); }
+
+
+/* V10 · Editorial finish: restrained borders, typography-led cards, no decorative noise. */
+#latest-news-section { min-width: 0; }
+#latest-news-section > div:first-child { padding-bottom: 15px; margin-bottom: 14px !important; border-bottom: 1px solid rgba(190, 202, 216, .14); }
+.latest-news-heading { color: #f2f4f7; font-family: var(--font-serif); font-size: clamp(26px, 3vw, 34px); font-weight: 700 !important; letter-spacing: -.035em !important; line-height: 1.08; }
+.latest-news-total { color: #aab5c2; font-size: 12px; line-height: 1; font-weight: 500; letter-spacing: .02em; }
+.latest-filter-bar { gap: 7px; margin-bottom: 18px; align-items: center; }
+.latest-filter-chip { min-height: 34px; padding: 8px 12px; border-radius: 7px; background: #111720; border: 1px solid #283240; color: #bbc4ce; font: 500 12.5px/1 var(--font-sans); box-shadow: none; transition: background .16s ease, border-color .16s ease, color .16s ease; }
+.latest-filter-chip:hover { transform: none; background: #19222e; border-color: #536171; color: #f2f4f7; box-shadow: none; }
+.latest-filter-chip.is-active { background: #25251f; color: #f5ce83; border-color: #9b7843; box-shadow: inset 0 0 0 1px rgba(211, 167, 91, .08); }
+.latest-filter-chip .filter-count { padding: 2px 6px; border-radius: 4px; background: rgba(255,255,255,.08); color: #c8d0da; font: 600 10px/1.2 var(--font-mono); }
+.latest-refresh-btn { margin-left: auto; color: #d0d7df; }
+.latest-refresh-btn span { font-size: 16px; color: #d7b16b; line-height: .8; }
+.latest-refresh-btn:disabled { opacity: .65; cursor: wait; }
+.latest-refresh-btn.is-refresh-error { color: #e3a5a5; border-color: #765151; }
+.latest-row-item { grid-template-columns: 138px minmax(0, 1fr); gap: 18px; padding: 14px; margin-bottom: 10px; border-radius: 11px; border: 1px solid #27313d; background: #10161f; box-shadow: 0 4px 12px rgba(0,0,0,.12); }
+.latest-row-item::before { width: 2px; background: #a7834d; opacity: .7; }
+.latest-row-item:hover { transform: translateY(-1px); background: #141c26; border-color: #46515f; box-shadow: 0 8px 18px rgba(0,0,0,.18); }
+.latest-row-item:hover::before { width: 2px; background: #d5b174; }
+.latest-row-media { width: 138px; height: 98px; border-radius: 7px; border: 1px solid #2b3540; background: #141b24; }
+.latest-row-media img { filter: saturate(.88); }
+.latest-row-media--brand-tile { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; padding: 13px 14px; background: linear-gradient(145deg, #1b2430 0%, #10161e 76%); }
+.latest-media-mark { color: #e5c994; font: 700 28px/.95 var(--font-display); letter-spacing: -.06em; }
+.latest-media-rule { width: 28px; height: 2px; margin: 8px 0 6px; background: #aa8b54; }
+.latest-media-caption { color: #8190a0; font: 500 8.5px/1.3 var(--font-sans); letter-spacing: .08em; text-transform: uppercase; }
+.latest-row-content { justify-content: flex-start; gap: 6px; }
+.latest-row-meta { gap: 7px; margin: 0 0 1px; color: #97a3b2; font-size: 11.5px; line-height: 1.35; }
+.latest-cat-pill { padding: 0; border: 0 !important; border-radius: 0; background: none !important; color: #d5b174 !important; font: 600 10.5px/1.25 var(--font-sans); letter-spacing: .055em; text-transform: uppercase; }
+.latest-cat-pill--культура { color: #b8c6d4 !important; }
+.latest-cat-pill--политика { color: #d5b174 !important; }
+.latest-cat-pill--экономика { color: #a9c7bd !important; }
+.latest-cat-pill--чп { color: #d7a6a6 !important; }
+.latest-status-badge { display: none !important; }
+.latest-meta-author { color: #bfc8d2; font-weight: 500; }
+.latest-meta-time { color: #8390a0; }
+.latest-meta-read, .latest-station-tag { display: none !important; }
+.latest-row-title { margin: 0 0 1px !important; color: #f0f2f5 !important; font-family: var(--font-sans) !important; font-size: clamp(16px, 1.45vw, 18px) !important; font-weight: 700 !important; line-height: 1.32 !important; letter-spacing: -.018em; -webkit-line-clamp: 2; }
+.latest-row-item:hover .latest-row-title { color: #f5d49b !important; }
+.latest-row-excerpt { margin: 0 0 3px; color: #9eabb9; font-size: 13px; line-height: 1.5; -webkit-line-clamp: 2; }
+.latest-row-footer { margin-top: auto; padding-top: 7px; border-top: 1px solid rgba(173, 186, 200, .11); font-size: 12px; }
+.latest-read-link { color: #d8b36d; font-weight: 600; gap: 7px; }
+.latest-row-item:hover .latest-read-link { color: #f2d19a; gap: 9px; }
+.latest-more-btn { align-self: flex-start; margin-top: 3px; padding: 9px 13px; color: #d9bd86; background: #151b24; border: 1px solid #303b48; border-radius: 7px; cursor: pointer; font: 500 12px/1.3 var(--font-sans); }
+.latest-more-btn:hover { background: #202a35; border-color: #607080; }
+.news-empty-state--compact { padding: 20px 18px; border-radius: 9px; border: 1px solid #293341; background: #10161f; color: #9eabb9; font-size: 13.5px; line-height: 1.6; }
+
+/* Form controls: consistent labels, quiet surfaces and clear focus. */
+.auth-modal-card { border-color: #303a47; border-radius: 15px; background: #10151d; box-shadow: 0 24px 64px rgba(0,0,0,.48); }
+.portal-form label, .cab-ad-form label { color: #c9d2dc; font-size: 12.5px; font-weight: 600; letter-spacing: .01em; }
+.portal-form input, .cab-ad-form input[type="text"], .cab-ad-form textarea, .cab-ad-form select, #change-nick-input { border: 1px solid #303b48 !important; border-radius: 7px !important; background: #0d1219 !important; color: #f1f3f6 !important; box-shadow: none !important; transition: border-color .16s ease, background .16s ease !important; }
+.portal-form input:focus, .cab-ad-form input[type="text"]:focus, .cab-ad-form textarea:focus, .cab-ad-form select:focus, #change-nick-input:focus { outline: 2px solid rgba(216, 179, 109, .28) !important; outline-offset: 1px; border-color: #9a7846 !important; background: #111821 !important; }
+.portal-submit, .cab-ad-form button[type="submit"] { border-radius: 7px !important; box-shadow: none !important; letter-spacing: .015em; }
+.cab-ads-list-col, .cab-ads-form-col { border-color: #2a3440 !important; border-radius: 10px !important; }
+.uni-type-btn { border-radius: 6px !important; box-shadow: none !important; }
+
+@media (max-width: 640px) {
+  .latest-filter-bar { gap: 6px; }
+  .latest-filter-chip { min-height: 33px; padding: 7px 10px; font-size: 12px; }
+  .latest-refresh-btn { margin-left: 0; }
+  .latest-row-item { grid-template-columns: 84px minmax(0, 1fr); gap: 12px; padding: 11px; }
+  .latest-row-media { width: 84px; height: 82px; }
+  .latest-row-media--brand-tile { padding: 9px; }
+  .latest-media-mark { font-size: 22px; }
+  .latest-media-caption { font-size: 7px; }
+  .latest-row-meta { gap: 5px; font-size: 10.5px; }
+  .latest-row-title { font-size: 15px !important; line-height: 1.32 !important; -webkit-line-clamp: 3; }
+  .latest-row-excerpt { font-size: 12px; -webkit-line-clamp: 2; }
+  .latest-row-footer { padding-top: 6px; }
+}
+
 </style>
 
 </head>
@@ -7407,10 +7478,10 @@ h1, h2, h3, h4,
   <article class="v6-skyline__card">
     <div class="v6-skyline__card-kicker">
       <span class="live-dot" aria-hidden="true"></span>
-      <span>Главное сегодня · Город</span>
+      <span>Новости Сан-Андреаса</span>
     </div>
-    <h3 class="ser">Новости и материалы Лос-Сантоса</h3>
-    <p>Публикации редакции появятся здесь после подключения редакционной ленты и размещения материалов.</p>
+    <h3 class="ser">Лос-Сантос в центре событий</h3>
+    <p>Городские новости, репортажи с места событий и материалы редакции Los Santos News.</p>
     <div style="display:flex; flex-wrap:wrap; align-items:center; gap:16px; margin-top:2px;">
       <a href="#news" class="v6-skyline__cta-btn">К публикациям</a>
       <span style="font-size:13px; color:#f3c68f; font-weight:700; letter-spacing:0.04em;">Los Santos News</span>
@@ -7436,17 +7507,17 @@ h1, h2, h3, h4,
 <section class="v6-secondary-news" id="lsn-columns-section">
   <div id="latest-news-section">
     <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; margin-bottom:14px;">
-      <h3 class="ser" style="margin:0; font-weight:900; font-size:32px; letter-spacing:-0.03em;">Последние новости</h3>
-      <span style="font:700 11.5px/1 var(--font-mono); color:#f59e0b; background:rgba(120,196,223,0.12); padding:4px 10px; border-radius:999px; border:1px solid rgba(120,196,223,0.25);" id="latest-news-total-badge">Лента 24/7</span>
+      <h3 class="ser latest-news-heading" style="margin:0;">Последние новости</h3>
+      <span class="latest-news-total" id="latest-news-total-badge">0 публикаций</span>
     </div>
     <div class="latest-filter-bar" id="latest-news-filters">
-      <button type="button" class="latest-filter-chip is-active" data-cat="all">⚡ Все публикации <span class="filter-count" id="filter-cnt-all">0</span></button>
-      <button type="button" class="latest-filter-chip" id="mobile-force-refresh-btn" style="color:#f59e0b; border-color:rgba(245,158,11,0.4);" title="Обновить ленту и очистить кэш">🔄 Обновить</button>
-      <button type="button" class="latest-filter-chip" data-cat="город">🏙️ Город</button>
-      <button type="button" class="latest-filter-chip" data-cat="политика">🏛️ Политика</button>
-      <button type="button" class="latest-filter-chip" data-cat="экономика">📈 Экономика</button>
-      <button type="button" class="latest-filter-chip" data-cat="культура">🎬 Культура</button>
-      <button type="button" class="latest-filter-chip" data-cat="чп">🚨 ЧП / Хроника</button>
+      <button type="button" class="latest-filter-chip is-active" data-cat="all">Все публикации <span class="filter-count" id="filter-cnt-all">0</span></button>
+      <button type="button" class="latest-filter-chip latest-refresh-btn" id="mobile-force-refresh-btn" title="Загрузить актуальную ленту">Обновить ленту <span aria-hidden="true">↻</span></button>
+      <button type="button" class="latest-filter-chip" data-cat="город">Город</button>
+      <button type="button" class="latest-filter-chip" data-cat="политика">Политика</button>
+      <button type="button" class="latest-filter-chip" data-cat="экономика">Экономика</button>
+      <button type="button" class="latest-filter-chip" data-cat="культура">Культура</button>
+      <button type="button" class="latest-filter-chip" data-cat="чп">Происшествия</button>
     </div>
     <div id="latest-news" class="latest-rows"></div>
   </div>
@@ -7690,7 +7761,7 @@ h1, h2, h3, h4,
         </label>
         <label>
           Пароль
-          <input id="reg-password" name="password" type="password" autocomplete="new-password" placeholder="Пароль" required minlength="6">
+          <input id="reg-password" name="password" type="password" autocomplete="new-password" placeholder="Пароль" required minlength="8">
         </label>
         
         <button class="portal-submit" type="submit" style="margin-top:8px;">Зарегистрироваться</button>
@@ -8306,6 +8377,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // lsn_articles.id is UUID in PostgreSQL. Never generate timestamp-only ids
+  // for a cloud-backed article because PostgREST will reject the write.
+  const createArticleUuid = () => {
+    if (window.crypto && typeof window.crypto.randomUUID === 'function') return window.crypto.randomUUID();
+    const bytes = new Uint8Array(16);
+    if (window.crypto && typeof window.crypto.getRandomValues === 'function') window.crypto.getRandomValues(bytes);
+    else for (let i = 0; i < bytes.length; i++) bytes[i] = Math.floor(Math.random() * 256);
+    bytes[6] = (bytes[6] & 0x0f) | 0x40;
+    bytes[8] = (bytes[8] & 0x3f) | 0x80;
+    const hex = Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('');
+    return `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20)}`;
+  };
 
   // Accessibility hardening: every form control gets an explicit accessible name.
   const applyAccessibleFormLabels = () => {
@@ -9103,38 +9187,21 @@ document.addEventListener('DOMContentLoaded', () => {
   const FOUR_DAYS_MS = 4 * 24 * 60 * 60 * 1000;
   /* duplicate */ escapeHtml = (s) => String(s == null ? '' : s)
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  // Render user-submitted article data as text only. These helpers prevent
+  // stored HTML/attribute injection through article metadata or image_url.
+  const safeImageUrl = (value) => {
+    const raw = String(value == null ? '' : value).trim();
+    if (!raw) return '';
+    if (/^data:image\/(?:png|jpeg|webp|gif);base64,[a-z0-9+/=\s]+$/i.test(raw)) return raw;
+    try {
+      const parsed = new URL(raw, window.location.href);
+      if (parsed.protocol === 'https:' || (parsed.protocol === 'http:' && parsed.origin === window.location.origin)) return parsed.href;
+    } catch (_) {}
+    return '';
+  };
+  const safeHexColor = (value) => /^#[0-9a-f]{6}$/i.test(String(value || '')) ? String(value) : '';
 
-  const DEFAULT_NEWS_DATA = [
-    {
-      id: 'news-0-archive',
-      title: 'Редакция LSN открыла набор стажёров на волну 102.2 FM',
-      category: 'Редакция · 102.2 FM',
-      author: 'Джулиан Мерсер',
-      createdAt: Date.now() - 3 * 24 * 60 * 60 * 1000,
-      important: false,
-      img: '',
-      body: 'Los Santos News объявляет набор стажёров: радиоведущих, репортёров и фотокорреспондентов.\n\nСобеседования проходят ежедневно в штабе редакции в районе Commerce. Лучшие кандидаты получат место в эфире 102.2 FM и доступ к кабинету журналиста.'
-    },
-    {
-      id: 'news-1',
-      important: true,
-      title: 'Los Santos News удерживает 1-е место в рейтинге радиокомпаний штата с индексом 342 000',
-      category: 'Главное · Район Commerce · 102.2 FM',
-      author: 'Маркус Вэнс',
-      createdAt: Date.now() - 2 * 60 * 60 * 1000,
-      img: '',
-      body: 'По итогам свежего подсчёта активности радиокомпаний штата Сан-Андреас редакция Los Santos News (волна 102.2 FM) уверенно занимает первую строчку с показателем 342 000 единиц рейтинга, опережая Las Venturas News (289 000) и San Fierro News (254 000).\n\nКруглосуточная работа центрального штаба в районе Commerce, оперативные вылеты воздушного борта SAN NEWS D193SA и прямые репортажи с мест событий обеспечили нашей станции рекордный охват аудитории по всему Лос-Сантосу.'
-    },
-    {
-      id: 'news-2',
-      title: 'Ночной воздушный патруль D193SA: прямая сводка трафика над районом Commerce',
-      category: 'Городской репортаж · Борт D193SA',
-      author: 'Виктор Кроу',
-      createdAt: Date.now() - 9 * 60 * 60 * 1000,
-      img: '',
-      body: 'Экипаж вертолёта SAN NEWS D193SA провёл вечерний мониторинг дорожной обстановки на главной автомагистрали Лос-Сантоса и развязке у района Commerce.\n\nВ прямом эфире на частоте 102.2 FM корреспонденты передали сводку движения в сторону Вайнвуд-Хиллз и делового центра. Благодаря новой оптике и поисковому прожектору зрители и читатели портала могут круглосуточно следить за панорамой города прямо на главной странице сайта.'
-    }
-  ];
+  // News come from the editorial database; legacy demo IDs are ignored below.
 
     // Persistent Deleted Items Registry
   const DELETED_ITEMS_KEY = 'lsn_deleted_item_ids_v20';
@@ -9168,27 +9235,15 @@ document.addEventListener('DOMContentLoaded', () => {
     try { return localStorage.getItem('lsn_cleared_' + type) === 'true'; } catch (_) { return false; }
   };
 
-  const NEWS_STORAGE_KEY = 'lsn_news_store_v20';
-  newsState = JSON.parse(JSON.stringify(DEFAULT_NEWS_DATA)).filter(x => !isItemDeleted(x.id));
+  const NEWS_STORAGE_KEY = 'lsn_news_store_v21';
+  // The database is the sole source of truth for news. Do not hydrate the feed
+  // from legacy browser caches: a deleted database row must not reappear after reload.
+  newsState = [];
   try {
-    const rawN = localStorage.getItem(NEWS_STORAGE_KEY) || localStorage.getItem('lsn_news_store_v18') || localStorage.getItem('lsn_news_store_v16') || localStorage.getItem('lsn_news_store_v12');
-    if (rawN) {
-      const parsedN = JSON.parse(rawN);
-      if (Array.isArray(parsedN)) {
-        const map = new Map();
-        newsState.forEach(item => map.set(item.id, item));
-        parsedN.forEach(item => {
-          if (!isItemDeleted(item.id)) map.set(item.id, item);
-        });
-        newsState = Array.from(map.values()).filter(x => !isItemDeleted(x.id));
-      }
-    }
+    ['lsn_news_store_v20','lsn_news_store_v18','lsn_news_store_v16','lsn_news_store_v12'].forEach(key => localStorage.removeItem(key));
   } catch (_) {}
   const saveNewsState = () => {
-    try {
-      localStorage.setItem(NEWS_STORAGE_KEY, JSON.stringify(newsState));
-      localStorage.setItem('lsn_news_store_v18', JSON.stringify(newsState));
-    } catch (_) {}
+    try { localStorage.setItem(NEWS_STORAGE_KEY, JSON.stringify(newsState)); } catch (_) {}
   };
 
   const CLEAN_AD_BACKDROP_SVG = `<svg class="lsn-ad-svg" viewBox="0 0 520 320" preserveAspectRatio="xMidYMid slice">
@@ -9227,91 +9282,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 2) ADS STORE (MOCK ADS REMOVED PER USER INSTRUCTION: 100% EMPTY DEFAULT)
   const DEFAULT_ADS_DATA = [];
-  const MOCK_AD_IDS = ['ad-maze-bank', 'ad-legendary-motorsport', 'ad-diamond-vinewood'];
-  MOCK_AD_IDS.forEach(id => markIdAsDeleted(id));
-
-  const ADS_STORAGE_KEY = 'lsn_ads_store_v20';
-  if (isSectionCleared('ad')) {
-    adsState = [];
-  } else {
-    adsState = [];
-    try {
-      const rawAds = localStorage.getItem(ADS_STORAGE_KEY) || localStorage.getItem('lsn_ads_store_v18') || localStorage.getItem('lsn_ads_store_v12');
-      if (rawAds) {
-        const parsed = JSON.parse(rawAds);
-        if (Array.isArray(parsed)) {
-          adsState = parsed.filter(x => !isItemDeleted(x.id) && !MOCK_AD_IDS.includes(x.id));
-        }
-      }
-    } catch (_) {}
-  }
+  const MOCK_AD_IDS = [];
+  const ADS_STORAGE_KEY = 'lsn_ads_store_v21';
+  adsState = [];
+  try { ['lsn_ads_store_v20','lsn_ads_store_v18','lsn_ads_store_v12'].forEach(key => localStorage.removeItem(key)); } catch (_) {}
   const saveAdsState = () => {
-    try {
-      localStorage.setItem(ADS_STORAGE_KEY, JSON.stringify(adsState));
-      localStorage.setItem('lsn_ads_store_v18', JSON.stringify(adsState));
-      localStorage.setItem('lsn_ads_store_v12', JSON.stringify(adsState));
-    } catch (_) {}
+    try { localStorage.setItem(ADS_STORAGE_KEY, JSON.stringify(adsState)); } catch (_) {}
   };
 
   // 3) COLUMNS STORE (PRESERVING ROY WESTBLOCK'S CAREER & VACANCIES ARTICLES)
-  const DEFAULT_COLUMNS_DATA = [
-    {
-      id: 'col-career',
-      title: 'LOS SANTOS NEWS | КАРЬЕРА И МЕДИА',
-      subtitle: '10.000.000 вирт',
-      accent: 'amber',
-      author: 'Roy Westblock',
-      authorLogin: 'Roy Westblock',
-      img: '',
-      body: 'Редакция Los Santos News (волна 102.2 FM) объявляет о грандиозном призовом фонде в 10.000.000 вирт для активных сотрудников медиа-холдинга!\n\nМы ценим инициативу, честность и преданность журналистскому делу. Каждый репортёр, радиоведущий и редактор получает прямые премиальные выплаты за качественные эфиры, интервью с первыми лицами штата и оперативные репортажи.\n\n• Рекордные премии до 10.000.000 вирт по итогам активности недели;\n• Быстрое продвижение по карьерной лестнице от стажёра до руководящего состава;\n• Доступ к служебному вертолёту D193SA и студийному комплексу в районе Commerce.\n\nПрисоединяйтесь к сильнейшей радиокоманде штата San Andreas!'
-    },
-    {
-      id: 'col-1',
-      title: 'Работайте вместе с Los Santos News',
-      subtitle: 'КАБИНЕТ ЖУРНАЛИСТА · ВАКАНСИИ 102.2 FM',
-      accent: 'red',
-      author: 'Roy Westblock',
-      authorLogin: 'Roy Westblock',
-      img: '',
-      body: 'Независимая радиокомпания и редакция Los Santos News (волна 102.2 FM) приглашает в штат талантливых репортёров, радиоведущих прямого эфира, фотокорреспондентов и редакторов.\n\nНаш центральный офис в районе Commerce оснащён современной студией звукозаписи, автопарком фургонов SAN NEWS и собственным вертолётом D193SA для оперативных репортажей с воздуха.\n\n• Ежедневные премии за проведённые радиоэфиры, викторины и отредактированные объявления;\n• Быстрый карьерный рост от стажёра до программного и технического директора.'
-    },
-    {
-      id: 'col-2',
-      title: 'Читайте материалы, опубликованные редакцией',
-      subtitle: 'АНАЛИТИКА И РЕПОРТАЖИ LSN',
-      accent: 'cyan',
-      author: 'Roy Westblock',
-      authorLogin: 'Roy Westblock',
-      img: '',
-      body: 'Каждый день корреспонденты Los Santos News следят за главными событиями мегаполиса: от решений мэрии и финансовых сводок башни Maze Bank до ночных стритрейсерских заездов и светских приёмов на Вайнвуд-Хиллз.\n\nВсе спецрепортажи, аналитические обзоры и эксклюзивные интервью публикуются в нашей цифровой ленте и звучат в круглосуточном эфире на частоте 102.2 FM.'
-    }
-  ];
-
-  const COLUMNS_STORAGE_KEY = 'lsn_columns_store_v20';
-  if (isSectionCleared('column')) {
-    columnsState = [];
-  } else {
-    columnsState = JSON.parse(JSON.stringify(DEFAULT_COLUMNS_DATA)).filter(x => !isItemDeleted(x.id));
-    try {
-      const rawC = localStorage.getItem(COLUMNS_STORAGE_KEY) || localStorage.getItem('lsn_columns_store_v18') || localStorage.getItem('lsn_columns_store_v12');
-      if (rawC) {
-        const parsedC = JSON.parse(rawC);
-        if (Array.isArray(parsedC)) {
-          const map = new Map();
-          columnsState.forEach(item => map.set(item.id, item));
-          parsedC.forEach(item => {
-            if (!isItemDeleted(item.id)) map.set(item.id, item);
-          });
-          columnsState = Array.from(map.values()).filter(x => !isItemDeleted(x.id));
-        }
-      }
-    } catch (_) {}
-  }
+  const DEFAULT_COLUMNS_DATA = [];
+  const COLUMNS_STORAGE_KEY = 'lsn_columns_store_v21';
+  columnsState = [];
+  try { ['lsn_columns_store_v20','lsn_columns_store_v18','lsn_columns_store_v12'].forEach(key => localStorage.removeItem(key)); } catch (_) {}
   const saveColumnsState = () => {
-    try {
-      localStorage.setItem(COLUMNS_STORAGE_KEY, JSON.stringify(columnsState));
-      localStorage.setItem('lsn_columns_store_v18', JSON.stringify(columnsState));
-    } catch (_) {}
+    try { localStorage.setItem(COLUMNS_STORAGE_KEY, JSON.stringify(columnsState)); } catch (_) {}
   };
 
   const DEFAULT_STAFF_STATS = [
@@ -9454,10 +9439,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (catEl) catEl.textContent = category || 'LOS SANTOS NEWS · 102.2 FM';
     if (titleEl) {
       titleEl.textContent = title || '';
-      if (titleColor) {
-        titleEl.style.color = titleColor;
+      const safeReaderColor = safeHexColor(titleColor);
+      if (safeReaderColor) {
+        titleEl.style.color = safeReaderColor;
         titleEl.style.background = 'none';
-        titleEl.style.webkitTextFillColor = titleColor;
+        titleEl.style.webkitTextFillColor = safeReaderColor;
       } else {
         titleEl.style.color = '';
         titleEl.style.background = '';
@@ -9472,14 +9458,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const paragraphs = (body || '').trim().split(/\n\s*\n/);
     if (excerptEl) {
       excerptEl.textContent = paragraphs[0] || '';
-      excerptEl.style.color = titleColor || '#e2e8f0';
+      excerptEl.style.color = safeHexColor(titleColor) || '#e2e8f0';
     }
     if (bodyEl) bodyEl.textContent = paragraphs.length > 1 ? paragraphs.slice(1).join('\n\n') : '';
 
     if (coverEl) {
       coverEl.classList.toggle('is-staff-portrait', type === 'staff' && id !== 'staff-intro');
-      if (img) {
-        coverEl.src = img;
+      const safeCoverUrl = safeImageUrl(img);
+      if (safeCoverUrl) {
+        coverEl.src = safeCoverUrl;
         coverEl.hidden = false;
       } else {
         coverEl.removeAttribute('src');
@@ -9558,9 +9545,10 @@ document.addEventListener('DOMContentLoaded', () => {
     tile.className = 'lsn-custom-news-card is-entering' + (art.important ? ' is-important' : '');
     tile.tabIndex = 0;
     const preview = escapeHtml(art.excerpt || makeShortPreview(art.body, 160));
+    const imageUrl = safeImageUrl(art.img);
     tile.innerHTML = `
       <span class="news-fresh-pill${art.important ? ' news-fresh-pill--important' : ''}">${art.important ? 'ГЛАВНАЯ' : 'НОВОЕ'} · ${formatMainLeft(art)}</span>
-      ${art.img ? `<div class="lsn-custom-news-card__thumb"><img src="${art.img}" alt=""></div>` : ''}
+      ${imageUrl ? `<div class="lsn-custom-news-card__thumb"><img src="${escapeHtml(imageUrl)}" alt="" loading="lazy" decoding="async"></div>` : ''}
       <div class="kick" style="margin-bottom:8px;">${escapeHtml(art.category || 'ГОРОД · 102.2 FM')}</div>
       <h3 class="ser lsn-news-title">${escapeHtml(art.title)}</h3>
       <p class="lsn-news-preview">${preview}</p>
@@ -9653,85 +9641,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }, { passive: true });
 
-  // Category Micro-Artwork generator when article has no custom photo
-  const getCategoryMicroSvg = (catName) => {
-    const c = (catName || '').toLowerCase();
-    if (c.includes('город') || c.includes('commerce') || c.includes('улиц')) {
-      return 'data:image/svg+xml;utf8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 192">
-        <defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#0a1424"/><stop offset="100%" stop-color="#142840"/></linearGradient></defs>
-        <rect width="260" height="192" fill="url(#g1)"/>
-        <circle cx="190" cy="50" r="32" fill="#f59e0b" opacity="0.18"/>
-        <rect x="25" y="70" width="35" height="122" fill="#0c1726" stroke="#f59e0b" stroke-opacity="0.4"/>
-        <rect x="70" y="45" width="45" height="147" fill="#102035" stroke="#f59e0b" stroke-opacity="0.5"/>
-        <rect x="125" y="25" width="55" height="167" fill="#142842" stroke="#8ad0e8" stroke-width="1.5"/>
-        <polygon points="125,25 152,8 180,25" fill="#f59e0b"/>
-        <rect x="190" y="65" width="45" height="127" fill="#0e1b2e" stroke="#96aaf7" stroke-opacity="0.4"/>
-        <g fill="#e5c687" opacity="0.8">
-          <rect x="135" y="45" width="8" height="6"/><rect x="150" y="45" width="8" height="6"/><rect x="165" y="45" width="8" height="6"/>
-          <rect x="135" y="65" width="8" height="6"/><rect x="165" y="65" width="8" height="6"/>
-          <rect x="135" y="85" width="8" height="6"/><rect x="150" y="85" width="8" height="6"/>
-        </g>
-        <rect x="0" y="165" width="260" height="27" fill="#080e18"/>
-        <line x1="0" y1="165" x2="260" y2="165" stroke="#f59e0b" stroke-width="2"/>
-        <text x="130" y="184" text-anchor="middle" fill="#d6ebf7" font-family="sans-serif" font-weight="900" font-size="12" letter-spacing="2">DOWNTOWN LSN</text>
-      </svg>`);
-    } else if (c.includes('политик') || c.includes('мэр') || c.includes('закон')) {
-      return 'data:image/svg+xml;utf8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 192">
-        <rect width="260" height="192" fill="#0c1626"/>
-        <path d="M70 75 A60 45 0 0 1 190 75 Z" fill="#192e4a" stroke="#e5c687" stroke-width="2"/>
-        <line x1="130" y1="15" x2="130" y2="35" stroke="#e5c687" stroke-width="3"/>
-        <rect x="50" y="75" width="160" height="14" fill="#1f3757" stroke="#f59e0b"/>
-        <g fill="#d6ebf7" opacity="0.85">
-          <rect x="65" y="89" width="14" height="60"/><rect x="105" y="89" width="14" height="60"/>
-          <rect x="141" y="89" width="14" height="60"/><rect x="181" y="89" width="14" height="60"/>
-        </g>
-        <rect x="40" y="149" width="180" height="16" fill="#172b44" stroke="#f59e0b"/>
-        <text x="130" y="182" text-anchor="middle" fill="#e5c687" font-family="sans-serif" font-weight="900" font-size="12" letter-spacing="2">CITY HALL · SAN ANDREAS</text>
-      </svg>`);
-    } else if (c.includes('эконом') || c.includes('финанс') || c.includes('бизнес') || c.includes('рынок')) {
-      return 'data:image/svg+xml;utf8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 192">
-        <rect width="260" height="192" fill="#081422"/>
-        <rect x="35" y="105" width="26" height="55" rx="4" fill="#4e97b5" opacity="0.7"/>
-        <rect x="80" y="85" width="26" height="75" rx="4" fill="#f59e0b" opacity="0.8"/>
-        <rect x="125" y="95" width="26" height="65" rx="4" fill="#96aaf7" opacity="0.8"/>
-        <rect x="170" y="65" width="26" height="95" rx="4" fill="#68d1bc" opacity="0.85"/>
-        <rect x="210" y="45" width="26" height="115" rx="4" fill="#e5c687" opacity="0.9"/>
-        <polyline points="48,95 93,75 138,85 183,55 223,32" fill="none" stroke="#68d1bc" stroke-width="3.5" stroke-linecap="round"/>
-        <circle cx="223" cy="32" r="5" fill="#e5c687"/>
-        <text x="130" y="182" text-anchor="middle" fill="#d6ebf7" font-family="sans-serif" font-weight="900" font-size="12" letter-spacing="2">BAWSAQ · ИНДЕКС LSN</text>
-      </svg>`);
-    } else if (c.includes('культура') || c.includes('шоу') || c.includes('вайнвуд') || c.includes('вечер')) {
-      return 'data:image/svg+xml;utf8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 192">
-        <rect width="260" height="192" fill="#0e1329"/>
-        <polygon points="40,150 90,20 120,150" fill="#e5c687" opacity="0.14"/>
-        <polygon points="220,150 170,20 140,150" fill="#f59e0b" opacity="0.14"/>
-        <text x="130" y="98" text-anchor="middle" fill="#ffffff" stroke="#f59e0b" stroke-width="1" font-family="sans-serif" font-weight="900" font-size="28" letter-spacing="4">VINEWOOD</text>
-        <circle cx="130" cy="132" r="16" fill="#e5c687" opacity="0.85"/>
-        <text x="130" y="182" text-anchor="middle" fill="#e5c687" font-family="sans-serif" font-weight="900" font-size="12" letter-spacing="2">КУЛЬТУРА И СОБЫТИЯ</text>
-      </svg>`);
-    } else if (c.includes('чп') || c.includes('происшеств') || c.includes('хроник') || c.includes('срочн') || c.includes('полици')) {
-      return 'data:image/svg+xml;utf8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 192">
-        <rect width="260" height="192" fill="#1a0c18"/>
-        <circle cx="75" cy="80" r="55" fill="#f08899" opacity="0.25"/>
-        <circle cx="185" cy="80" r="55" fill="#f59e0b" opacity="0.25"/>
-        <rect x="35" y="45" width="190" height="75" rx="12" fill="#0d1522" stroke="#f08899" stroke-width="2"/>
-        <text x="130" y="85" text-anchor="middle" fill="#ffffff" font-family="sans-serif" font-weight="900" font-size="19" letter-spacing="2">BREAKING</text>
-        <text x="130" y="105" text-anchor="middle" fill="#f59e0b" font-family="sans-serif" font-weight="800" font-size="11" letter-spacing="1.5">ЭКСТРЕННЫЙ ЭФИР</text>
-        <text x="130" y="178" text-anchor="middle" fill="#f08899" font-family="sans-serif" font-weight="900" font-size="12" letter-spacing="2">ХРОНИКА ПРОИСШЕСТВИЙ</text>
-      </svg>`);
-    }
-    // Default 102.2 FM studio artwork
-    return 'data:image/svg+xml;utf8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 192">
-      <rect width="260" height="192" fill="#091322"/>
-      <circle cx="130" cy="80" r="70" fill="#f59e0b" opacity="0.12"/>
-      <rect x="110" y="42" width="40" height="65" rx="20" fill="#1b2e47" stroke="#8ad0e8" stroke-width="2"/>
-      <path d="M100 82 A30 30 0 0 0 160 82" fill="none" stroke="#96aaf7" stroke-width="3.5" stroke-linecap="round"/>
-      <line x1="130" y1="112" x2="130" y2="140" stroke="#96aaf7" stroke-width="4"/>
-      <rect x="95" y="140" width="70" height="10" rx="5" fill="#f59e0b"/>
-      <text x="130" y="180" text-anchor="middle" fill="#d6ebf7" font-family="sans-serif" font-weight="900" font-size="12" letter-spacing="2">LOS SANTOS NEWS · 102.2 FM</text>
-    </svg>`);
-  };
-
   // «Последние новости» = все новости с интерактивным дизайном и фильтрами
   const LATEST_STEP = 6;
   let latestVisible = LATEST_STEP;
@@ -9740,78 +9649,85 @@ document.addEventListener('DOMContentLoaded', () => {
   const renderLatestArchive = (archive) => {
     latestNewsEl.innerHTML = '';
     const totalBadge = $('#latest-news-total-badge');
-    if (totalBadge) totalBadge.textContent = `${archive.length} публикаций`;
+    if (totalBadge) {
+      const count = archive.length;
+      totalBadge.textContent = `${count} ${count === 1 ? 'публикация' : count >= 2 && count <= 4 ? 'публикации' : 'публикаций'}`;
+    }
     const cntAll = $('#filter-cnt-all');
     if (cntAll) cntAll.textContent = String(archive.length);
 
-    // Apply active category filter
+    const filterTerms = {
+      город: ['город', 'commerce', 'улиц', 'транспорт'],
+      политика: ['полит', 'мэр', 'правитель', 'закон'],
+      экономика: ['эконом', 'финанс', 'бизнес', 'рынок'],
+      культура: ['культур', 'шоу', 'вайнвуд', 'вечер'],
+      чп: ['чп', 'происшеств', 'хроник', 'срочн', 'полици']
+    };
+    const terms = filterTerms[currentLatestFilter] || [currentLatestFilter];
     const filtered = currentLatestFilter === 'all'
       ? archive
       : archive.filter(a => {
-          const c = (a.category || '').toLowerCase();
-          return c.includes(currentLatestFilter);
+          const category = (a.category || '').toLowerCase();
+          return terms.some(term => category.includes(term));
         });
 
     if (!filtered.length) {
-      latestNewsEl.innerHTML = `<p class="news-empty-state news-empty-state--compact">В этой категории публикаций пока нет. Выберите другую рубрику или добавьте новость через Кабинет журналиста.</p>`;
+      const message = currentLatestFilter === 'all'
+        ? 'Новых публикаций пока нет.'
+        : 'В этой рубрике пока нет публикаций.';
+      latestNewsEl.innerHTML = `<p class="news-empty-state news-empty-state--compact">${message}</p>`;
       return;
     }
 
-    const now = Date.now();
     filtered.slice(0, latestVisible).forEach((art) => {
       const row = document.createElement('article');
       row.className = 'latest-row-item';
       row.tabIndex = 0;
+      row.setAttribute('role', 'link');
+      row.setAttribute('aria-label', `Открыть публикацию: ${art.title || ''}`);
 
-      const inMain = isInMainNews(art, now);
-      const catRaw = (art.category || 'Город').trim();
+      const catRaw = (art.category || 'Новости').trim();
       const catClean = catRaw.split('·')[0].split('•')[0].trim();
       const catLower = catClean.toLowerCase();
-
       let catClass = 'latest-cat-pill--default';
-      let catIcon = '📻';
-      if (catLower.includes('город') || catLower.includes('commerce')) { catClass = 'latest-cat-pill--город'; catIcon = '🏙️'; }
-      else if (catLower.includes('культур') || catLower.includes('вайнвуд')) { catClass = 'latest-cat-pill--культура'; catIcon = '🎬'; }
-      else if (catLower.includes('полит') || catLower.includes('мэр')) { catClass = 'latest-cat-pill--политика'; catIcon = '🏛️'; }
-      else if (catLower.includes('эконом') || catLower.includes('финанс')) { catClass = 'latest-cat-pill--экономика'; catIcon = '📈'; }
-      else if (catLower.includes('чп') || catLower.includes('происшеств') || catLower.includes('хроник')) { catClass = 'latest-cat-pill--чп'; catIcon = '🚨'; }
-      else if (catLower.includes('главн')) { catClass = 'latest-cat-pill--город'; catIcon = '⭐'; }
+      if (catLower.includes('город') || catLower.includes('commerce')) catClass = 'latest-cat-pill--город';
+      else if (catLower.includes('культур') || catLower.includes('вайнвуд')) catClass = 'latest-cat-pill--культура';
+      else if (catLower.includes('полит') || catLower.includes('мэр')) catClass = 'latest-cat-pill--политика';
+      else if (catLower.includes('эконом') || catLower.includes('финанс')) catClass = 'latest-cat-pill--экономика';
+      else if (catLower.includes('чп') || catLower.includes('происшеств') || catLower.includes('хроник')) catClass = 'latest-cat-pill--чп';
 
-      const badgeHtml = inMain
-        ? `<span class="latest-status-badge ${art.important ? 'latest-status-badge--hot' : ''}">${art.important ? '🔥 В фокусе' : '✨ Свежее'}</span>`
-        : '';
-
-      const wordsCount = (art.body || '').trim().split(/\s+/).filter(Boolean).length;
-      const readMinutes = Math.max(1, Math.round(wordsCount / 100));
-
-      const mediaImgSrc = art.img ? art.img : getCategoryMicroSvg(art.category);
+      const safeNewsImg = safeImageUrl(art.img);
+      const mediaHtml = safeNewsImg
+        ? `<div class="latest-row-media"><img src="${escapeHtml(safeNewsImg)}" alt="" loading="lazy" decoding="async"></div>`
+        : `<div class="latest-row-media latest-row-media--brand-tile" aria-hidden="true"><span class="latest-media-mark">LSN</span><span class="latest-media-rule"></span><span class="latest-media-caption">Редакция · San Andreas</span></div>`;
+      const excerpt = escapeHtml(art.excerpt || makeShortPreview(art.body, 150));
+      const date = formatNewsDate(art.createdAt);
 
       row.innerHTML = `
-        <div class="latest-row-media">
-          <img src="${mediaImgSrc}" alt="" loading="lazy">
-        </div>
+        ${mediaHtml}
         <div class="latest-row-content">
           <div class="latest-row-meta">
-            <span class="latest-cat-pill ${catClass}">${catIcon} ${escapeHtml(catClean)}</span>
-            ${badgeHtml}
-            <span class="meta-separator">·</span>
-            <span class="latest-meta-author">${escapeHtml(art.author || 'Редакция LSN')}</span>
-            <span class="meta-separator">·</span>
-            <time class="latest-meta-time">${formatNewsDate(art.createdAt)}</time>
-            <span class="meta-separator">·</span>
-            <span class="latest-meta-read">⏱️ ${readMinutes} мин</span>
+            <span class="latest-cat-pill ${catClass}">${escapeHtml(catClean)}</span>
+            <span class="meta-separator" aria-hidden="true">·</span>
+            <span class="latest-meta-author">${escapeHtml(art.author || 'Редакция Los Santos News')}</span>
+            <span class="meta-separator" aria-hidden="true">·</span>
+            <time class="latest-meta-time">${escapeHtml(date)}</time>
           </div>
           <h4 class="latest-row-title">${escapeHtml(art.title)}</h4>
-          <p class="latest-row-excerpt">${escapeHtml(art.excerpt || makeShortPreview(art.body, 135))}</p>
+          <p class="latest-row-excerpt">${excerpt}</p>
           <div class="latest-row-footer">
-            <span class="latest-read-link">Читать публикацию <span class="latest-arr">→</span></span>
-            <span class="latest-station-tag">📻 102.2 FM · Commerce</span>
+            <span class="latest-read-link">Открыть материал <span class="latest-arr" aria-hidden="true">→</span></span>
           </div>
         </div>
       `;
 
       row.addEventListener('click', () => openNewsInReader(art));
-      row.addEventListener('keydown', (e) => { if (e.key === 'Enter') openNewsInReader(art); });
+      row.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openNewsInReader(art);
+        }
+      });
       latestNewsEl.appendChild(row);
     });
 
@@ -9820,7 +9736,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const more = document.createElement('button');
       more.type = 'button';
       more.className = 'latest-more-btn';
-      more.innerHTML = `<span>↓ Показать ещё публикации</span> <b class="latest-more-count">(${remaining})</b>`;
+      more.textContent = `Показать ещё (${remaining})`;
       more.addEventListener('click', () => {
         latestVisible += LATEST_STEP;
         renderLatestArchive(archive);
@@ -9832,19 +9748,22 @@ document.addEventListener('DOMContentLoaded', () => {
   // Interactive Category Filter Bar clicks
   $('#latest-news-filters')?.addEventListener('click', (e) => {
     const chip = e.target.closest('.latest-filter-chip');
-    if (!chip) return;
-    $$('.latest-filter-chip', $('#latest-news-filters')).forEach(c => c.classList.remove('is-active'));
+    if (!chip || chip.id === 'mobile-force-refresh-btn') return;
+    $$('.latest-filter-chip[data-cat]', $('#latest-news-filters')).forEach(c => c.classList.remove('is-active'));
     chip.classList.add('is-active');
     currentLatestFilter = chip.dataset.cat || 'all';
     latestVisible = LATEST_STEP;
-    const sorted = [...newsState].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+    const published = newsState.filter(a => (a.status || 'published') === 'published');
+    const sorted = [...published].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
     renderLatestArchive(sorted);
   });
 
   const renderNewsSections = () => {
     if (!newsGridEl || !latestNewsEl) return;
     const now = Date.now();
-    const sorted = [...newsState].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+    // Drafts remain available in the editorial cabinet, never in the public feed.
+    const published = newsState.filter(a => (a.status || 'published') === 'published');
+    const sorted = [...published].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
     mainFreshList = sorted
       .filter(a => isInMainNews(a, now))
       .sort((a, b) => ((b.important ? 1 : 0) - (a.important ? 1 : 0)) || ((b.createdAt || 0) - (a.createdAt || 0)));
@@ -9861,8 +9780,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 2) Render Advertising Carousel (#lsn-ad-carousel)
   const renderAdSlideVisualHtml = (ad) => {
-    if (ad.customImg) {
-      return `<div class="lsn-ad-photo-frame"><img class="lsn-ad-custom-photo" src="${ad.customImg}" alt="${(ad.title || 'Реклама').replace(/\n/g, ' ')}"></div>`;
+    const imageUrl = safeImageUrl(ad.customImg);
+    if (imageUrl) {
+      return `<div class="lsn-ad-photo-frame"><img class="lsn-ad-custom-photo" src="${escapeHtml(imageUrl)}" alt="${escapeHtml((ad.title || 'Реклама').replace(/\n/g, ' '))}" loading="lazy" decoding="async"></div>`;
     }
     return CLEAN_AD_BACKDROP_SVG;
   };
@@ -9889,13 +9809,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const paragraphs = (ad.fullText || ad.shortText || '').trim().split(/\n\s*\n/);
     if (tagEl) tagEl.textContent = ad.tag || 'Los Santos News / Реклама';
-    if (titleEl) { titleEl.textContent = (ad.title || '').replace(/\n/g, ' '); titleEl.style.color = ad.titleColor || ''; }
+    if (titleEl) { titleEl.textContent = (ad.title || '').replace(/\n/g, ' '); titleEl.style.color = safeHexColor(ad.titleColor) || ''; }
     if (leadEl) leadEl.textContent = paragraphs[0] || '';
     if (textEl) textEl.textContent = paragraphs.length > 1 ? paragraphs.slice(1).join('\n\n') : '';
 
     if (visualEl) {
-      if (ad.customImg) {
-        visualEl.innerHTML = `<div class="lsn-ad-photo-frame"><img class="lsn-ad-custom-photo" src="${ad.customImg}" alt=""></div>`;
+      const imageUrl = safeImageUrl(ad.customImg);
+      if (imageUrl) {
+        visualEl.innerHTML = `<div class="lsn-ad-photo-frame"><img class="lsn-ad-custom-photo" src="${escapeHtml(imageUrl)}" alt="" loading="lazy" decoding="async"></div>`;
         visualEl.hidden = false;
       } else {
         visualEl.innerHTML = '';
@@ -9987,11 +9908,12 @@ document.addEventListener('DOMContentLoaded', () => {
       slide.setAttribute('aria-hidden', String(idx !== activeAdIdx));
 
       const shortPreview = ad.shortText || makeShortPreview(ad.fullText, 165);
+      const titleColor = safeHexColor(ad.titleColor);
       slide.innerHTML = `
         <div class="lsn-ad-slide__copy">
-          <div class="lsn-ad-slide__tag">${ad.tag || 'Los Santos News / Партнёры'}</div>
-          <div class="lsn-ad-slide__title"${ad.titleColor ? ` style="color:${ad.titleColor}"` : ''}>${(ad.title || '').replace(/\n/g, '<br>')}</div>
-          <p class="lsn-ad-slide__text">${shortPreview}</p>
+          <div class="lsn-ad-slide__tag">${escapeHtml(ad.tag || 'Los Santos News / Партнёры')}</div>
+          <div class="lsn-ad-slide__title"${titleColor ? ` style="color:${titleColor}"` : ''}>${escapeHtml(ad.title || '').replace(/\n/g, '<br>')}</div>
+          <p class="lsn-ad-slide__text">${escapeHtml(shortPreview)}</p>
           <div style="display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin-top:16px;">
             <button class="lsn-ad-slide__button" style="margin-top:0;" type="button">
               Подробнее →
@@ -10041,7 +9963,8 @@ document.addEventListener('DOMContentLoaded', () => {
     columnsHostEl.innerHTML = '';
     columnsState.forEach((col, idx) => {
       const card = document.createElement('div');
-      const accent = col.accent || (idx % 2 === 0 ? 'red' : 'cyan');
+      const requestedAccent = String(col.accent || '');
+      const accent = ['red','cyan','amber','teal','mint','indigo','blue'].includes(requestedAccent) ? requestedAccent : (idx % 2 === 0 ? 'red' : 'cyan');
       card.className = 'editorial-quote' + (accent !== 'red' ? (' ' + accent) : '');
       card.dataset.colId = col.id || ('col-' + idx);
       if (idx === 0 || /работ|ваканс|трудоустр|карьер|стажир/i.test((col.title || '') + ' ' + (col.subtitle || ''))) {
@@ -10049,12 +9972,14 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       card.setAttribute('role', 'button');
       card.setAttribute('tabindex', '0');
-      const customColorStyle = col.titleColor
-        ? ` style="color:${col.titleColor} !important; background:none !important; -webkit-text-fill-color:${col.titleColor} !important;"`
+      const safeColumnColor = safeHexColor(col.titleColor);
+      const customColorStyle = safeColumnColor
+        ? ` style="color:${safeColumnColor} !important; background:none !important; -webkit-text-fill-color:${safeColumnColor} !important;"`
         : '';
-      const thumbHtml = col.img
-        ? `<div style="margin-bottom:12px; border-radius:12px; overflow:hidden; border:1px solid rgba(120,196,223,0.2); background:#0a1019; max-height:170px;"><img src="${col.img}" alt="" style="width:100%; height:155px; object-fit:cover; display:block;"></div>`
-        : `<div class="editorial-quote__mark"${col.titleColor ? ` style="color:${col.titleColor};"` : ''}>“</div>`;
+      const safeColumnImage = safeImageUrl(col.img);
+      const thumbHtml = safeColumnImage
+        ? `<div style="margin-bottom:12px; border-radius:12px; overflow:hidden; border:1px solid rgba(120,196,223,0.2); background:#0a1019; max-height:170px;"><img src="${escapeHtml(safeColumnImage)}" alt="" loading="lazy" decoding="async" style="width:100%; height:155px; object-fit:cover; display:block;"></div>`
+        : `<div class="editorial-quote__mark"${safeColumnColor ? ` style="color:${safeColumnColor};"` : ''}>“</div>`;
       card.innerHTML = `
         ${thumbHtml}
         <div class="editorial-quote__title"${customColorStyle}>${escapeHtml(col.title)}</div>
@@ -10192,11 +10117,11 @@ document.addEventListener('DOMContentLoaded', () => {
       const tone = STAFF_ACCENT_MODES[globalIdx % STAFF_ACCENT_MODES.length];
       card.className = `lsn-staff-card lsn-staff-card--${tone}`;
       card.tabIndex = 0;
-      const imgSrc = resolveMemberImage(m);
+      const imgSrc = m.customImg ? safeImageUrl(m.customImg) : resolveMemberImage(m);
       card.innerHTML = `
         <div class="lsn-staff-card__media">
           <div class="lsn-staff-card__Aura"></div>
-          <img class="lsn-staff-card__img" src="${imgSrc}" alt="${escapeHtml(m.name)}">
+          <img class="lsn-staff-card__img" src="${escapeHtml(imgSrc || LSN_SKINS[0].src)}" alt="${escapeHtml(m.name)}" loading="lazy" decoding="async">
           <div class="lsn-staff-card__badges">
             <span class="lsn-staff-rank-pill">LSN · #${globalIdx + 1}</span>
             <span class="lsn-staff-status-pill">${escapeHtml(m.badge || 'В ШТАТЕ 102.2 FM')}</span>
@@ -10579,7 +10504,7 @@ document.addEventListener('DOMContentLoaded', () => {
   $('#login-panel')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const identifier = ($('#login-identifier').value || '').trim();
-    const password = ($('#login-password').value || '').trim();
+    const password = $('#login-password').value || '';
     const msg = $('#auth-message');
     const btn = e.target.querySelector('button[type="submit"]');
     if (!identifier || !password) {
@@ -10592,17 +10517,26 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (btn) { btn.disabled = true; btn.textContent = 'Вход…'; }
     try {
-      let email = identifier;
-      // Разрешаем вход по никнейму без раскрытия списка аккаунтов.
-      if (!identifier.includes('@')) {
+      let data = null;
+      if (identifier.includes('@')) {
+        const result = await sb.auth.signInWithPassword({ email: identifier.toLowerCase(), password });
+        if (result.error) throw result.error;
+        data = result.data;
+      } else {
         const cleanNick = identifier.replace(/\s+/g, ' ').trim();
-        const { data: loginEmail, error: lookupError } = await sb.rpc('lsn_login_email_by_username', { p_username: cleanNick });
-        if (lookupError || !loginEmail) throw new Error('Никнейм не найден. Используйте email или проверьте написание.');
-        email = loginEmail;
+        const { data: loginResult, error: loginError } = await sb.functions.invoke('username-login', {
+          body: { username: cleanNick, password }
+        });
+        if (loginError || !loginResult?.session?.access_token || !loginResult?.session?.refresh_token) {
+          throw new Error('Неверный никнейм/email или пароль.');
+        }
+        const { data: sessionData, error: sessionError } = await sb.auth.setSession({
+          access_token: loginResult.session.access_token,
+          refresh_token: loginResult.session.refresh_token
+        });
+        if (sessionError) throw sessionError;
+        data = sessionData;
       }
-
-      const { data, error } = await sb.auth.signInWithPassword({ email, password });
-      if (error) throw error;
       if (!data?.user) throw new Error('Supabase не вернул пользователя.');
 
       const { data: profile, error: profileError } = await sb
@@ -10615,9 +10549,9 @@ document.addEventListener('DOMContentLoaded', () => {
       currentUser = {
         id: profile?.user_id_code || data.user.id,
         uuid: data.user.id,
-        username: profile?.username || data.user.user_metadata?.username || email.split('@')[0],
+        username: profile?.username || data.user.user_metadata?.username || (identifier.includes('@') ? identifier.split('@')[0] : identifier),
         fullName: profile?.username || '',
-        email: profile?.email || data.user.email || email,
+        email: profile?.email || data.user.email || (identifier.includes('@') ? identifier.toLowerCase() : ''),
         role: profile?.role || null,
         roleTitle: profile?.role_title || 'Читатель'
       };
@@ -10637,7 +10571,7 @@ document.addEventListener('DOMContentLoaded', () => {
     e.preventDefault();
     const username = ($('#reg-username').value || '').replace(/\s+/g, ' ').trim();
     const email = ($('#reg-email').value || '').trim().toLowerCase();
-    const password = ($('#reg-password').value || '').trim();
+    const password = $('#reg-password').value || '';
     const msg = $('#auth-message');
     const btn = e.target.querySelector('button[type="submit"]');
 
@@ -10650,8 +10584,8 @@ document.addEventListener('DOMContentLoaded', () => {
       if (msg) msg.textContent = '⚠️ Укажите корректный email.';
       return;
     }
-    if (password.length < 6) {
-      if (msg) msg.textContent = '⚠️ Пароль должен содержать минимум 6 символов.';
+    if (password.length < 8) {
+      if (msg) msg.textContent = '⚠️ Пароль должен содержать минимум 8 символов.';
       return;
     }
     if (!sb) {
@@ -10668,9 +10602,12 @@ document.addEventListener('DOMContentLoaded', () => {
         throw new Error('Сначала выйдите из текущего аккаунта, затем зарегистрируйте новый.');
       }
 
-      const { data: existingEmail, error: nickError } = await sb.rpc('lsn_login_email_by_username', { p_username: username });
-      if (nickError) throw nickError;
-      if (existingEmail) throw new Error('Этот никнейм уже зарегистрирован.');
+      const { data: availabilityResult, error: nickError } = await sb.functions.invoke('username-available', {
+        body: { username }
+      });
+      if (nickError || availabilityResult?.available !== true) {
+        throw new Error('Этот никнейм уже зарегистрирован или недоступен.');
+      }
 
       const { data: signData, error: signError } = await sb.auth.signUp({
         email,
@@ -10884,7 +10821,8 @@ document.addEventListener('DOMContentLoaded', () => {
       } else if (currentUniType === 'staff') {
         statusHtml = `<div class="cab-ad-item__tag" style="color:#94a3b8;">Сотрудник #${idx + 1} • ${escapeHtml(item.role || '')}</div>`;
       }
-      const colorStyle = (currentUniType === 'ad' || currentUniType === 'column') && item.titleColor ? ` style="color:${item.titleColor}; margin-bottom:8px;"` : ' style="margin-bottom:8px;"';
+      const itemColor = safeHexColor(item.titleColor);
+      const colorStyle = (currentUniType === 'ad' || currentUniType === 'column') && itemColor ? ` style="color:${itemColor}; margin-bottom:8px;"` : ' style="margin-bottom:8px;"';
 
       const canEdit = canUserEditItem(item);
       const canDelete = canUserDeleteItem(item);
@@ -10959,7 +10897,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (!item) {
-      currentEditingId = currentUniType + '-' + Date.now();
+      currentEditingId = ['news', 'ad', 'column'].includes(currentUniType)
+        ? createArticleUuid()
+        : currentUniType + '-' + Date.now();
       if (formTitle) formTitle.textContent = currentUniType === 'staff' ? (getUserRoleInfo(currentUser).level === 'journalist' ? 'Моё досье' : 'Новый сотрудник') : 'Новая публикация';
       $('#uni-item-id').value = currentEditingId;
       $('#uni-field-title').value = '';
@@ -11336,7 +11276,7 @@ document.addEventListener('DOMContentLoaded', () => {
     flashUniSaved(`Роль для ${targetUser.username} снята (пользователь стал обычным читателем)`);
   });
 
-  $('#uni-add-journalist-form')?.addEventListener('submit', (e) => {
+  $('#uni-add-journalist-form')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!getUserRoleInfo(currentUser).canManageRoles) {
       alert('Доступ запрещен.');
@@ -11344,7 +11284,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     const inputVal = ($('#uni-new-journalist-login').value || '').trim();
     const roleLevel = $('#uni-new-journalist-level').value;
-    let roleTitle = ($('#uni-new-journalist-role').value || '').trim();
     if (!inputVal) return;
 
     const actorRole = getUserRoleInfo(currentUser);
@@ -11354,36 +11293,38 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    let targetUser = usersDb.find(x =>
+    const targetUser = usersDb.find(x =>
       (x.id && x.id.toLowerCase() === inputVal.toLowerCase()) ||
-      x.username.toLowerCase() === inputVal.toLowerCase() ||
+      (x.uuid && x.uuid.toLowerCase() === inputVal.toLowerCase()) ||
+      (x.username && x.username.toLowerCase() === inputVal.toLowerCase()) ||
       (x.email && x.email.toLowerCase() === inputVal.toLowerCase())
     );
-
-    if (targetUser && !canUserManageTargetUser(currentUser, targetUser)) {
-      alert('🔒 Запрещено: вы не можете изменить роль этому пользователю или самому себе.');
-      return;
-    }
 
     if (!targetUser) {
       alert('⚠️ Пользователь не найден в списке зарегистрированных аккаунтов Supabase. Сначала он должен зарегистрироваться.');
       return;
-    } else {
-      targetUser.role = roleLevel;
-      targetUser.roleTitle = newRoleInfo.title;
+    }
+    if (!canUserManageTargetUser(currentUser, targetUser)) {
+      alert('🔒 Запрещено: вы не можете изменить роль этому пользователю или самому себе.');
+      return;
+    }
+    if (!sb || !targetUser.uuid) {
+      alert('⚠️ Не удалось определить UUID аккаунта. Обновите список пользователей и повторите попытку.');
+      return;
     }
 
-    if (sb && targetUser.id) {
-      sb.from('profiles')
-        .update({ role: roleLevel, role_title: targetUser.roleTitle })
-        .eq('user_id_code', targetUser.id)
-        .then(({ error }) => {
-          if (error) console.warn('Supabase role update:', error.message);
-        });
+    const { error } = await sb.from('profiles')
+      .update({ role: roleLevel, role_title: newRoleInfo.title })
+      .eq('id', targetUser.uuid);
+    if (error) {
+      console.error('Supabase role assignment:', error);
+      await loadAdminProfiles();
+      renderPermissionsList();
+      alert('⚠️ Роль не изменена: ' + (error.message || 'сервер отклонил операцию'));
+      return;
     }
 
-    saveUsersDb();
-    saveJournalistsList();
+    await loadAdminProfiles();
     renderPermissionsList();
     syncRoleVisibilityUI();
     $('#uni-new-journalist-login').value = '';
@@ -11442,7 +11383,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const title = escapeHtml((item.title || item.name || '').replace(/\n/g, ' '));
       const sub = escapeHtml(item.category || item.tag || item.subtitle || '');
       const dateStr = item.createdAt ? formatNewsDate(item.createdAt) : 'Активно';
-      const colorStyle = item.titleColor ? ` style="color:${item.titleColor};"` : '';
+      const itemColor = safeHexColor(item.titleColor);
+      const colorStyle = itemColor ? ` style="color:${itemColor};"` : '';
 
       card.innerHTML = `
         <div>
@@ -11476,22 +11418,34 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Action clicks inside My Activities
-  $('#my-act-items-list')?.addEventListener('click', (e) => {
+  // Actions in My Activities; delete in the database first so a failed request
+  // never looks successful or returns unexpectedly after refresh.
+  $('#my-act-items-list')?.addEventListener('click', async (e) => {
     const editBtn = e.target.closest('[data-act-edit-type]');
     if (editBtn) {
-      const type = editBtn.dataset.actEditType;
-      const id = editBtn.dataset.actEditId;
-      openJournalistCabinet(type, id);
+      openJournalistCabinet(editBtn.dataset.actEditType, editBtn.dataset.actEditId);
       return;
     }
     const delBtn = e.target.closest('[data-act-del-type]');
-    if (delBtn) {
-      const type = delBtn.dataset.actDelType;
-      const id = delBtn.dataset.actDelId;
+    if (!delBtn || delBtn.disabled) return;
+
+    const type = delBtn.dataset.actDelType;
+    const id = delBtn.dataset.actDelId;
+    const isCloudType = ['news', 'ad', 'column'].includes(type);
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(id || ''));
+
+    delBtn.disabled = true;
+    const label = delBtn.textContent;
+    delBtn.textContent = 'Удаление…';
+    try {
+      if (sb && isCloudType && isUuid) {
+        const { data, error } = await sb.from('lsn_articles').delete().eq('id', id).select('id');
+        if (error || !Array.isArray(data) || data.length === 0) {
+          throw error || new Error('Сервер не подтвердил удаление. Проверьте права доступа.');
+        }
+      }
 
       markIdAsDeleted(id);
-
       if (type === 'news') {
         newsState = newsState.filter(x => x.id !== id);
         saveNewsState();
@@ -11505,20 +11459,13 @@ document.addEventListener('DOMContentLoaded', () => {
         saveColumnsState();
         renderEditorialColumns();
       }
-
-      if (sb) {
-        sb.from('lsn_articles')
-          .delete()
-          .eq('id', id)
-          .then(({ error }) => {
-            if (error) console.warn('Supabase delete act note:', error.message);
-          })
-          .catch(() => {});
-      }
-
       renderMyActivitiesList(myActCurrentFilter);
-      flashUniSaved('🗑️ Публикация успешно удалена');
-      return;
+      flashUniSaved('Публикация удалена');
+    } catch (error) {
+      console.error('My Activities delete failed:', error);
+      flashUniSaved('Не удалось удалить публикацию. Данные не изменены.');
+      delBtn.disabled = false;
+      delBtn.textContent = label || 'Отозвать';
     }
   });
 
@@ -11714,20 +11661,23 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     };
 
-    if (sb) {
+    const validCloudId = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(id || ''));
+    if (sb && validCloudId && ['news', 'ad', 'column'].includes(type)) {
       sb.from('lsn_articles')
         .delete()
         .eq('id', id)
-        .then(({ error }) => {
-          if (error) {
-            console.warn('Supabase delete article note:', error.message);
-            flashUniSaved('❌ Сервер не разрешил удаление. Материал не удалён.');
+        .select('id')
+        .then(({ data, error }) => {
+          if (error || !Array.isArray(data) || data.length === 0) {
+            console.warn('Supabase delete article note:', error || 'No row was deleted');
+            flashUniSaved('Удаление не подтверждено сервером. Материал не изменён.');
             return;
           }
+          markIdAsDeleted(id);
           applyLocalDelete();
           articleDialog?.close();
         })
-        .catch(() => flashUniSaved('❌ Не удалось удалить материал.'));
+        .catch(() => flashUniSaved('Не удалось удалить материал.'));
       return;
     }
 
@@ -11737,7 +11687,7 @@ document.addEventListener('DOMContentLoaded', () => {
     flashUniSaved('🗑️ Публикация удалена с портала');
   });
 
-  $('#uni-clear-all-btn')?.addEventListener('click', (e) => {
+  $('#uni-clear-all-btn')?.addEventListener('click', async (e) => {
     const btn = e.currentTarget;
     const roleInfo = getUserRoleInfo(currentUser);
     const canClearAll = currentUniType === 'news' ? roleInfo.canEditAll
@@ -11746,21 +11696,21 @@ document.addEventListener('DOMContentLoaded', () => {
       : currentUniType === 'staff' ? roleInfo.canManageStaff
       : false;
     if (!canClearAll) {
-      alert('🔒 Массовое удаление недоступно для этой роли.');
+      alert('Массовое удаление недоступно для этой роли.');
       return;
     }
 
     if (!btn.classList.contains('is-confirming')) {
       btn.classList.add('is-confirming');
       btn.dataset.origHtml = btn.innerHTML;
-      btn.innerHTML = '⚠️ Подтвердить удаление всех?';
-      btn.style.background = '#dc2626';
-      btn.style.borderColor = '#ef4444';
+      btn.innerHTML = 'Подтвердить удаление';
+      btn.style.background = '#8f3434';
+      btn.style.borderColor = '#b35c5c';
       btn.style.color = '#fff';
       const tId = setTimeout(() => {
         if (btn && btn.isConnected) {
           btn.classList.remove('is-confirming');
-          btn.innerHTML = btn.dataset.origHtml;
+          btn.innerHTML = btn.dataset.origHtml || 'Удалить все';
           btn.style.background = '';
           btn.style.borderColor = '';
           btn.style.color = '';
@@ -11775,45 +11725,61 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.style.background = '';
     btn.style.borderColor = '';
     btn.style.color = '';
+    btn.disabled = true;
+    const priorLabel = btn.dataset.origHtml || 'Удалить все';
+    btn.textContent = 'Удаление…';
 
-    markSectionCleared(currentUniType, true);
+    try {
+      if (sb && ['news', 'ad', 'column', 'staff'].includes(currentUniType)) {
+        const { data: rows, error: listError } = await sb.from('lsn_articles')
+          .select('id').eq('type', currentUniType);
+        if (listError) throw listError;
+        if (Array.isArray(rows) && rows.length) {
+          const { data: deletedRows, error: deleteError } = await sb.from('lsn_articles')
+            .delete().eq('type', currentUniType).select('id');
+          if (deleteError) throw deleteError;
+          if (!Array.isArray(deletedRows) || deletedRows.length !== rows.length) {
+            throw new Error('Сервер подтвердил удаление не всех материалов.');
+          }
+          rows.forEach(row => markIdAsDeleted(row.id));
+        }
+      }
 
-    if (currentUniType === 'news') {
-      newsState.forEach(x => markIdAsDeleted(x.id));
-      newsState = [];
-      saveNewsState();
-      renderNewsSections();
-    } else if (currentUniType === 'ad') {
-      adsState.forEach(x => markIdAsDeleted(x.id));
-      adsState = [];
-      saveAdsState();
-      renderAdsCarousel();
-    } else if (currentUniType === 'column') {
-      columnsState.forEach(x => markIdAsDeleted(x.id));
-      columnsState = [];
-      saveColumnsState();
-      renderEditorialColumns();
-    } else if (currentUniType === 'staff') {
-      staffState.members.forEach(x => markIdAsDeleted(x.id));
-      staffState.members = [];
-      saveStaffState();
-      renderStaffSection();
+      markSectionCleared(currentUniType, true);
+      if (currentUniType === 'news') {
+        newsState.forEach(x => markIdAsDeleted(x.id));
+        newsState = [];
+        saveNewsState();
+        renderNewsSections();
+      } else if (currentUniType === 'ad') {
+        adsState.forEach(x => markIdAsDeleted(x.id));
+        adsState = [];
+        saveAdsState();
+        renderAdsCarousel();
+      } else if (currentUniType === 'column') {
+        columnsState.forEach(x => markIdAsDeleted(x.id));
+        columnsState = [];
+        saveColumnsState();
+        renderEditorialColumns();
+      } else if (currentUniType === 'staff') {
+        staffState.members.forEach(x => markIdAsDeleted(x.id));
+        staffState.members = [];
+        saveStaffState();
+        renderStaffSection();
+      }
+
+      loadItemIntoUniForm(null);
+      renderUniItemsList();
+      flashUniSaved('Раздел очищен');
+    } catch (error) {
+      console.error('Bulk delete failed:', error);
+      flashUniSaved('Не удалось удалить все материалы. Данные не изменены.');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = priorLabel;
     }
-
-    if (sb) {
-      sb.from('lsn_articles')
-        .delete()
-        .eq('type', currentUniType)
-        .then(({ error }) => {
-          if (error) console.warn('Supabase bulk delete:', error.message);
-        })
-        .catch(() => {});
-    }
-
-    loadItemIntoUniForm(null);
-    renderUniItemsList();
-    flashUniSaved('Все публикации раздела успешно удалены');
   });
+
   $('#lsn-ad-modal-edit-shortcut')?.addEventListener('click', (e) => {
     const adId = e.currentTarget.dataset.editAdId || adsState[activeAdIdx]?.id;
     adDialog?.close();
@@ -11903,11 +11869,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (typeof checkSundayMondaySync === 'function') checkSundayMondaySync();
       }
     };
-    if (sb && (currentUniType === 'news' || currentUniType === 'ad' || currentUniType === 'column')) {
-      const { error } = await sb.from('lsn_articles').delete().eq('id', id);
-      if (error) {
-        console.error('Supabase delete article:', error);
-        alert('⚠️ Удаление не выполнено: ' + (error.message || 'сервер отклонил операцию'));
+    const validCloudId = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(id || ''));
+    if (sb && validCloudId && (currentUniType === 'news' || currentUniType === 'ad' || currentUniType === 'column')) {
+      const { data: deletedRows, error } = await sb.from('lsn_articles').delete().eq('id', id).select('id');
+      if (error || !Array.isArray(deletedRows) || deletedRows.length === 0) {
+        console.error('Supabase delete article:', error || 'No row was deleted');
+        alert('Удаление не подтверждено сервером. Материал оставлен без изменений.');
         return;
       }
     }
@@ -11976,7 +11943,7 @@ document.addEventListener('DOMContentLoaded', () => {
     deleteUniItemById(currentEditingId);
   });
 
-  $('#uni-editor-form')?.addEventListener('submit', (e) => {
+  $('#uni-editor-form')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!currentUser) {
       flashUniSaved('🔒 Войдите в аккаунт для работы с редакцией.');
@@ -11999,112 +11966,138 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (currentUniType === 'news') {
       const roleInfo = getUserRoleInfo(currentUser);
-      if (!roleInfo.canCreateNews) { flashUniSaved('🔒 У этой роли нет права создавать новости.'); return; }
-      let item = newsState.find(x => x.id === id);
-      if (item && roleInfo.level === 'journalist' && !canUserEditOrDeleteItem(item)) {
-        flashUniSaved('🔒 Журналист может редактировать только собственные черновики.');
+      if (!roleInfo.canCreateNews) { flashUniSaved('У этой роли нет права создавать новости.'); return; }
+      if (!sb) { flashUniSaved('Нет соединения с редакционной базой. Материал не сохранён.'); return; }
+
+      const existingItem = newsState.find(x => x.id === id) || null;
+      if (existingItem && roleInfo.level === 'journalist' && !canUserEditOrDeleteItem(existingItem)) {
+        flashUniSaved('Журналист может редактировать только собственные черновики.');
         return;
       }
-      const isNew = !item;
-      if (!item) {
-        item = { id, createdAt: Date.now(), status: roleInfo.canPublish ? 'published' : 'draft' };
-        newsState.unshift(item);
-      }
-      if (!item.authorLogin) item.authorLogin = currentUser?.username || 'editor_lsn';
-      if (!item.author_id) item.author_id = currentUser?.uuid || null;
+      const item = existingItem ? { ...existingItem } : {
+        id: /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id) ? id : createArticleUuid(),
+        createdAt: Date.now(),
+        status: roleInfo.canPublish ? 'published' : 'draft'
+      };
+      if (!item.authorLogin) item.authorLogin = currentUser.username || 'Редакция LSN';
+      item.author_id = existingItem?.author_id || currentUser.uuid;
       item.title = title;
-      item.category = sub || 'Город • 102.2 FM';
-      item.author = currentUser?.fullName || currentUser?.username || 'Редакция LSN';
+      item.category = sub || 'Город · 102.2 FM';
+      item.author = currentUser.fullName || currentUser.username || 'Редакция LSN';
       item.body = body;
       item.img = currentPhotoData;
-      item.important = roleInfo.isManagement ? !!$('#uni-field-important')?.checked : false;
+      item.important = roleInfo.isManagement ? !!$('#uni-field-important')?.checked : !!item.important;
       item.status = roleInfo.canPublish ? 'published' : 'draft';
-      saveNewsState();
-      renderNewsSections();
-      if (sb) {
-        const articleRole = getUserRoleInfo(currentUser);
-        sb.from('lsn_articles').upsert({
-          id: item.id,
-          type: 'news',
-          title: item.title,
-          category: item.category,
-          body: item.body,
-          excerpt: item.excerpt || makeShortPreview(item.body, 135),
-          author_name: item.author,
-          author_id: currentUser?.uuid || null,
-          image_url: item.img || null,
-          status: articleRole.canPublish ? 'published' : 'draft',
-          published_at: articleRole.canPublish ? new Date().toISOString() : null,
+
+      try {
+        const payload = {
+          id: item.id, type: 'news', title: item.title, category: item.category,
+          body: item.body, excerpt: makeShortPreview(item.body, 135), lead: makeShortPreview(item.body, 135),
+          author_name: item.author, author_id: item.author_id,
+          image_url: item.img || null, status: item.status,
+          published_at: item.status === 'published' ? (existingItem?.published_at || new Date().toISOString()) : null,
+          metadata: { ...(existingItem?.metadata || {}), important: !!item.important },
           updated_at: new Date().toISOString()
-        }).then(({ error }) => {
-          if (error) console.warn('Supabase article sync warning:', error.message);
-        });
+        };
+        const { data: savedRow, error } = await sb.from('lsn_articles').upsert(payload, { onConflict: 'id' }).select('*').single();
+        if (error) throw error;
+        if (!savedRow?.id) throw new Error('Сервер не подтвердил сохранение новости.');
+        const savedItem = {
+          id: savedRow.id, title: savedRow.title, category: savedRow.category || 'Новости',
+          author: savedRow.author_name || savedRow.author || 'Редакция Los Santos News',
+          authorLogin: item.authorLogin, body: savedRow.body || '',
+          excerpt: savedRow.lead || savedRow.excerpt || makeShortPreview(savedRow.body || '', 150),
+          img: savedRow.image_url || '', createdAt: new Date(savedRow.created_at || Date.now()).getTime(),
+          important: !!savedRow.metadata?.important, status: savedRow.status || 'draft',
+          author_id: savedRow.author_id || null, published_at: savedRow.published_at || null,
+          metadata: savedRow.metadata || {}
+        };
+        const idx = newsState.findIndex(x => x.id === savedItem.id);
+        if (idx >= 0) newsState.splice(idx, 1, savedItem); else newsState.unshift(savedItem);
+        markSectionCleared('news', false);
+        saveNewsState();
+        renderNewsSections();
+        loadItemIntoUniForm(savedItem.id);
+        flashUniSaved('Новость сохранена в редакции');
+      } catch (error) {
+        console.error('Supabase news save:', error);
+        flashUniSaved('Не удалось сохранить новость. Проверьте права и соединение.');
       }
-      loadItemIntoUniForm(item.id);
-      flashUniSaved('Сохранено');
     } else if (currentUniType === 'ad') {
       const roleInfo = getUserRoleInfo(currentUser);
-      if (roleInfo.rank < 3) {
-        flashUniSaved('🔒 Рекламу может редактировать только Руководство (Заместитель / Генеральный директор / Администратор)');
-        return;
-      }
-      let item = adsState.find(x => x.id === id);
-      const isNew = !item;
-      if (!item) {
-        item = { id };
-        adsState.push(item);
-      }
-      if (!item.authorLogin) item.authorLogin = currentUser?.username || 'editor_lsn';
-      item.title = title;
-      item.tag = sub || 'Los Santos News / Реклама';
-      item.author = currentUser?.fullName || currentUser?.username || 'Отдел рекламы LSN';
-      item.fullText = body;
-      item.shortText = makeShortPreview(body, 165);
-      item.customImg = currentPhotoData;
-      item.titleColor = currentTitleColor || '';
-      saveAdsState();
-      if (isNew) activeAdIdx = adsState.length - 1;
-      renderAdsCarousel();
-      if (sb) {
-        sb.from('lsn_articles').upsert({
+      if (roleInfo.rank < 3) { flashUniSaved('Объявления может редактировать только руководство.'); return; }
+      if (!sb) { flashUniSaved('Нет соединения с редакционной базой. Объявление не сохранено.'); return; }
+      const existingItem = adsState.find(x => x.id === id) || null;
+      const item = existingItem ? { ...existingItem } : {
+        id: /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id) ? id : createArticleUuid()
+      };
+      item.authorLogin = item.authorLogin || currentUser.username || 'Отдел рекламы LSN';
+      item.title = title; item.tag = sub || 'Los Santos News · Реклама';
+      item.author = currentUser.fullName || currentUser.username || 'Отдел рекламы LSN';
+      item.fullText = body; item.shortText = makeShortPreview(body, 165);
+      item.customImg = currentPhotoData; item.titleColor = currentTitleColor || '';
+      try {
+        const { data: savedRow, error } = await sb.from('lsn_articles').upsert({
           id: item.id, type: 'ad', title: item.title, category: item.tag, body: item.fullText,
-          lead: item.shortText, author_name: item.author, author_id: currentUser?.uuid || null,
-          image_url: item.customImg || null, metadata: { titleColor: item.titleColor || '' },
-          status: 'published', published_at: new Date().toISOString(), updated_at: new Date().toISOString()
-        }).then(({ error }) => { if (error) console.warn('Supabase ad sync warning:', error.message); });
+          lead: item.shortText, author_name: item.author, author_id: existingItem?.author_id || currentUser.uuid,
+          image_url: item.customImg || null,
+          metadata: { ...(existingItem?.metadata || {}), titleColor: item.titleColor || '' },
+          status: 'published', published_at: existingItem?.published_at || new Date().toISOString(), updated_at: new Date().toISOString()
+        }, { onConflict: 'id' }).select('*').single();
+        if (error) throw error;
+        if (!savedRow?.id) throw new Error('Сервер не подтвердил сохранение объявления.');
+        const savedItem = {
+          id: savedRow.id, title: savedRow.title, tag: savedRow.category || 'Реклама',
+          author: savedRow.author_name || 'Отдел рекламы LSN', fullText: savedRow.body || '',
+          shortText: savedRow.lead || makeShortPreview(savedRow.body || '', 165),
+          customImg: savedRow.image_url || '', titleColor: savedRow.metadata?.titleColor || '',
+          author_id: savedRow.author_id || null, published_at: savedRow.published_at || null
+        };
+        const idx = adsState.findIndex(x => x.id === savedItem.id);
+        if (idx >= 0) adsState.splice(idx, 1, savedItem); else adsState.push(savedItem);
+        saveAdsState(); renderAdsCarousel(); loadItemIntoUniForm(savedItem.id);
+        flashUniSaved('Объявление сохранено');
+      } catch (error) {
+        console.error('Supabase ad save:', error);
+        flashUniSaved('Не удалось сохранить объявление. Проверьте права и соединение.');
       }
-      loadItemIntoUniForm(item.id);
-      flashUniSaved('Сохранено');
     } else if (currentUniType === 'column') {
       const roleInfo = getUserRoleInfo(currentUser);
-      if (roleInfo.rank < 3) {
-        flashUniSaved('🔒 Колонки может редактировать только Руководство (Заместитель / Генеральный директор / Администратор)');
-        return;
-      }
-      let item = columnsState.find(x => x.id === id);
-      if (!item) {
-        item = { id, accent: 'cyan' };
-        columnsState.push(item);
-      }
-      if (!item.authorLogin) item.authorLogin = currentUser?.username || 'editor_lsn';
-      item.title = title;
-      item.subtitle = sub || 'Авторская колонка';
-      item.author = currentUser?.fullName || currentUser?.username || 'Колумнист LSN';
-      item.body = body;
-      item.img = currentPhotoData;
-      item.titleColor = currentTitleColor || '';
-      saveColumnsState();
-      renderEditorialColumns();
-      if (sb) {
-        sb.from('lsn_articles').upsert({
+      if (roleInfo.rank < 3) { flashUniSaved('Колонки может редактировать только руководство.'); return; }
+      if (!sb) { flashUniSaved('Нет соединения с редакционной базой. Колонка не сохранена.'); return; }
+      const existingItem = columnsState.find(x => x.id === id) || null;
+      const item = existingItem ? { ...existingItem } : {
+        id: /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id) ? id : createArticleUuid(), accent: 'amber'
+      };
+      item.authorLogin = item.authorLogin || currentUser.username || 'Редакция LSN';
+      item.title = title; item.subtitle = sub || 'Авторская колонка';
+      item.author = currentUser.fullName || currentUser.username || 'Редакция LSN';
+      item.body = body; item.img = currentPhotoData; item.titleColor = currentTitleColor || '';
+      try {
+        const { data: savedRow, error } = await sb.from('lsn_articles').upsert({
           id: item.id, type: 'column', title: item.title, category: item.subtitle, body: item.body,
-          lead: makeShortPreview(item.body, 135), author_name: item.author, author_id: currentUser?.uuid || null,
-          image_url: item.img || null, metadata: { titleColor: item.titleColor || '', accent: item.accent || 'cyan' },
-          status: 'published', published_at: new Date().toISOString(), updated_at: new Date().toISOString()
-        }).then(({ error }) => { if (error) console.warn('Supabase column sync warning:', error.message); });
+          lead: makeShortPreview(item.body, 135), author_name: item.author, author_id: existingItem?.author_id || currentUser.uuid,
+          image_url: item.img || null,
+          metadata: { ...(existingItem?.metadata || {}), titleColor: item.titleColor || '', accent: item.accent || 'amber' },
+          status: 'published', published_at: existingItem?.published_at || new Date().toISOString(), updated_at: new Date().toISOString()
+        }, { onConflict: 'id' }).select('*').single();
+        if (error) throw error;
+        if (!savedRow?.id) throw new Error('Сервер не подтвердил сохранение колонки.');
+        const savedItem = {
+          id: savedRow.id, title: savedRow.title, subtitle: savedRow.category || 'Колонка',
+          author: savedRow.author_name || 'Редакция Los Santos News', body: savedRow.body || '',
+          img: savedRow.image_url || '', accent: savedRow.metadata?.accent || 'amber',
+          titleColor: savedRow.metadata?.titleColor || '', author_id: savedRow.author_id || null,
+          published_at: savedRow.published_at || null
+        };
+        const idx = columnsState.findIndex(x => x.id === savedItem.id);
+        if (idx >= 0) columnsState.splice(idx, 1, savedItem); else columnsState.push(savedItem);
+        saveColumnsState(); renderEditorialColumns(); loadItemIntoUniForm(savedItem.id);
+        flashUniSaved('Колонка сохранена');
+      } catch (error) {
+        console.error('Supabase column save:', error);
+        flashUniSaved('Не удалось сохранить колонку. Проверьте права и соединение.');
       }
-      loadItemIntoUniForm(item.id);
-      flashUniSaved('Сохранено');
     } else if (currentUniType === 'staff') {
       const roleInfo = getUserRoleInfo(currentUser);
       if (id === 'staff-intro') {
@@ -12751,9 +12744,10 @@ document.addEventListener('DOMContentLoaded', () => {
   renderEditorialColumns();
   renderStaffSection();
 
-  // Mobile & Cross-device Realtime Cloud Sync (News, Columns, Ads)
+  // Mobile & Cross-device Cloud Sync. The database is the source of truth.
+  let hasAuthoritativeArticleSnapshot = false;
   const syncArticlesFromCloud = async () => {
-    if (!sb) return;
+    if (!sb) return false;
     try {
       const { data, error } = await sb
         .from('lsn_articles')
@@ -12761,128 +12755,103 @@ document.addEventListener('DOMContentLoaded', () => {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.warn('Supabase sync warning:', error.message);
-        return;
+        console.warn('Не удалось обновить редакционную ленту:', error.message);
+        if (!hasAuthoritativeArticleSnapshot) {
+          newsState = []; adsState = []; columnsState = [];
+          saveNewsState(); saveAdsState(); saveColumnsState();
+          renderNewsSections(); renderAdsCarousel(); renderEditorialColumns();
+        }
+        return false;
+      }
+      if (!Array.isArray(data)) {
+        if (!hasAuthoritativeArticleSnapshot) {
+          newsState = []; adsState = []; columnsState = [];
+          saveNewsState(); saveAdsState(); saveColumnsState();
+          renderNewsSections(); renderAdsCarousel(); renderEditorialColumns();
+        }
+        return false;
       }
 
-      if (Array.isArray(data)) {
-        const validRows = data.filter(r => !isItemDeleted(r.id));
+      // Do not seed demo content into an empty database. Empty result is a valid,
+      // authoritative state (for example after an editor deletes all news).
+      const cloudNews = data.filter(row => row.type === 'news').map(row => ({
+        id: row.id,
+        title: row.title,
+        category: row.category || 'Новости',
+        author: row.author_name || row.author || 'Редакция Los Santos News',
+        body: row.body || '',
+        excerpt: row.lead || row.excerpt || makeShortPreview(row.body || '', 150),
+        img: safeImageUrl(row.image_url),
+        createdAt: new Date(row.created_at || Date.now()).getTime(),
+        important: !!(row.metadata && row.metadata.important),
+        status: row.status || 'published', published_at: row.published_at || null,
+        author_id: row.author_id || null, metadata: row.metadata || {}
+      }));
+      newsState = cloudNews;
+      saveNewsState();
+      renderNewsSections();
 
-        // 1. Synchronize News
-        if (!isSectionCleared('news')) {
-          const cloudNews = validRows.filter(r => r.type === 'news').map(row => ({
-            id: row.id,
-            title: row.title,
-            category: row.category || 'Новости · 102.2 FM',
-            author: row.author || 'Редакция LSN',
-            body: row.body || '',
-            excerpt: row.lead || makeShortPreview(row.body || '', 135),
-            img: row.image_url || '',
-            createdAt: new Date(row.created_at || Date.now()).getTime(),
-            important: !!(row.metadata && row.metadata.important)
-          }));
-          if (cloudNews.length > 0) {
-            newsState = cloudNews;
-            saveNewsState();
-            renderNewsSections();
-          }
-        }
+      const cloudColumns = data.filter(row => row.type === 'column').map(row => ({
+        id: row.id,
+        title: row.title,
+        subtitle: row.category || 'Колонка',
+        author: row.author_name || row.author || 'Редакция Los Santos News',
+        body: row.body || '',
+        img: safeImageUrl(row.image_url),
+        accent: (row.metadata && row.metadata.accent) || 'amber',
+        titleColor: safeHexColor(row.metadata && row.metadata.titleColor),
+        author_id: row.author_id || null, published_at: row.published_at || null,
+        metadata: row.metadata || {}
+      }));
+      columnsState = cloudColumns;
+      saveColumnsState();
+      renderEditorialColumns();
 
-        // 2. Synchronize Columns
-        if (!isSectionCleared('column')) {
-          const cloudColumns = validRows.filter(r => r.type === 'column').map(row => ({
-            id: row.id,
-            title: row.title,
-            subtitle: row.category || 'Колонка',
-            author: row.author || 'Roy Westblock',
-            body: row.body || '',
-            img: row.image_url || '',
-            accent: (row.metadata && row.metadata.accent) || 'amber',
-            titleColor: (row.metadata && row.metadata.titleColor) || ''
-          }));
-          if (cloudColumns.length > 0) {
-            columnsState = cloudColumns;
-            saveColumnsState();
-            renderEditorialColumns();
-          }
-        }
-
-        // 3. Synchronize Ads (Only user-created ads from Supabase)
-        if (!isSectionCleared('ad')) {
-          const cloudAds = validRows.filter(r => r.type === 'ad' && !MOCK_AD_IDS.includes(r.id)).map(row => ({
-            id: row.id,
-            title: row.title,
-            tag: row.category || 'Los Santos News / Партнёры',
-            author: row.author || 'Roy Westblock',
-            fullText: row.body || '',
-            shortText: row.lead || makeShortPreview(row.body || '', 165),
-            customImg: row.image_url || '',
-            titleColor: (row.metadata && row.metadata.titleColor) || ''
-          }));
-          if (cloudAds.length > 0) {
-            adsState = cloudAds;
-            saveAdsState();
-            renderAdsCarousel();
-          }
-        }
-
-        // 4. Initial Seed to Supabase if Supabase database is completely fresh
-        if (data.length === 0) {
-          const toUpload = [];
-          newsState.forEach(n => {
-            toUpload.push({
-              id: n.id,
-              type: 'news',
-              title: n.title,
-              category: n.category || 'Новости',
-              lead: n.excerpt || makeShortPreview(n.body, 135),
-              body: n.body,
-              author: n.author || 'Редакция LSN',
-              image_url: n.img || null,
-              metadata: { important: !!n.important }
-            });
-          });
-          columnsState.forEach(c => {
-            toUpload.push({
-              id: c.id,
-              type: 'column',
-              title: c.title,
-              category: c.subtitle || '',
-              lead: makeShortPreview(c.body, 135),
-              body: c.body,
-              author: c.author || 'Roy Westblock',
-              image_url: c.img || null,
-              metadata: { accent: c.accent || 'amber', titleColor: c.titleColor || '' }
-            });
-          });
-          if (toUpload.length > 0) {
-            sb.from('lsn_articles').upsert(toUpload).then(({ error }) => {
-              if (error) console.warn('Supabase initial seed note:', error.message);
-              else console.log('Supabase cloud sync active: seeded', toUpload.length, 'articles');
-            }).catch(() => {});
-          }
-        }
-      }
+      const cloudAds = data.filter(row => row.type === 'ad').map(row => ({
+        id: row.id,
+        title: row.title,
+        tag: row.category || 'Los Santos News · Партнёры',
+        author: row.author_name || row.author || 'Отдел рекламы LSN',
+        fullText: row.body || '',
+        shortText: row.lead || row.excerpt || makeShortPreview(row.body || '', 165),
+        customImg: safeImageUrl(row.image_url),
+        titleColor: safeHexColor(row.metadata && row.metadata.titleColor),
+        author_id: row.author_id || null, published_at: row.published_at || null,
+        metadata: row.metadata || {}
+      }));
+      adsState = cloudAds;
+      saveAdsState();
+      renderAdsCarousel();
+      hasAuthoritativeArticleSnapshot = true;
+      return true;
     } catch (e) {
-      console.warn('syncArticlesFromCloud error:', e);
+      console.warn('Не удалось обновить редакционную ленту:', e);
+      if (!hasAuthoritativeArticleSnapshot) {
+        newsState = []; adsState = []; columnsState = [];
+        saveNewsState(); saveAdsState(); saveColumnsState();
+        renderNewsSections(); renderAdsCarousel(); renderEditorialColumns();
+      }
+      return false;
     }
   };
   syncArticlesFromCloud();
 
-  // Mobile one-tap force-refresh button listener
-  document.addEventListener('click', (e) => {
+  // Refresh reads the authoritative database state; it never clears or reseeds news.
+  document.addEventListener('click', async (e) => {
     const refreshBtn = e.target.closest('#mobile-force-refresh-btn');
-    if (!refreshBtn) return;
-    refreshBtn.textContent = '⏳ Обновляем...';
-    try {
-      localStorage.removeItem(NEWS_STORAGE_KEY);
-    } catch (_) {}
-    newsState = JSON.parse(JSON.stringify(DEFAULT_NEWS_DATA));
-    renderNewsSections();
-    syncArticlesFromCloud().finally(() => {
-      refreshBtn.textContent = '🔄 Обновлено!';
-      setTimeout(() => { refreshBtn.textContent = '🔄 Обновить'; }, 1800);
-    });
+    if (!refreshBtn || refreshBtn.disabled) return;
+    const originalText = refreshBtn.textContent;
+    refreshBtn.disabled = true;
+    refreshBtn.textContent = 'Обновление…';
+    const ok = await syncArticlesFromCloud();
+    refreshBtn.textContent = ok ? 'Обновлено' : 'Не удалось обновить';
+    refreshBtn.classList.toggle('is-refresh-error', !ok);
+    refreshBtn.disabled = false;
+    setTimeout(() => {
+      if (!refreshBtn.isConnected) return;
+      refreshBtn.textContent = originalText || 'Обновить ленту';
+      refreshBtn.classList.remove('is-refresh-error');
+    }, 1800);
   });
   if (typeof renderSanRatingTableUI === 'function') renderSanRatingTableUI();
   if (typeof checkSundayMondaySync === 'function') checkSundayMondaySync();

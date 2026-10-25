@@ -1,59 +1,68 @@
-# Los Santos News — GitHub Pages ready
+# Los Santos News — V11
 
-Этот комплект собран из текущего сайта LSN и исправляет главные проблемы интеграции Supabase и статического хостинга.
+Production-oriented static frontend for Los Santos News with Supabase Auth, role-based authorization, editorial storage, and server-side username login.
 
-## Что исправлено
+## Project contents
 
-- `lsn_articles` теперь содержит поля, которые реально запрашивают сайт: `excerpt`, `author_name`, `status`, `published_at`, `type`.
-- Для старой и новой логики публикаций добавлена совместимость `lead ↔ excerpt` и `author ↔ author_name`.
-- Исправлена RLS-логика публикаций.
-- Добавлены таблица баннеров и Storage bucket `article-images`.
-- Добавлены RPC-функции для User ID и ролей, используемые редакционным кабинетом.
-- `auth.html` и `editor.html` остаются входными точками и возвращают пользователя в нужный диалог главной страницы.
-- `supabase-config.js` больше не привязан к Netlify: URL сайта определяется относительно текущего GitHub Pages адреса.
-- Добавлен `.nojekyll`, чтобы GitHub Pages отдавал статические файлы без обработки Jekyll.
+- `index.html` — website frontend, ready for GitHub Pages or any static host.
+- `supabase/config.toml` — Supabase CLI configuration for project `kahtjjlnivxkyynfjtyd` and the three Edge Functions.
+- `supabase/functions/admin-delete-user/index.ts` — admin-only account deletion. It refuses self-deletion and deletion of another administrator.
+- `supabase/functions/username-login/index.ts` — username login without returning account email; includes server-side rate limits.
+- `supabase/functions/username-available/index.ts` — server-side username availability check; includes rate limits.
+- `supabase/migrations/20261025002211_add_server_side_edge_function_rate_limits.sql` — migration for the hashed-key rate-limit table and atomic rate-limit RPC.
+- `supabase/sql/current_security_reconciliation.sql` — final SQL reconciliation for the **existing LSN database schema**.
+- `supabase/tests/security_invariants.sql` — read-only checks of critical security invariants.
+- `SECURITY.md` — security notes and release checklist.
 
-## Публикация на GitHub Pages
+## Current production status
 
-1. Создай/открой репозиторий.
-2. Загрузи содержимое этой папки в корень репозитория.
-3. В GitHub открой **Settings → Pages**.
-4. В **Build and deployment** выбери **Deploy from a branch**, ветку `main` и папку `/ (root)`.
-5. Дождись публикации.
+The existing Supabase project has already been updated with the current policies and functions. The `index.html` is the deployable frontend. Before putting the site into public use, complete the smoke test below on the actual hosting domain and confirm sign-in, signup, publishing, image uploads, and account deletion with test accounts.
 
-## Supabase
+The Supabase Security Advisor's remaining finding is leaked-password protection. Supabase Free does not offer the HaveIBeenPwned password check; this release does not bypass that product restriction.
 
-Один раз выполни весь файл `supabase-setup.sql` в **Supabase → SQL Editor**.
+## Deploy the website to GitHub Pages
 
-В **Authentication → URL Configuration** добавь настоящий адрес GitHub Pages:
-- `https://<username>.github.io/<repository>/`
-- `https://<username>.github.io/<repository>/auth.html`
+1. Extract this ZIP and upload the **contents** of this directory to the root of your GitHub repository. `index.html` must be in the repository root.
+2. In GitHub, open **Settings → Pages** and select **GitHub Actions** as the source. The included `.github/workflows/pages.yml` publishes only `index.html`; SQL and Edge Function sources stay in the repository, not in the deployed Pages artifact.
+3. Push to the `main` branch or run the workflow manually from **Actions**.
+4. Open the generated Pages URL and use a hard refresh (`Ctrl+F5`) after deployment.
+5. Do not add service-role keys, database passwords, access tokens, or `.env` files to the repository.
 
-Если используется пользовательский домен — добавь его вместо GitHub Pages.
+The publishable Supabase key embedded in the browser frontend is intentionally public. Authorization is enforced by database grants, RLS policies, triggers, and Edge Functions; never put a Supabase secret/service-role key into `index.html`.
 
-Если включено подтверждение email, настрой SMTP или отключи `Confirm email` в настройках Supabase.
+## Deploy the Edge Functions from this repo
 
-## Важно
+The three functions are already active in the referenced production project. If you later change their source and want to redeploy, install the Supabase CLI and authenticate locally, then run:
 
-`supabase-config.js` содержит только publishable key. `service_role` key и пароль базы данных сюда добавлять нельзя.
+```bash
+supabase link --project-ref kahtjjlnivxkyynfjtyd
+supabase functions deploy admin-delete-user
+supabase functions deploy username-login --no-verify-jwt
+supabase functions deploy username-available --no-verify-jwt
+```
 
-После публикации очисти кэш браузера один раз или открой сайт в приватном окне. Страница статьи работает через `article.html?id=...`.
+`username-login` and `username-available` intentionally use `--no-verify-jwt` because they are called before sign-in. Their request validation, server-side rate limiter, and internal database access are implemented inside the functions. `admin-delete-user` requires a valid JWT and independently verifies that the caller is an administrator.
 
+Supabase's hosted Edge Function runtime supplies the project environment variables. The functions require the public/anonymous key and service-role key **server-side only**. Never paste the service-role key into source files or GitHub Actions logs.
 
-## Если Supabase сообщает 42P13
+## SQL files: read before applying
 
-Файл `supabase-setup.sql` уже содержит безопасное удаление старой версии
-`public.lsn_admin_list_users()` перед созданием новой версии. Не вставляй
-сокращённые примеры с `...` — используй файл целиком.
+The production database already has a history of migrations. The `supabase/migrations` directory in this package contains the rate-limiter migration added for this release; it is not a complete reconstruction of every historical migration that created the site's base schema. Do **not** assume this repository is a blank-project bootstrap or blindly run `supabase db push` against the existing production project without reconciling migration history.
 
-## Структура GitHub Pages
+`supabase/sql/current_security_reconciliation.sql` is a consolidation/reconciliation script for the existing LSN schema. It expects the existing tables, triggers, `article-images` bucket, and prior base schema. Keep a database backup before applying it. The active production project has already received the changes represented by this release.
 
-Главный файл сайта — `index.html`. GitHub Pages должен публиковать корень
-репозитория из ветки `main`. Файл `.nojekyll` уже включён.
+To run the read-only invariant checks in Supabase SQL Editor, open `supabase/tests/security_invariants.sql` and execute it. It raises an exception if a critical privilege, role hierarchy, or RLS invariant is missing.
 
-Не добавляй в репозиторий `service_role` ключ Supabase или пароль базы данных.
+## Post-deploy smoke test
 
+- Refresh the public feed; delete one test article in the editor and refresh again. A deleted row must stay gone.
+- Sign in with a username/password and test incorrect credentials; the endpoint must not reveal whether the username exists.
+- Verify `user` cannot create articles or upload article images.
+- Verify `journalist` can create their own draft, but cannot publish, delete, edit a published article, or modify another person's draft.
+- Verify `director` can manage lower-ranked roles but cannot assign an equal or higher role.
+- Verify `admin` cannot change their own role, cannot appoint another admin through the profile editor, and cannot delete their own account or another admin account.
+- Test article create/edit/delete and image upload with permitted roles.
 
-## Supabase SQL
+## Release note
 
-Запускайте `supabase-setup.sql` целиком в Supabase SQL Editor. Внутри уже предусмотрены DROP FUNCTION для функций, у которых PostgreSQL не позволяет менять RETURN TYPE через CREATE OR REPLACE.
+The code has passed static JavaScript syntax checks and targeted SQL authorization tests in the existing Supabase project. A complete end-to-end browser test against the public hosting URL still needs to be performed after GitHub Pages finishes publishing; therefore this release should be described as **security-hardened and ready for deployment/testing**, not as a mathematically guaranteed zero-defect system.
