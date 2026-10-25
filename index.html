@@ -11527,14 +11527,26 @@ document.addEventListener('DOMContentLoaded', () => {
     targetUser.roleTitle = newRoleInfo.title;
 
     if (sb && targetUser.uuid) {
-      const { error } = await sb.from('profiles')
-        .update({ role: newLvl, role_title: targetUser.roleTitle })
-        .eq('id', targetUser.uuid);
-      if (error) {
-        console.error('Supabase role update error:', error);
+      let roleError = null;
+      try {
+        const { error: rpcErr } = await sb.rpc('lsn_set_user_role', {
+          p_user_id: targetUser.uuid,
+          p_new_role: newLvl
+        });
+        if (rpcErr) {
+          const { error: directErr } = await sb.from('profiles')
+            .update({ role: newLvl, role_title: targetUser.roleTitle })
+            .eq('id', targetUser.uuid);
+          roleError = directErr;
+        }
+      } catch (err) {
+        roleError = err;
+      }
+      if (roleError) {
+        console.error('Supabase role update error:', roleError);
         await loadAdminProfiles();
         renderPermissionsList();
-        alert('⚠️ Роль не сохранена в базе Supabase: ' + (error.message || 'сервер отклонил операцию') + '');
+        alert('⚠️ Роль не сохранена в базе Supabase: ' + (roleError.message || 'сервер отклонил операцию'));
         return;
       }
     } else {
@@ -11680,14 +11692,26 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    const { error } = await sb.from('profiles')
-      .update({ role: roleLevel, role_title: newRoleInfo.title })
-      .eq('id', targetUser.uuid);
-    if (error) {
-      console.error('Supabase role assignment:', error);
+    let assignError = null;
+    try {
+      const { error: rpcErr } = await sb.rpc('lsn_set_user_role', {
+        p_user_id: targetUser.uuid,
+        p_new_role: roleLevel
+      });
+      if (rpcErr) {
+        const { error: directErr } = await sb.from('profiles')
+          .update({ role: roleLevel, role_title: newRoleInfo.title })
+          .eq('id', targetUser.uuid);
+        assignError = directErr;
+      }
+    } catch (err) {
+      assignError = err;
+    }
+    if (assignError) {
+      console.error('Supabase role assignment:', assignError);
       await loadAdminProfiles();
       renderPermissionsList();
-      alert('⚠️ Роль не изменена: ' + (error.message || 'сервер отклонил операцию'));
+      alert('⚠️ Роль не изменена: ' + (assignError.message || 'сервер отклонил операцию'));
       return;
     }
 
