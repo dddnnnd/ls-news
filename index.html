@@ -10451,7 +10451,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Category Tabs in Cabinet:
     // "а у журналистов не должно быть это окно вообще с ролями"
     // "Так же рекламу, колонки со статьями не может добавлять, редактировать, журналист или читатель."
-    const backupTools = #lsn-content-backup-tools;
+    const backupTools = $('#lsn-content-backup-tools');
     if (backupTools) backupTools.hidden = roleInfo.level !== 'admin';
 
     const permTab = $('[data-uni-type="permissions"]');
@@ -11703,8 +11703,8 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const renderArchiveList = async () => {
-    const listEl = #archive-items-list;
-    const counterEl = #archive-counter;
+    const listEl = $('#archive-items-list');
+    const counterEl = $('#archive-counter');
     if (!listEl) return;
 
     listEl.innerHTML = '<div style="padding:24px; text-align:center; color:#94a3b8;">Р—Р°РіСЂСѓР·РєР° Р°СЂС…РёРІР° РёР· Supabase...</div>';
@@ -11965,7 +11965,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const permsWs = $('#uni-permissions-workspace');
     const myActWs = $('#uni-my-activities-workspace');
 
-    const archiveWs = #uni-archive-workspace;
+    const archiveWs = $('#uni-archive-workspace');
     if (type === 'archive') {
       if (contentWs) contentWs.hidden = true;
       if (permsWs) permsWs.hidden = true;
@@ -13311,7 +13311,7 @@ document.addEventListener('DOMContentLoaded', () => {
     item.id = id;
     const authorId = currentUser?.uuid || null;
     const authorName = item.author || item.author_name || currentUser?.fullName || currentUser?.nickname || 'Ray Westblock';
-    const category = type === 'ad' ? (item.tag || item.category || 'Р РµРєР»Р°РјР°') : type === 'column' ? (item.subtitle || item.category || 'РљРѕР»РѕРЅРєР°') : (item.category || 'РќРѕРІРѕСЃС‚Рё');
+    const category = type === 'ad' ? (item.tag || item.category || 'Реклама') : type === 'column' ? (item.subtitle || item.category || 'Колонка') : (item.category || 'Новости');
     const body = String(item.body || item.fullText || '');
     const image = safeImageUrl(item.img || item.customImg || item.image_url || '');
     const status = type === 'news' ? (item.status === 'draft' ? 'draft' : 'published') : 'published';
@@ -13342,35 +13342,39 @@ document.addEventListener('DOMContentLoaded', () => {
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url; a.download = lsn-content-backup-.json;
-    document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
-    flashUniSaved('Р РµР·РµСЂРІРЅР°СЏ РєРѕРїРёСЏ СЃРєР°С‡Р°РЅР°');
+    a.href = url;
+    a.download = `lsn-content-backup-${new Date().toISOString().slice(0,10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    flashUniSaved('Резервная копия скачана');
   };
 
   const validateBackupArray = (value, max, label) => {
-    if (!Array.isArray(value) || value.length > max) throw new Error(РќРµРєРѕСЂСЂРµРєС‚РЅС‹Р№ СЂР°Р·РґРµР» В«В»);
+    if (!Array.isArray(value) || value.length > max) throw new Error(`Некорректный раздел «${label}»`);
     for (const item of value) {
       if (!item || typeof item !== 'object' || typeof item.id !== 'string' || typeof item.title !== 'string') {
-        throw new Error(Р’ СЂРµР·РµСЂРІРЅРѕР№ РєРѕРїРёРё РїРѕРІСЂРµР¶РґС‘РЅ СЂР°Р·РґРµР» В«В»);
+        throw new Error(`В резервной копии повреждён раздел «${label}»`);
       }
       if (item.title.length > 160 || String(item.body || item.fullText || '').length > 20000) {
-        throw new Error(РЎР»РёС€РєРѕРј Р±РѕР»СЊС€РѕР№ РјР°С‚РµСЂРёР°Р» РІ СЂР°Р·РґРµР»Рµ В«В»);
+        throw new Error(`Слишком большой материал в разделе «${label}»`);
       }
     }
     return value;
   };
 
   const restoreEditorialBackup = async (file) => {
-    if (!file || file.size > 12 * 1024 * 1024) throw new Error('Р¤Р°Р№Р» СЂРµР·РµСЂРІРЅРѕР№ РєРѕРїРёРё РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РјРµРЅСЊС€Рµ 12 РњР‘');
+    if (!file || file.size > 12 * 1024 * 1024) throw new Error('Файл резервной копии должен быть меньше 12 МБ');
     const backup = JSON.parse(await file.text());
-    if (!backup || backup.schema !== LSN_BACKUP_SCHEMA || !backup.content) throw new Error('Р¤Р°Р№Р» РЅРµ СЏРІР»СЏРµС‚СЃСЏ СЂРµР·РµСЂРІРЅРѕР№ РєРѕРїРёРµР№ Los Santos News');
+    if (!backup || backup.schema !== LSN_BACKUP_SCHEMA || !backup.content) throw new Error('Файл не является резервной копией Los Santos News');
     const role = getUserRoleInfo(currentUser);
-    if (role.level !== 'admin') throw new Error('Р’РѕСЃСЃС‚Р°РЅР°РІР»РёРІР°С‚СЊ РєРѕРЅС‚РµРЅС‚ РјРѕР¶РµС‚ С‚РѕР»СЊРєРѕ Р°РґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂ');
+    if (role.level !== 'admin') throw new Error('Восстанавливать контент может только администратор');
     const content = backup.content;
-    const incomingNews = validateBackupArray(content.news || [], 500, 'РќРѕРІРѕСЃС‚Рё');
-    const incomingAds = validateBackupArray(content.ads || [], 250, 'Р РµРєР»Р°РјР°');
-    const incomingColumns = validateBackupArray(content.columns || [], 250, 'РљРѕР»РѕРЅРєРё');
-    if (!content.staff || typeof content.staff !== 'object' || !Array.isArray(content.staff.members)) throw new Error('РќРµРєРѕСЂСЂРµРєС‚РЅС‹Р№ СЃРѕСЃС‚Р°РІ СЂРµРґР°РєС†РёРё');
+    const incomingNews = validateBackupArray(content.news || [], 500, 'Новости');
+    const incomingAds = validateBackupArray(content.ads || [], 250, 'Реклама');
+    const incomingColumns = validateBackupArray(content.columns || [], 250, 'Колонки');
+    if (!content.staff || typeof content.staff !== 'object' || !Array.isArray(content.staff.members)) throw new Error('Некорректный состав редакции');
 
     const explicitRestoreIds = new Set([...incomingNews, ...incomingAds, ...incomingColumns].map(item => String(item.id)));
     try {
@@ -13414,18 +13418,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     await markEditorialInitialized();
     const synced = await syncArticlesFromCloud();
-    flashUniSaved('РљРѕРЅС‚РµРЅС‚ СѓСЃРїРµС€РЅРѕ РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅ РёР· СЂРµР·РµСЂРІРЅРѕР№ РєРѕРїРёРё');
+    flashUniSaved('Контент успешно восстановлен из резервной копии');
   };
 
-  #lsn-export-content-backup?.addEventListener('click', downloadEditorialBackup);
-  #lsn-import-content-backup?.addEventListener('change', async (event) => {
+  $('#lsn-export-content-backup')?.addEventListener('click', downloadEditorialBackup);
+  $('#lsn-import-content-backup')?.addEventListener('change', async (event) => {
     const input = event.currentTarget;
     const file = input?.files?.[0];
     if (!file) return;
     try { await restoreEditorialBackup(file); }
     catch (error) {
       console.error('Backup restore failed:', error);
-      flashUniSaved(РћС€РёР±РєР° РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёСЏ: );
+      flashUniSaved(`Ошибка восстановления: ${String(error?.message || 'неизвестная ошибка').slice(0,120)}`);
     } finally { if (input) input.value = ''; }
   });
 
