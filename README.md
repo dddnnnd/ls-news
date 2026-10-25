@@ -2,10 +2,11 @@
 Это восстановительная сборка: прежняя визуальная структура сайта и редакционный кабинет возвращены, роли остаются в новой пятиуровневой иерархии, а секция выбора изображений снова использует встроенный альбом из 18 иллюстраций и загрузку собственных фото. Кнопка «Подать объявление» в публичной части отсутствует.
 ## Файлы
 - `index.html` — единственный файл сайта, который публикуется через GitHub Pages.
-- `supabase/functions/` — исходники трёх действующих Edge Functions.
+- `supabase/functions/` — исходники четырёх действующих Edge Functions (`admin-delete-user`, `username-login`, `username-available`, `username-password-reset`).
 - `supabase/migrations/20261025084552_add_editorial_recovery_marker_v13.sql` — маркер одноразовой миграции старого локального контента в `lsn_articles`.
 - `supabase/migrations/20261025084553_reopen_incomplete_editorial_recovery_v13.sql` — оставляет миграцию ожидающей завершения, если в базе нет новостей и рекламы.
 - `supabase/migrations/20261025002211_add_server_side_edge_function_rate_limits.sql` — миграция ограничителя запросов, уже присутствующая в производственной базе.
+- `supabase/migrations/20261025091500_allow_archived_status_in_lsn_articles.sql` — безопасная миграция расширения check-ограничения статусов статей до ('draft', 'published', 'archived') с верификацией транзакции.
 - `supabase/sql/restore_primary_admin.sql` — восстановление роли администратора для точно указанной учётной записи Ray Westblock; выполняйте только если это действительно ваш аккаунт.
 - `supabase/sql/inspect_profile_roles.sql` — read-only проверка ролей.
 - `supabase/tests/security_invariants.sql` — read-only критические проверки доступа.
@@ -27,6 +28,7 @@ supabase link --project-ref kahtjjlnivxkyynfjtyd
 supabase functions deploy admin-delete-user
 supabase functions deploy username-login --no-verify-jwt
 supabase functions deploy username-available --no-verify-jwt
+supabase functions deploy username-password-reset --no-verify-jwt
 ```
 Публичные функции `username-login` и `username-available` проверяют входные данные и используют серверный ограничитель частоты запросов. `admin-delete-user` требует JWT и отдельно проверяет роль `admin`. Секретный/service-role ключ остаётся только в серверной среде и никогда не должен появляться в `index.html` или GitHub.
 ## Проверки и пределы гарантий

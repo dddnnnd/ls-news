@@ -8392,23 +8392,26 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       const email = profile?.email || session.user.email || '';
-      const isMainAdmin = (email && email.toLowerCase() === 'deeeenchik80@gmail.com') ||
-                          (profile?.username && profile.username.toLowerCase() === 'ray westblock') ||
-                          (session.user.user_metadata?.username && String(session.user.user_metadata.username).toLowerCase() === 'ray westblock');
+      // Server-verified profile role only. Never grant admin from client heuristic, email, username or unverified metadata.
+      const verifiedRole = (profile && profile.role) ? String(profile.role).toLowerCase() : 'user';
+      const verifiedRoleTitle = (profile && profile.role_title) ? String(profile.role_title) : 'Читатель';
 
       currentUser = {
         id: profile?.user_id_code || session.user.id.slice(0, 8),
         uuid: session.user.id,
-        username: profile?.username || session.user.user_metadata?.username || (isMainAdmin ? 'Ray Westblock' : (email.includes('@') ? email.split('@')[0] : 'Пользователь')),
-        fullName: profile?.username || session.user.user_metadata?.full_name || (isMainAdmin ? 'Ray Westblock' : (email.includes('@') ? email.split('@')[0] : 'Пользователь')),
+        username: profile?.username || session.user.user_metadata?.username || (email.includes('@') ? email.split('@')[0] : 'Пользователь'),
+        fullName: profile?.username || session.user.user_metadata?.full_name || (email.includes('@') ? email.split('@')[0] : 'Пользователь'),
         email: email,
-        role: profile?.role || (isMainAdmin ? 'admin' : (session.user.user_metadata?.role || 'user')),
-        roleTitle: profile?.role_title || (isMainAdmin ? '🛡️ Администратор' : (session.user.user_metadata?.role_title || 'Читатель'))
+        role: verifiedRole,
+        roleTitle: verifiedRoleTitle
       };
 
       try { localStorage.setItem(SESSION_USER_KEY, JSON.stringify(currentUser)); } catch (_) {}
       await loadAdminProfiles();
       syncRoleVisibilityUI();
+      if (typeof syncArticlesFromCloud === 'function' && currentUser && getUserRoleInfo(currentUser).rank >= 3) {
+        syncArticlesFromCloud();
+      }
     } catch (err) {
       console.warn('Supabase session sync:', err);
     }
@@ -11539,7 +11542,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error('Supabase role update error:', error);
         await loadAdminProfiles();
         renderPermissionsList();
-        alert('⚠️ Роль не сохранена в базе Supabase: ' + (error.message || 'сервер отклонил операцию') + '\nУбедитесь, что в Supabase SQL Editor выполнен скрипт fix_permissions_and_admin.sql.');
+        alert('⚠️ Роль не сохранена в базе Supabase: ' + (error.message || 'сервер отклонил операцию') + '');
         return;
       }
     } else {
@@ -12152,7 +12155,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (sb) {
       try {
-        const { error } = await sb.from('lsn_articles').delete().eq('id', id);
+        // Strictly verify that the record in Supabase is actually archived before hard deleting it!
+        const { error } = await sb.from('lsn_articles')
+          .delete()
+          .eq('id', id)
+          .or('status.eq.archived,and(status.eq.draft,metadata->>archived.eq.true)');
         if (error) {
           console.error('Supabase hard delete error:', error);
           flashUniSaved('⚠️ Ошибка удаления из Supabase: ' + error.message);
@@ -12304,6 +12311,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   window.switchUniCategory = switchUniCategory;
   window.openJournalistCabinet = openJournalistCabinet;
+  window.syncRoleVisibilityUI = syncRoleVisibilityUI;
+  window.renderMyActivitiesList = renderMyActivitiesList;
+  window.renderPermissionsList = renderPermissionsList;
+  window.renderArchiveList = renderArchiveList;
+  window.restoreFromArchive = restoreFromArchive;
+  window.permanentlyDeleteFromArchive = permanentlyDeleteFromArchive;
   window.getCurrentUniType = () => currentUniType;
 
   headerCabinetBtn?.addEventListener('click', () => openJournalistCabinet('news'));
@@ -13668,6 +13681,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const autoBootstrapEditorialToCloud = async () => {
     if (!sb) return false;
+    // Strict authentication and management check: visitors/anon must never bootstrap
+    const { data: sessionData } = await sb.auth.getSession();
+    if (!sessionData?.session?.user) return false;
+    const callerRole = getUserRoleInfo(currentUser);
+    if (!callerRole || callerRole.rank < 3) {
+      console.warn('Auto-bootstrap restricted: management privileges required.');
+      return false;
+    }
+    // Emergency local backup before cloud seeding
+    try {
+      localStorage.setItem('lsn_pre_bootstrap_backup', JSON.stringify({
+        news: newsState,
+        ads: adsState,
+        columns: columnsState,
+        staff: staffState,
+        savedAt: new Date().toISOString()
+      }));
+    } catch (_) {}
     try {
       const rows = [];
       if (!isSectionCleared('ad')) {
@@ -13711,7 +13742,7 @@ document.addEventListener('DOMContentLoaded', () => {
           console.warn('Auto-bootstrap editorial content note:', error.message);
           return false;
         }
-        console.log(LSN: Successfully seeded  articles to Supabase cloud.);
+        console.log(`LSN: Successfully seeded ${rows.length} articles to Supabase cloud.`);
       }
       await markEditorialInitialized();
       return true;
@@ -13739,7 +13770,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = lsn-content-backup-.json;
+    a.download = `lsn-content-backup-${new Date().toISOString().slice(0, 10)}.json`;
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -13748,13 +13779,13 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const validateBackupArray = (value, max, label) => {
-    if (!Array.isArray(value) || value.length > max) throw new Error(Некорректный раздел «»);
+    if (!Array.isArray(value) || value.length > max) throw new Error(`Некорректный раздел «${label}»`);
     for (const item of value) {
       if (!item || typeof item !== 'object' || typeof item.id !== 'string' || typeof item.title !== 'string') {
-        throw new Error(В резервной копии повреждён раздел «»);
+        throw new Error(`В резервной копии повреждён раздел «${label}»`);
       }
       if (item.title.length > 160 || String(item.body || item.fullText || '').length > 20000) {
-        throw new Error(Слишком большой материал в разделе «»);
+        throw new Error(`Слишком большой материал в разделе «${label}»`);
       }
     }
     return value;
@@ -13825,15 +13856,15 @@ document.addEventListener('DOMContentLoaded', () => {
     flashUniSaved('✅ Контент успешно восстановлен из резервной копии');
   };
 
-  #lsn-export-content-backup?.addEventListener('click', downloadEditorialBackup);
-  #lsn-import-content-backup?.addEventListener('change', async (event) => {
+  $('#lsn-export-content-backup')?.addEventListener('click', downloadEditorialBackup);
+  $('#lsn-import-content-backup')?.addEventListener('change', async (event) => {
     const input = event.currentTarget;
     const file = input?.files?.[0];
     if (!file) return;
     try { await restoreEditorialBackup(file); }
     catch (error) {
       console.error('Backup restore failed:', error);
-      flashUniSaved(Ошибка восстановления: );
+      flashUniSaved(`Ошибка восстановления: ${String(error?.message || 'неизвестная ошибка').slice(0, 120)}`);
     } finally { if (input) input.value = ''; }
   });
 
@@ -13859,8 +13890,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const isEditorialInit = await readEditorialInitialized();
       let activeRows = data.filter(row => !isArchivedRow(row));
 
-      // Auto-bootstrap cloud when empty or uninitialized
-      if (activeRows.length === 0 || !isEditorialInit) {
+      // Auto-bootstrap cloud ONLY when truly empty (0 total articles in DB) AND uninitialized
+      const isDatabaseTrulyEmpty = (data.length === 0);
+      const canCallerBootstrap = currentUser && getUserRoleInfo(currentUser).rank >= 3;
+      if (isDatabaseTrulyEmpty && !isEditorialInit && canCallerBootstrap) {
         const seeded = await autoBootstrapEditorialToCloud();
         if (seeded) {
           const refetch = await sb.from('lsn_articles').select('*').order('created_at', { ascending: false });

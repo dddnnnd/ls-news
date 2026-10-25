@@ -1,36 +1,42 @@
 {
-    "release":  "V13 Recovery Merged Edition",
-    "html_bytes":  3366847,
-    "html_sha256":  "718099936826B31D9ED5782F2F5D0F61841F2991CB93F0E7FAAF89BD4FCB2F03",
-    "inline_javascript_blocks_passed":  2,
-    "edge_function_count":  4,
-    "edge_function_typescript_syntax":  "passed",
-    "duplicate_dom_ids":  [
-
-                          ],
-    "role_hierarchy_keys":  [
-                                "admin",
-                                "director",
-                                "deputy",
-                                "journalist",
-                                "user"
-                            ],
-    "staff_hierarchy_enforced":  true,
-    "archive_tab_role_protected":  true,
-    "my_activities_author_filtered":  true,
-    "roles_panel_simplified":  true,
-    "default_news_count":  3,
-    "default_ads_count":  3,
-    "embedded_illustrations":  18,
-    "public_submit_ad_cta":  false,
-    "startup_deletes_content_stores":  false,
-    "service_role_secret_in_frontend":  false,
-    "editorial_backup_controls":  true,
-    "supabase_archive_system":  true,
-    "author_name":  "Ray Westblock",
-    "browser_e2e":  "verified headless dom dump clean",
-    "remaining_live_steps":  [
-                                 "run supabase/sql/fix_permissions_and_admin.sql in Supabase SQL Editor",
-                                 "sign in to V13 as Ray Westblock"
-                             ]
+  "release": "V13 Recovery Verified Edition",
+  "html_bytes": 3368250,
+  "html_sha256": "31C2939FE891B9DE0A9D0A52E47E4E39044E4501239070AB0E9A387A8B923598",
+  "inline_javascript_blocks_total": 2,
+  "inline_javascript_blocks_passed": 2,
+  "inline_javascript_syntax_errors": 0,
+  "edge_function_count": 4,
+  "edge_functions": [
+    "admin-delete-user",
+    "username-login",
+    "username-available",
+    "username-password-reset"
+  ],
+  "duplicate_dom_ids": [],
+  "role_hierarchy_keys": [
+    "admin",
+    "director",
+    "deputy",
+    "journalist",
+    "user"
+  ],
+  "staff_hierarchy_enforced": true,
+  "archive_tab_role_protected": true,
+  "my_activities_author_filtered": true,
+  "roles_panel_simplified": true,
+  "default_news_count": 3,
+  "default_ads_count": 3,
+  "embedded_illustrations": 18,
+  "public_submit_ad_cta": false,
+  "startup_deletes_content_stores": false,
+  "service_role_secret_in_frontend": false,
+  "editorial_backup_controls": true,
+  "supabase_archive_system": true,
+  "author_name": "Ray Westblock",
+  "browser_headless_dom_tested": true,
+  "remaining_manual_steps": [
+    "Execute supabase/migrations/20261025091500_allow_archived_status_in_lsn_articles.sql in Supabase SQL Editor if archive status constraint is not yet applied",
+    "Execute supabase/sql/restore_primary_admin.sql in Supabase SQL Editor if Ray Westblock profile requires admin role elevation",
+    "Sign in to V13 as Ray Westblock to confirm profile sync"
+  ]
 }
