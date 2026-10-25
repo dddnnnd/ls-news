@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 
 <html lang="ru">
 
@@ -7799,7 +7799,7 @@ h1, h2, h3, h4,
       <button type="button" class="uni-type-btn" data-uni-type="column">Колонки</button>
       <button type="button" class="uni-type-btn" data-uni-type="staff">Интро и состав</button>
       <button type="button" class="uni-type-btn" data-uni-type="my-activities" id="uni-tab-my-activities">⚡ Мои активности</button>
-      <button type="button" class="uni-type-btn" data-uni-type="permissions" id="uni-permissions-tab" hidden>Доступ и роли</button><button type="button" class="uni-type-btn" data-uni-type="archive" id="uni-tab-archive">📦 Архив</button>
+      <button type="button" class="uni-type-btn" data-uni-type="permissions" id="uni-permissions-tab" hidden>Доступ и роли</button><button type="button" class="uni-type-btn" data-uni-type="archive" id="uni-tab-archive" hidden>📦 Архив</button>
     </div>
 
     <!-- UNIFIED WORKSPACE -->
@@ -7971,23 +7971,32 @@ h1, h2, h3, h4,
 
     <!-- PERMISSIONS PANEL -->
     <section id="uni-permissions-workspace" hidden>
-      <div class="lsn-rbac-overview" style="margin-bottom:18px; padding:18px; border:1px solid rgba(56,189,248,.18); border-radius:16px; background:linear-gradient(135deg,rgba(56,189,248,.06),rgba(245,158,11,.04));">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px;">
-          <div><div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#38bdf8;font-weight:800;">LSN / RBAC</div><h3 style="margin:4px 0 0;color:#fff;font-size:20px;">Иерархия и права пользователей</h3></div>
-          <span style="font-size:12px;color:#94a3b8;">Изменять роли может только Администратор</span>
+      <div class="lsn-rbac-overview" style="margin-bottom:18px; padding:16px 20px; border:1px solid rgba(56,189,248,.18); border-radius:16px; background:linear-gradient(135deg,rgba(56,189,248,.06),rgba(245,158,11,.04));">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px;">
+          <div>
+            <div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#38bdf8;font-weight:800;">Управление доступом</div>
+            <h3 style="margin:4px 0 0;color:#fff;font-size:19px;">Роли и сотрудники редакции</h3>
+          </div>
+          <span style="font-size:12px;color:#94a3b8;">Быстрое назначение должности прямо в списке ниже</span>
         </div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:9px;">
-          <div style="padding:11px 12px;border:1px solid rgba(255,255,255,.08);border-radius:12px;background:rgba(0,0,0,.16);"><div style="font-weight:800;color:#fff;font-size:13px;">🛡️ Администратор</div><div style="margin-top:5px;color:#94a3b8;font-size:11px;">Полный доступ</div></div><div style="padding:11px 12px;border:1px solid rgba(255,255,255,.08);border-radius:12px;background:rgba(0,0,0,.16);"><div style="font-weight:800;color:#fff;font-size:13px;">👑 Директор / Генеральный директор</div><div style="margin-top:5px;color:#94a3b8;font-size:11px;">Расширенное управление редакцией</div></div><div style="padding:11px 12px;border:1px solid rgba(255,255,255,.08);border-radius:12px;background:rgba(0,0,0,.16);"><div style="font-weight:800;color:#fff;font-size:13px;">⭐ Заместитель директора</div><div style="margin-top:5px;color:#94a3b8;font-size:11px;">Расширенное управление редакцией</div></div><div style="padding:11px 12px;border:1px solid rgba(255,255,255,.08);border-radius:12px;background:rgba(0,0,0,.16);"><div style="font-weight:800;color:#fff;font-size:13px;">📰 Главный редактор</div><div style="margin-top:5px;color:#94a3b8;font-size:11px;">Расширенное управление редакцией</div></div><div style="padding:11px 12px;border:1px solid rgba(255,255,255,.08);border-radius:12px;background:rgba(0,0,0,.16);"><div style="font-weight:800;color:#fff;font-size:13px;">✍️ Редактор</div><div style="margin-top:5px;color:#94a3b8;font-size:11px;">Создание и работа с материалами</div></div><div style="padding:11px 12px;border:1px solid rgba(255,255,255,.08);border-radius:12px;background:rgba(0,0,0,.16);"><div style="font-weight:800;color:#fff;font-size:13px;">📝 Журналист</div><div style="margin-top:5px;color:#94a3b8;font-size:11px;">Создание и работа с материалами</div></div><div style="padding:11px 12px;border:1px solid rgba(255,255,255,.08);border-radius:12px;background:rgba(0,0,0,.16);"><div style="font-weight:800;color:#fff;font-size:13px;">🎤 Репортёр</div><div style="margin-top:5px;color:#94a3b8;font-size:11px;">Рабочий кабинет</div></div><div style="padding:11px 12px;border:1px solid rgba(255,255,255,.08);border-radius:12px;background:rgba(0,0,0,.16);"><div style="font-weight:800;color:#fff;font-size:13px;">📷 Фотокорреспондент</div><div style="margin-top:5px;color:#94a3b8;font-size:11px;">Рабочий кабинет</div></div><div style="padding:11px 12px;border:1px solid rgba(255,255,255,.08);border-radius:12px;background:rgba(0,0,0,.16);"><div style="font-weight:800;color:#fff;font-size:13px;">🎙️ Радиоведущий</div><div style="margin-top:5px;color:#94a3b8;font-size:11px;">Рабочий кабинет</div></div><div style="padding:11px 12px;border:1px solid rgba(255,255,255,.08);border-radius:12px;background:rgba(0,0,0,.16);"><div style="font-weight:800;color:#fff;font-size:13px;">👤 Сотрудник LSN</div><div style="margin-top:5px;color:#94a3b8;font-size:11px;">Рабочий кабинет</div></div><div style="padding:11px 12px;border:1px solid rgba(255,255,255,.08);border-radius:12px;background:rgba(0,0,0,.16);"><div style="font-weight:800;color:#fff;font-size:13px;">👁️ Пользователь</div><div style="margin-top:5px;color:#94a3b8;font-size:11px;">Только просмотр</div></div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;">
+          <div style="padding:10px 14px;border:1px solid rgba(56,189,248,.2);border-radius:12px;background:rgba(0,0,0,.25);">
+            <div style="font-weight:800;color:#38bdf8;font-size:13px;">🛡️ Администратор</div>
+            <div style="margin-top:4px;color:#94a3b8;font-size:11.5px;">Полный доступ и управление ролями</div>
+          </div>
+          <div style="padding:10px 14px;border:1px solid rgba(245,158,11,.2);border-radius:12px;background:rgba(0,0,0,.25);">
+            <div style="font-weight:800;color:#fbbf24;font-size:13px;">👑 Руководство</div>
+            <div style="margin-top:4px;color:#94a3b8;font-size:11.5px;">Директор и Заместитель • Эфир и реклама</div>
+          </div>
+          <div style="padding:10px 14px;border:1px solid rgba(34,197,94,.2);border-radius:12px;background:rgba(0,0,0,.25);">
+            <div style="font-weight:800;color:#4ade80;font-size:13px;">📝 Журналист</div>
+            <div style="margin-top:4px;color:#94a3b8;font-size:11.5px;">Создание новостей и личное досье</div>
+          </div>
+          <div style="padding:10px 14px;border:1px solid rgba(255,255,255,.08);border-radius:12px;background:rgba(0,0,0,.25);">
+            <div style="font-weight:800;color:#e2e8f0;font-size:13px;">👤 Читатель</div>
+            <div style="margin-top:4px;color:#94a3b8;font-size:11.5px;">Просмотр портала и комментарии</div>
+          </div>
         </div>
-      </div>
-      <div style="overflow:auto;margin-bottom:18px;border:1px solid rgba(255,255,255,.08);border-radius:14px;background:rgba(0,0,0,.12);">
-        <table style="width:100%;border-collapse:collapse;min-width:980px;font-size:11px;">
-          <thead><tr style="background:rgba(56,189,248,.06);">
-            <th style="padding:10px;text-align:left;color:#fff;">Роль</th>
-            <th>Новости</th><th>Публикация</th><th>Реклама</th><th>Колонки</th><th>Состав</th><th>Роли</th><th>Пользователи</th><th>Рейтинг</th>
-          </tr></thead>
-          <tbody id="lsn-rbac-matrix-body"></tbody>
-        </table>
       </div>
       <div class="cab-ads-layout">
         <div class="cab-ads-list-col">
@@ -9121,6 +9130,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }) || null;
   };
 
+  const getStaffMemberRank = (item) => {
+    if (!item) return 0;
+    const text = ((item.role || '') + ' ' + (item.badge || '') + ' ' + (item.name || '')).toLowerCase();
+    const login = (item.authorLogin || item.login || '').toLowerCase();
+    if (text.includes('админ') || text.includes('admin') || login === 'ray westblock' || item.id === 'staff-admin') return 5;
+    if (text.includes('ген. директор') || text.includes('генеральный директор') || text.includes('руководство commerce') || item.id === 'staff-1') return 4;
+    if (text.includes('заместитель') || text.includes('зам.') || text.includes('программный') || item.id === 'staff-2') return 3;
+    if (text.includes('редактор') || text.includes('журналист') || text.includes('корреспондент')) return 2;
+    return 1;
+  };
+
   const isOwnStaffDossier = (item, user = currentUser) => {
     if (!item || !user) return false;
     const uLogin = String(user.username || '').trim().toLowerCase();
@@ -9139,6 +9159,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (item?.type) return String(item.type).toLowerCase();
     if (item?.itemType) return String(item.itemType).toLowerCase();
     if (item?.contentType) return String(item.contentType).toLowerCase();
+    if (item?.role || item?.badge || item?.bio || item?.skinId || item?.id === 'staff-intro') return 'staff';
     return currentUniType === 'ad' ? 'ad' :
       currentUniType === 'column' ? 'column' :
       currentUniType === 'staff' ? 'staff' : 'news';
@@ -9149,13 +9170,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const role = getUserRoleInfo(currentUser);
     const itemType = resolveItemType(item);
     if (role.level === 'user') return false;
+
+    // Strict staff questionnaire hierarchy: Deputy can NEVER edit Director or Admin
+    if (itemType === 'staff') {
+      if (item.id === 'staff-intro') return role.rank >= 3;
+      if (isOwnStaffDossier(item, currentUser)) return true;
+      if (role.level === 'admin') return true;
+      if (role.level === 'director') {
+        return getStaffMemberRank(item) < 5; // Director cannot edit admin
+      }
+      if (role.level === 'deputy') {
+        return getStaffMemberRank(item) < 3; // Deputy can NEVER edit director or admin
+      }
+      return false;
+    }
+
     if (role.canEditAll) return true;
 
     if (role.level === 'journalist') {
-      if (itemType === 'staff') return isOwnStaffDossier(item);
       if (itemType !== 'news') return false;
-      // A journalist may edit ONLY an explicitly saved draft they own.
-      // Legacy/public items without status are treated as non-editable.
       if (item.status !== 'draft' || item.published_at) return false;
       const aLogin = String(item.authorLogin || item.login || '').trim().toLowerCase();
       const uLogin = String(currentUser.username || '').trim().toLowerCase();
@@ -9171,13 +9204,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const role = getUserRoleInfo(currentUser);
     const itemType = resolveItemType(item);
     if (role.level === 'user') return false;
+
+    if (itemType === 'staff') {
+      if (item.id === 'staff-intro') return false;
+      if (role.level === 'admin') return true;
+      if (role.level === 'director') return getStaffMemberRank(item) < 4;
+      if (role.level === 'deputy') return getStaffMemberRank(item) < 3;
+      return false;
+    }
+
     if (role.canEditAll) return true;
-    // Journalists cannot delete news, ads, columns or staff records.
     return false;
   };
 
-  // Backward-compatible helper: callers that only need a generic permission
-  // should require BOTH an actual edit/delete capability, never infer it from role alone.
   const canUserEditOrDeleteItem = (item) => canUserEditItem(item) || canUserDeleteItem(item);
 
   const canCreateOwnStaffDossier = (role = getUserRoleInfo(currentUser), user = currentUser) => {
@@ -9314,7 +9353,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const NEWS_STORAGE_KEY = 'lsn_news_store_v20';
   const LEGACY_DEMO_NEWS_IDS = new Set(['news-0-archive', 'news-1', 'news-2']);
-  newsState = [];
+  const DEFAULT_NEWS_DATA = [
+    {
+      id: '01929000-0000-4000-a000-000000000001',
+      title: 'Редакция LSN открыла набор стажёров на волну 102.2 FM',
+      category: 'Редакция · 102.2 FM',
+      author: 'Джулиан Мерсер',
+      createdAt: Date.now() - 3 * 24 * 60 * 60 * 1000,
+      important: false,
+      img: '',
+      body: 'Los Santos News объявляет набор стажёров: радиоведущих, репортёров и фотокорреспондентов.\n\nСобеседования проходят ежедневно в штабе редакции в районе Commerce. Лучшие кандидаты получат место в эфире 102.2 FM и доступ к кабинету журналиста.'
+    },
+    {
+      id: '01929000-0000-4000-a000-000000000002',
+      important: true,
+      title: 'Los Santos News удерживает 1-е место в рейтинге радиокомпаний штата с индексом 342 000',
+      category: 'Главное · Район Commerce · 102.2 FM',
+      author: 'Маркус Вэнс',
+      createdAt: Date.now() - 2 * 60 * 60 * 1000,
+      img: '',
+      body: 'По итогам свежего подсчёта активности радиокомпаний штата Сан-Андреас редакция Los Santos News (волна 102.2 FM) уверенно занимает первую строчку с показателем 342 000 единиц рейтинга, опережая Las Venturas News (289 000) и San Fierro News (254 000).\n\nКруглосуточная работа центрального штаба в районе Commerce, оперативные вылеты воздушного борта SAN NEWS D193SA и прямые репортажи с мест событий обеспечили нашей станции рекордный охват аудитории по всему Лос-Сантосу.'
+    },
+    {
+      id: '01929000-0000-4000-a000-000000000003',
+      title: 'Ночной воздушный патруль D193SA: прямая сводка трафика над районом Commerce',
+      category: 'Городской репортаж · Борт D193SA',
+      author: 'Виктор Кроу',
+      createdAt: Date.now() - 9 * 60 * 60 * 1000,
+      img: '',
+      body: 'Экипаж вертолёта SAN NEWS D193SA провёл вечерний мониторинг дорожной обстановки на главной автомагистрали Лос-Сантоса и развязке у района Commerce.\n\nВ прямом эфире на частоте 102.2 FM корреспонденты передали сводку движения в сторону Вайнвуд-Хиллз и делового центра. Благодаря новой оптике и поисковому прожектору зрители и читатели портала могут круглосуточно следить за панорамой города прямо на главной странице сайта.'
+    }
+  ];
+  newsState = JSON.parse(JSON.stringify(DEFAULT_NEWS_DATA)).filter(x => !isItemDeleted(x.id));
   try {
     const rawN = localStorage.getItem(NEWS_STORAGE_KEY) || localStorage.getItem('lsn_news_store_v18') || localStorage.getItem('lsn_news_store_v16') || localStorage.getItem('lsn_news_store_v12');
     if (rawN) {
@@ -9328,6 +9398,10 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
   } catch (_) { newsState = []; }
+  if (!isSectionCleared('news') && (!newsState || newsState.length === 0)) {
+    newsState = JSON.parse(JSON.stringify(DEFAULT_NEWS_DATA)).filter(x => !isItemDeleted(x.id));
+  }
+
   const saveNewsState = () => {
     try {
       localStorage.setItem(NEWS_STORAGE_KEY, JSON.stringify(newsState));
@@ -9424,7 +9498,7 @@ document.addEventListener('DOMContentLoaded', () => {
       adsState = JSON.parse(JSON.stringify(DEFAULT_ADS_DATA)).filter(x => !isItemDeleted(x.id));
     }
   }
-  const restoreDefaultAds = () => {
+  const restoreDefaultAds = async () => {
     markSectionCleared('ad', false);
     DEFAULT_ADS_DATA.forEach(a => {
       unmarkIdAsDeleted(a.id);
@@ -9454,9 +9528,12 @@ document.addEventListener('DOMContentLoaded', () => {
         published_at: new Date().toISOString(),
         metadata: { titleColor: a.titleColor || '' }
       }));
-      sb.from('lsn_articles').upsert(toUpload).then(({ error }) => {
-        if (error) console.warn('Supabase restore ads note:', error.message);
-      });
+      const { error } = await sb.from('lsn_articles').upsert(toUpload);
+      if (error) {
+        console.warn('Supabase restore ads error:', error.message);
+        flashUniSaved('⚠️ Реклама восстановлена локально, но в Supabase ошибка: ' + error.message);
+        return;
+      }
     }
     flashUniSaved('Официальная реклама LSN успешно восстановлена!');
   };
@@ -10501,6 +10578,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const myActTab = $('[data-uni-type="my-activities"]');
     if (myActTab) myActTab.hidden = !roleInfo.isJournalist;
+
+    const archiveTab = $('[data-uni-type="archive"]');
+    if (archiveTab) archiveTab.hidden = !roleInfo.isManagement;
 
     const loggedInBox = $('#auth-logged-in-box');
     const guestForms = $('#auth-guest-forms');
@@ -11644,8 +11724,25 @@ document.addEventListener('DOMContentLoaded', () => {
       ...columnsState.map(c => ({ ...c, actType: 'column', actLabel: 'Колонка', actClass: 'my-act-card__type--column' }))
     ];
 
+    const isUserAuthor = (item) => {
+      if (!item || !currentUser) return false;
+      const uId = String(currentUser.uuid || '').trim();
+      const uNick = String(currentUser.nickname || currentUser.username || '').trim().toLowerCase();
+      const uFull = String(currentUser.fullName || '').trim().toLowerCase();
+
+      const aId = String(item.author_id || item.authorId || '').trim();
+      const aLogin = String(item.authorLogin || item.login || '').trim().toLowerCase();
+      const aName = String(item.author_name || item.author || '').trim().toLowerCase();
+
+      if (uId && aId && uId === aId) return true;
+      if (uNick && aLogin && uNick === aLogin) return true;
+      if (uNick && aName && (aName === uNick || aName.includes(uNick))) return true;
+      if (uFull && aName && (aName === uFull || aName.includes(uFull))) return true;
+      return false;
+    };
+
     const myActivities = allActivities.filter(item => {
-      if (!canUserEditOrDeleteItem(item)) return false;
+      if (!isUserAuthor(item)) return false;
       if (filter !== 'all' && item.actType !== filter) return false;
       return true;
     });
@@ -11731,7 +11828,12 @@ document.addEventListener('DOMContentLoaded', () => {
     delBtn.textContent = 'Удаление…';
     try {
       if (sb && isCloudType && isUuid) {
-        const { data, error } = await sb.from('lsn_articles').update({ status: 'archived', updated_at: new Date().toISOString() }).eq('id', id).select('id');
+        let updateRes = await sb.from('lsn_articles').update({ status: 'archived', updated_at: new Date().toISOString() }).eq('id', id).select('id');
+        if (updateRes.error && (updateRes.error.message?.includes('status') || updateRes.error.code === '23514')) {
+          updateRes = await sb.from('lsn_articles').update({ status: 'draft', metadata: { archived: true }, updated_at: new Date().toISOString() }).eq('id', id).select('id');
+        }
+        const data = updateRes.data;
+        const error = updateRes.error;
         if (error || !Array.isArray(data) || data.length === 0) {
           throw error || new Error('Сервер не подтвердил удаление. Проверьте права доступа.');
         }
@@ -12078,6 +12180,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const switchUniCategory = (type, specificItemId = null) => {
     const roleInfo = getUserRoleInfo(currentUser);
+    if (type === 'archive' && !roleInfo.isManagement) {
+      flashUniSaved('🔒 Архив доступен только руководству редакции.');
+      type = 'news';
+    }
 
     // Every cabinet section is explicitly gated by capability.
     if (type === 'permissions') {
@@ -12211,14 +12317,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
   $('#modal-article-edit-btn')?.addEventListener('click', () => {
     const type = lastOpenedModalItem?.type || 'news';
+    const id = lastOpenedModalItem?.id;
+    if (!id) return;
     const store = type === 'ad' ? adsState : type === 'column' ? columnsState : type === 'staff' ? staffState.members : newsState;
-    const item = store.find(x => x.id === lastOpenedModalItem?.id) || null;
+    let item = (type === 'staff' && id === 'staff-intro')
+      ? { id: 'staff-intro', type: 'staff', actType: 'staff', title: staffState.articleTitle }
+      : (Array.isArray(store) ? store.find(x => x.id === id) : null);
+    if (item) {
+      item = { ...item, type, actType: type };
+    }
     if (!canUserEditItem(item)) {
       flashUniSaved('🔒 Этот материал недоступен для редактирования вашей роли.');
       return;
     }
     articleDialog?.close();
-    openJournalistCabinet(type, lastOpenedModalItem.id);
+    openJournalistCabinet(type, id);
   });
 
   $('#modal-article-del-btn')?.addEventListener('click', (e) => {
@@ -12284,21 +12397,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const validCloudId = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(id || ''));
     if (sb && validCloudId && ['news', 'ad', 'column'].includes(type)) {
-      sb.from('lsn_articles')
-        .update({ status: 'archived', updated_at: new Date().toISOString() })
-        .eq('id', id)
-        .select('id')
-        .then(({ data, error }) => {
-          if (error || !Array.isArray(data) || data.length === 0) {
-            console.warn('Supabase delete article note:', error || 'No row was deleted');
-            flashUniSaved('Удаление не подтверждено сервером. Материал не изменён.');
-            return;
-          }
-          markIdAsDeleted(id);
-          applyLocalDelete();
-          articleDialog?.close();
-        })
-        .catch(() => flashUniSaved('Не удалось удалить материал.'));
+      (async () => {
+        let res = await sb.from('lsn_articles')
+          .update({ status: 'archived', updated_at: new Date().toISOString() })
+          .eq('id', id)
+          .select('id');
+        if (res.error && (res.error.message?.includes('status') || res.error.code === '23514')) {
+          res = await sb.from('lsn_articles')
+            .update({ status: 'draft', metadata: { archived: true }, updated_at: new Date().toISOString() })
+            .eq('id', id)
+            .select('id');
+        }
+        if (res.error || !Array.isArray(res.data) || res.data.length === 0) {
+          console.warn('Supabase delete article note:', res.error || 'No row was deleted');
+          flashUniSaved('Удаление не подтверждено сервером. Материал не изменён.');
+          return;
+        }
+        markIdAsDeleted(id);
+        applyLocalDelete();
+        articleDialog?.close();
+      })().catch(() => flashUniSaved('Не удалось удалить материал.'));
       return;
     }
 
@@ -12356,9 +12474,15 @@ document.addEventListener('DOMContentLoaded', () => {
           .select('id').eq('type', currentUniType);
         if (listError) throw listError;
         if (Array.isArray(rows) && rows.length) {
-          const { error: deleteError } = await sb.from('lsn_articles')
+          let { error: deleteError } = await sb.from('lsn_articles')
             .update({ status: 'archived', updated_at: new Date().toISOString() })
             .in('id', rows.map(r => r.id));
+          if (deleteError && (deleteError.message?.includes('status') || deleteError.code === '23514')) {
+            const fallback = await sb.from('lsn_articles')
+              .update({ status: 'draft', metadata: { archived: true }, updated_at: new Date().toISOString() })
+              .in('id', rows.map(r => r.id));
+            deleteError = fallback.error;
+          }
           if (deleteError) throw deleteError;
           rows.forEach(row => markIdAsDeleted(row.id));
         }
@@ -12467,21 +12591,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (id === 'staff-intro') return;
 
-    // 1. Move to local archive
-    const archivedItem = Object.assign({}, item, {
-      actType: currentUniType,
-      archivedAt: new Date().toISOString()
-    });
-    saveItemToLocalArchive(archivedItem);
-
-    // 2. Soft-delete on Supabase (status = 'archived')
+    // Soft-delete on Supabase (status = 'archived' or fallback to draft with archived metadata)
     const validCloudId = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(id || ''));
     if (sb && (currentUniType === 'news' || currentUniType === 'ad' || currentUniType === 'column')) {
       try {
+        let updateRes;
         if (validCloudId) {
-          await sb.from('lsn_articles').update({ status: 'archived', updated_at: new Date().toISOString() }).eq('id', id);
+          updateRes = await sb.from('lsn_articles').update({ status: 'archived', updated_at: new Date().toISOString() }).eq('id', id).select('id');
+          if (updateRes.error && (updateRes.error.message?.includes('status') || updateRes.error.code === '23514')) {
+            updateRes = await sb.from('lsn_articles').update({ status: 'draft', metadata: { archived: true }, updated_at: new Date().toISOString() }).eq('id', id).select('id');
+          }
         } else {
-          await sb.from('lsn_articles').upsert({
+          updateRes = await sb.from('lsn_articles').upsert({
             id: id,
             type: currentUniType,
             title: item.title || '',
@@ -12493,14 +12614,44 @@ document.addEventListener('DOMContentLoaded', () => {
             author_id: currentUser?.uuid || null,
             status: 'archived',
             updated_at: new Date().toISOString()
-          });
+          }).select('id');
+          if (updateRes.error && (updateRes.error.message?.includes('status') || updateRes.error.code === '23514')) {
+            updateRes = await sb.from('lsn_articles').upsert({
+              id: id,
+              type: currentUniType,
+              title: item.title || '',
+              category: item.category || item.tag || item.subtitle || '',
+              lead: item.excerpt || item.shortText || '',
+              body: item.body || item.fullText || '',
+              author: item.author || currentUser?.nickname || 'Ray Westblock',
+              author_name: item.author || currentUser?.nickname || 'Ray Westblock',
+              author_id: currentUser?.uuid || null,
+              status: 'draft',
+              metadata: { archived: true },
+              updated_at: new Date().toISOString()
+            }).select('id');
+          }
+        }
+        if (updateRes.error || !Array.isArray(updateRes.data) || updateRes.data.length === 0) {
+          console.warn('Supabase archive update failed:', updateRes.error);
+          flashUniSaved('⚠️ Ошибка архивирования в базе: ' + (updateRes.error?.message || 'сервер отклонил запрос'));
+          return;
         }
       } catch (err) {
         console.warn('Supabase archive update note:', err);
+        flashUniSaved('⚠️ Сбой соединения при архивировании: ' + (err?.message || 'сетевая ошибка'));
+        return;
       }
     }
 
-    // 3. Remove from active store
+    // 1. Move to local archive
+    const archivedItem = Object.assign({}, item, {
+      actType: currentUniType,
+      archivedAt: new Date().toISOString()
+    });
+    saveItemToLocalArchive(archivedItem);
+
+    // 2. Remove from active store ONLY after cloud confirmation
     markIdAsDeleted(id);
     if (currentUniType === 'news') {
       newsState = newsState.filter(x => x.id !== id);
@@ -12816,9 +12967,24 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         let item = staffState.members.find(x => x.id === id);
         const isOwnDossier = item ? isOwnStaffDossier(item, currentUser) : false;
+        const targetRank = getStaffMemberRank(item);
         if (!roleInfo.canManageStaff && !(roleInfo.level === 'journalist' && (isOwnDossier || !getCurrentUserStaffDossier(currentUser)))) {
           flashUniSaved('🔒 Можно создать и редактировать только своё досье.');
           return;
+        }
+        if (item && !isOwnDossier) {
+          if (roleInfo.level === 'deputy' && targetRank >= 3) {
+            flashUniSaved('🔒 Заместитель не может редактировать анкету директора или администратора.');
+            return;
+          }
+          if (roleInfo.level === 'director' && targetRank >= 5) {
+            flashUniSaved('🔒 Генеральный директор не может редактировать анкету администратора.');
+            return;
+          }
+          if (roleInfo.rank <= targetRank && roleInfo.level !== 'admin') {
+            flashUniSaved('🔒 Недостаточно прав для изменения анкеты старшего сотрудника.');
+            return;
+          }
         }
         if (!item) {
           item = { id, tone: 'amber', authorLogin: currentUser?.username || 'editor_lsn', author_id: currentUser?.uuid || null };
@@ -13399,7 +13565,7 @@ document.addEventListener('DOMContentLoaded', () => {
         sec?.scrollIntoView({ behavior: 'smooth', block: 'center' });
         highlightNavTarget(sec);
       } else if (targetKey === 'job-article') {
-        const jobCol = columnsState.find(c => /работа|ваканс|трудоу|С€тат|стажер/i.test((c.title || '') + ' ' + (c.subtitle || ''))) || columnsState[0];
+        const jobCol = columnsState.find(c => /работа|ваканс|трудоу|штат|стажер/i.test((c.title || '') + ' ' + (c.subtitle || ''))) || columnsState[0];
         const cardEl = $('#job-article-card') || $('#columns-articles-section');
         cardEl?.scrollIntoView({ behavior: 'smooth', block: 'center' });
         highlightNavTarget(cardEl);
@@ -13435,6 +13601,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const EDITORIAL_BOOTSTRAP_LOCAL_KEY = 'lsn_cloud_editorial_initialized_v1';
   const isUuidValue = (value) => /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(value || ''));
 
+  const STAFF_UUID_MAP = {
+    'staff-1': '7a2d1001-4455-4000-8000-000000000001',
+    'staff-2': '7a2d1002-4455-4000-8000-000000000002',
+    'staff-3': '7a2d1003-4455-4000-8000-000000000003',
+    'staff-4': '7a2d1004-4455-4000-8000-000000000004',
+    'staff-5': '7a2d1005-4455-4000-8000-000000000005',
+    'staff-6': '7a2d1006-4455-4000-8000-000000000006',
+    'staff-7': '7a2d1007-4455-4000-8000-000000000007',
+    'staff-intro': '7a2d1000-4455-4000-8000-000000000000'
+  };
+
   const readEditorialInitialized = async () => {
     if (sb) {
       try {
@@ -13459,24 +13636,89 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const mapLocalItemToCloudRow = (type, item) => {
-    if (!item || !String(item.title || '').trim() || isItemDeleted(item.id)) return null;
+    if (!item || isItemDeleted(item.id)) return null;
+    const title = String(item.title || item.name || '').trim();
+    if (!title) return null;
     const oldId = String(item.id || '');
-    const id = isUuidValue(oldId) ? oldId : createArticleUuid();
+    const id = isUuidValue(oldId) ? oldId : (STAFF_UUID_MAP[oldId] || createArticleUuid());
     item.id = id;
     const authorId = currentUser?.uuid || null;
     const authorName = item.author || item.author_name || currentUser?.fullName || currentUser?.nickname || 'Ray Westblock';
-    const category = type === 'ad' ? (item.tag || item.category || 'Реклама') : type === 'column' ? (item.subtitle || item.category || 'Колонка') : (item.category || 'Новости');
-    const body = String(item.body || item.fullText || '');
+    const category = type === 'ad' ? (item.tag || item.category || 'Реклама')
+      : type === 'column' ? (item.subtitle || item.category || 'Колонка')
+      : type === 'staff' ? (item.role || 'Сотрудник LSN')
+      : (item.category || 'Новости');
+    const body = String(item.body || item.fullText || item.bio || '');
     const image = safeImageUrl(item.img || item.customImg || item.image_url || '');
     const status = type === 'news' ? (item.status === 'draft' ? 'draft' : 'published') : 'published';
     return {
-      id, type, title: String(item.title).slice(0, 140), category, body,
-      excerpt: String(item.excerpt || item.shortText || makeShortPreview(body, 160)).slice(0,240),
-      lead: String(item.lead || item.excerpt || item.shortText || makeShortPreview(body, 160)).slice(0,240),
-      author_name: String(authorName).slice(0,100), author_id: authorId,
+      id, type, title: title.slice(0, 140), category, body,
+      excerpt: String(item.excerpt || item.shortText || item.role || makeShortPreview(body, 160)).slice(0, 240),
+      lead: String(item.lead || item.excerpt || item.shortText || item.role || makeShortPreview(body, 160)).slice(0, 240),
+      author_name: String(authorName).slice(0, 100), author_id: authorId,
       image_url: image, status, updated_at: new Date().toISOString(),
-      metadata: { accent: item.accent || 'amber', titleColor: item.titleColor || '' }
+      metadata: {
+        accent: item.accent || 'amber',
+        titleColor: item.titleColor || '',
+        skinId: item.skinId || '',
+        badge: item.badge || ''
+      }
     };
+  };
+
+  const autoBootstrapEditorialToCloud = async () => {
+    if (!sb) return false;
+    try {
+      const rows = [];
+      if (!isSectionCleared('ad')) {
+        const adsToSeed = (adsState && adsState.length > 0) ? adsState : DEFAULT_ADS_DATA;
+        adsToSeed.forEach(a => {
+          if (!isItemDeleted(a.id)) {
+            const row = mapLocalItemToCloudRow('ad', a);
+            if (row) rows.push(row);
+          }
+        });
+      }
+      if (!isSectionCleared('column')) {
+        const colsToSeed = (columnsState && columnsState.length > 0) ? columnsState : DEFAULT_COLUMNS_DATA;
+        colsToSeed.forEach(c => {
+          if (!isItemDeleted(c.id)) {
+            const row = mapLocalItemToCloudRow('column', c);
+            if (row) rows.push(row);
+          }
+        });
+      }
+      if (!isSectionCleared('news') && newsState && newsState.length > 0) {
+        newsState.forEach(n => {
+          if (!isItemDeleted(n.id)) {
+            const row = mapLocalItemToCloudRow('news', n);
+            if (row) rows.push(row);
+          }
+        });
+      }
+      if (staffState && Array.isArray(staffState.members)) {
+        staffState.members.forEach(m => {
+          if (!isItemDeleted(m.id)) {
+            const row = mapLocalItemToCloudRow('staff', m);
+            if (row) rows.push(row);
+          }
+        });
+      }
+
+      if (rows.length > 0) {
+        const { error } = await sb.from('lsn_articles').upsert(rows, { onConflict: 'id' });
+        if (error) {
+          console.warn('Auto-bootstrap editorial content note:', error.message);
+          return false;
+        }
+        console.log(LSN: Successfully seeded  articles to Supabase cloud.);
+      }
+      await markEditorialInitialized();
+      return true;
+    } catch (err) {
+      console.warn('Auto-bootstrap editorial error:', err);
+      return false;
+    }
   };
 
   const LSN_BACKUP_SCHEMA = 'lsn-editorial-backup-v1';
@@ -13497,7 +13739,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `lsn-content-backup-${new Date().toISOString().slice(0,10)}.json`;
+    a.download = lsn-content-backup-.json;
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -13506,13 +13748,13 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const validateBackupArray = (value, max, label) => {
-    if (!Array.isArray(value) || value.length > max) throw new Error(`Некорректный раздел «${label}»`);
+    if (!Array.isArray(value) || value.length > max) throw new Error(Некорректный раздел «»);
     for (const item of value) {
       if (!item || typeof item !== 'object' || typeof item.id !== 'string' || typeof item.title !== 'string') {
-        throw new Error(`В резервной копии повреждён раздел «${label}»`);
+        throw new Error(В резервной копии повреждён раздел «»);
       }
       if (item.title.length > 160 || String(item.body || item.fullText || '').length > 20000) {
-        throw new Error(`Слишком большой материал в разделе «${label}»`);
+        throw new Error(Слишком большой материал в разделе «»);
       }
     }
     return value;
@@ -13564,7 +13806,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const row = mapLocalItemToCloudRow(type, item);
         if (row) rows.push(row);
       });
-      addRestored('news', newsState); addRestored('ad', adsState); addRestored('column', columnsState);
+      addRestored('news', newsState);
+      addRestored('ad', adsState);
+      addRestored('column', columnsState);
+      if (staffState && Array.isArray(staffState.members)) {
+        addRestored('staff', staffState.members);
+      }
       if (rows.length) {
         const { error } = await sb.from('lsn_articles').upsert(rows, { onConflict: 'id' });
         if (error) {
@@ -13578,15 +13825,15 @@ document.addEventListener('DOMContentLoaded', () => {
     flashUniSaved('✅ Контент успешно восстановлен из резервной копии');
   };
 
-  $('#lsn-export-content-backup')?.addEventListener('click', downloadEditorialBackup);
-  $('#lsn-import-content-backup')?.addEventListener('change', async (event) => {
+  #lsn-export-content-backup?.addEventListener('click', downloadEditorialBackup);
+  #lsn-import-content-backup?.addEventListener('change', async (event) => {
     const input = event.currentTarget;
     const file = input?.files?.[0];
     if (!file) return;
     try { await restoreEditorialBackup(file); }
     catch (error) {
       console.error('Backup restore failed:', error);
-      flashUniSaved(`Ошибка восстановления: ${String(error?.message || 'неизвестная ошибка').slice(0,120)}`);
+      flashUniSaved(Ошибка восстановления: );
     } finally { if (input) input.value = ''; }
   });
 
@@ -13595,27 +13842,37 @@ document.addEventListener('DOMContentLoaded', () => {
   const syncArticlesFromCloud = async () => {
     if (!sb) return false;
     try {
-      const { data, error } = await sb
+      let { data, error } = await sb
         .from('lsn_articles')
         .select('*')
         .order('created_at', { ascending: false });
 
       if (error) {
         console.warn('Не удалось обновить редакционную ленту:', error.message);
-        // Network/API errors must not erase the locally cached editorial view.
-        // A successful empty query remains authoritative and is handled below.
         return false;
       }
       if (!Array.isArray(data)) {
-        // Network/API errors must not erase the locally cached editorial view.
-        // A successful empty query remains authoritative and is handled below.
         return false;
       }
 
-      // Do not seed demo content into an empty database. Empty result is a valid,
-      // authoritative state (for example after an editor deletes all news).
+      const isArchivedRow = (row) => row && (row.status === 'archived' || (row.metadata && row.metadata.archived === true));
+      const isEditorialInit = await readEditorialInitialized();
+      let activeRows = data.filter(row => !isArchivedRow(row));
+
+      // Auto-bootstrap cloud when empty or uninitialized
+      if (activeRows.length === 0 || !isEditorialInit) {
+        const seeded = await autoBootstrapEditorialToCloud();
+        if (seeded) {
+          const refetch = await sb.from('lsn_articles').select('*').order('created_at', { ascending: false });
+          if (Array.isArray(refetch.data) && refetch.data.length > 0) {
+            data = refetch.data;
+            activeRows = data.filter(row => !isArchivedRow(row));
+          }
+        }
+      }
+
       // Sync cloud archived items into local archive store
-      const cloudArchived = data.filter(row => row.status === 'archived');
+      const cloudArchived = data.filter(row => isArchivedRow(row));
       if (cloudArchived.length > 0) {
         const localArch = getLocalArchive();
         cloudArchived.forEach(row => {
@@ -13642,7 +13899,7 @@ document.addEventListener('DOMContentLoaded', () => {
         saveLocalArchive(localArch);
       }
 
-      const cloudNews = data.filter(row => row.type === 'news' && row.status !== 'archived').map(row => ({
+      const cloudNews = data.filter(row => row.type === 'news' && !isArchivedRow(row)).map(row => ({
         id: row.id,
         title: row.title,
         category: row.category || 'Новости',
@@ -13667,7 +13924,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renderNewsSections();
       }
 
-      const cloudColumns = data.filter(row => row.type === 'column' && row.status !== 'archived').map(row => ({
+      const cloudColumns = data.filter(row => row.type === 'column' && !isArchivedRow(row)).map(row => ({
         id: row.id,
         title: row.title,
         subtitle: row.category || 'Колонка',
@@ -13691,7 +13948,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renderEditorialColumns();
       }
 
-      const cloudAds = data.filter(row => row.type === 'ad' && row.status !== 'archived').map(row => ({
+      const cloudAds = data.filter(row => row.type === 'ad' && !isArchivedRow(row)).map(row => ({
         id: row.id,
         title: row.title,
         tag: row.category || 'Los Santos News · Партнёры',
@@ -13716,11 +13973,25 @@ document.addEventListener('DOMContentLoaded', () => {
           renderAdsCarousel();
         }
       }
+
+      const cloudStaff = data.filter(row => row.type === 'staff' && !isArchivedRow(row)).map(row => ({
+        id: row.id,
+        name: row.title,
+        role: row.category || 'Сотрудник LSN',
+        bio: row.body || '',
+        customImg: safeImageUrl(row.image_url),
+        skinId: (row.metadata && row.metadata.skinId) || 'skin_director',
+        badge: (row.metadata && row.metadata.badge) || ''
+      }));
+      if (cloudStaff.length > 0) {
+        staffState.members = cloudStaff;
+        saveStaffState();
+        renderStaffSection();
+      }
+
       hasAuthoritativeArticleSnapshot = true;
       return true;
     } catch (e) {
-      // A failed request is not proof that content was deleted. Keep the last
-      // successful snapshot/cache visible and let the user retry.
       console.warn('Не удалось обновить редакционную ленту:', e);
       return false;
     }
