@@ -40,39 +40,66 @@ end $$;
 
 alter table public.profiles
   add constraint profiles_role_check
-  check (role is null or role in ('admin','leader','deputy','journalist','moderator','editor'));
+  check (role is null or role in ('admin','director','deputy','journalist','user'));
+
+alter table public.profiles alter column role set default 'user';
+alter table public.profiles alter column role_title set default '👤 Читатель';
+
+-- Public view exposing only non-sensitive profile columns (strictly protects email)
+create or replace view public.lsn_public_profiles with (security_invoker = false) as
+  select
+    id,
+    user_id_code,
+    username,
+    role,
+    role_title,
+    created_at,
+    updated_at
+  from public.profiles;
+
+revoke all on public.lsn_public_profiles from public;
+grant select on public.lsn_public_profiles to anon, authenticated;
 
 alter table public.profiles enable row level security;
 revoke all on public.profiles from anon, authenticated;
-grant select on public.profiles to anon, authenticated;
-grant insert, update on public.profiles to authenticated;
+grant select, update on public.profiles to authenticated;
+grant all on public.profiles to service_role;
 
 drop policy if exists "Public profiles read" on public.profiles;
-create policy "Public profiles read"
-  on public.profiles for select
-  to anon, authenticated
-  using (true);
-
 drop policy if exists "Users update own profile" on public.profiles;
-create policy "Users update own profile"
-  on public.profiles for update
-  to authenticated
-  using (id = auth.uid())
-  with check (id = auth.uid());
-
 drop policy if exists "Management update profiles" on public.profiles;
-create policy "Management update profiles"
-  on public.profiles for update
-  to authenticated
-  using (
-    exists (
-      select 1 from public.profiles p
-      where p.id = auth.uid()
-        and p.role in ('admin','leader','deputy','moderator')
-    )
-  )
-  with check (true);
+drop policy if exists lsn_profiles_select on public.profiles;
+drop policy if exists lsn_profiles_update on public.profiles;
 
+-- Authenticated users can read their own profile, or management can inspect profiles
+create policy lsn_profiles_select on public.profiles
+for select to authenticated
+using (
+  id = auth.uid()
+  or (select coalesce(role, 'user') from public.profiles where id = auth.uid()) = 'admin'
+  or (
+    (select case role when 'admin' then 5 when 'director' then 4 when 'deputy' then 3 when 'journalist' then 2 else 1 end from public.profiles where id = auth.uid()) >
+    (select case role when 'admin' then 5 when 'director' then 4 when 'deputy' then 3 when 'journalist' then 2 else 1 end from public.profiles where id = profiles.id)
+  )
+);
+
+create policy lsn_profiles_update on public.profiles
+for update to authenticated
+using (
+  id = auth.uid()
+  or (select coalesce(role, 'user') from public.profiles where id = auth.uid()) = 'admin'
+)
+with check (
+  (
+    id = auth.uid()
+    and role = (select p.role from public.profiles p where p.id = auth.uid())
+    and email = (select p.email from public.profiles p where p.id = auth.uid())
+  )
+  or (select coalesce(role, 'user') from public.profiles where id = auth.uid()) = 'admin'
+);
+
+-- Secure registration trigger: every registrant strictly receives role='user'.
+-- Zero hardcoded email backdoors. Metadata role injection is ignored.
 create or replace function public.handle_new_user()
 returns trigger
 language plpgsql
@@ -83,7 +110,6 @@ declare
   next_num int;
   raw_name text;
   clean_name text;
-  is_admin boolean;
 begin
   select coalesce(max(substring(user_id_code from 5)::int), 100) + 1
     into next_num
@@ -95,8 +121,6 @@ begin
   clean_name := regexp_replace(raw_name, '_', ' ', 'g');
   if clean_name = '' then clean_name := 'User ' || next_num; end if;
 
-  is_admin := lower(coalesce(new.email,'')) = 'deeeenchik80@gmail.com';
-
   insert into public.profiles (
     id, user_id_code, username, email, role, role_title
   )
@@ -105,14 +129,12 @@ begin
     'USR-' || next_num,
     clean_name,
     new.email,
-    case when is_admin then 'admin' else null end,
-    case when is_admin then '🛡️ Администратор' else 'Читатель' end
+    'user',
+    '👤 Читатель'
   )
   on conflict (id) do update set
     email = excluded.email,
     username = coalesce(nullif(public.profiles.username,''), excluded.username),
-    role = case when is_admin then 'admin' else public.profiles.role end,
-    role_title = case when is_admin then '🛡️ Администратор' else public.profiles.role_title end,
     updated_at = now();
 
   return new;
@@ -124,35 +146,8 @@ create trigger on_auth_user_created
 after insert on auth.users
 for each row execute function public.handle_new_user();
 
--- Make sure the known administrator is repaired if the account already exists.
-do $$
-declare u record;
-declare next_num int;
-begin
-  for u in select id, email, raw_user_meta_data from auth.users
-          where lower(email) = 'deeeenchik80@gmail.com'
-  loop
-    select coalesce(max(substring(user_id_code from 5)::int), 100) + 1
-      into next_num
-    from public.profiles
-    where user_id_code ~ '^USR-[0-9]+$';
-
-    insert into public.profiles (id, user_id_code, username, email, role, role_title)
-    values (
-      u.id,
-      'USR-' || next_num,
-      coalesce(nullif(regexp_replace(u.raw_user_meta_data ->> 'username','_',' ','g'),''),'Admin LSN'),
-      u.email,
-      'admin',
-      '🛡️ Администратор'
-    )
-    on conflict (id) do update
-      set email = excluded.email,
-          role = 'admin',
-          role_title = '🛡️ Администратор',
-          updated_at = now();
-  end loop;
-end $$;
+-- NOTICE: Administrative account elevation is strictly separated into manual tooling.
+-- See supabase/sql/restore_primary_admin.sql to promote a specific administrative account.
 drop function if exists public.lsn_username_available(text);
 
 create or replace function public.lsn_username_available(candidate_username text)
@@ -190,14 +185,29 @@ stable
 security definer
 set search_path = public
 as $$
-  select case
-    when p.role in ('admin','leader','deputy','moderator') then 'moderator'
-    when p.role = 'journalist' then 'journalist'
-    else 'editor'
-  end
-  from public.profiles p
-  where p.id = auth.uid();
+  select coalesce(
+    (select role from public.profiles where id = auth.uid()),
+    'user'
+  );
 $$;
+
+create or replace function public.lsn_v2_role_rank(p_role text)
+returns integer
+language sql
+immutable
+strict
+set search_path = ''
+as $function$
+  select case p_role
+    when 'admin' then 5
+    when 'director' then 4
+    when 'deputy' then 3
+    when 'journalist' then 2
+    when 'user' then 1
+    else 0
+  end
+$function$;
+
 drop function if exists public.lsn_admin_list_users();
 
 create or replace function public.lsn_admin_list_users()
@@ -218,62 +228,92 @@ as $$
     p.username,
     p.email,
     coalesce(nullif(p.username,''), p.email, p.user_id_code),
-    case
-      when p.role in ('admin','leader','deputy','moderator') then 'moderator'
-      when p.role = 'journalist' then 'journalist'
-      else 'editor'
-    end
+    coalesce(p.role, 'user')
   from public.profiles p
   where exists (
     select 1 from public.profiles me
     where me.id = auth.uid()
-      and me.role in ('admin','leader','deputy','moderator')
+      and me.role in ('admin','director','deputy')
   )
   order by p.created_at asc;
 $$;
-drop function if exists public.lsn_admin_set_user_role(uuid, text);
 
-create or replace function public.lsn_admin_set_user_role(
-  target_user_id uuid,
-  new_role text
+drop function if exists public.lsn_set_user_role(uuid, text);
+
+create or replace function public.lsn_set_user_role(
+  p_user_id uuid,
+  p_new_role text
 )
-returns boolean
+returns jsonb
 language plpgsql
 security definer
 set search_path = public
 as $$
-declare is_manager boolean;
+declare
+  actor_role text;
+  actor_rank integer;
+  target_current_role text;
+  target_current_rank integer;
+  new_target_rank integer;
+  new_title text;
 begin
-  select exists (
-    select 1 from public.profiles
-    where id = auth.uid()
-      and role in ('admin','leader','deputy','moderator')
-  ) into is_manager;
-
-  if not is_manager then
-    raise exception 'forbidden';
+  if auth.uid() is null then
+    raise exception 'Требуется авторизация';
+  end if;
+  if p_user_id is null or p_user_id = auth.uid() then
+    raise exception 'Нельзя изменять собственную роль через RPC';
   end if;
 
-  if new_role not in ('moderator','journalist','editor') then
-    raise exception 'invalid role';
+  select coalesce(role, 'user') into actor_role from public.profiles where id = auth.uid();
+  actor_rank := public.lsn_v2_role_rank(actor_role);
+  new_target_rank := public.lsn_v2_role_rank(p_new_role);
+
+  if new_target_rank = 0 then
+    raise exception 'Недопустимая целевая роль: %', p_new_role;
   end if;
+
+  select role into target_current_role from public.profiles where id = p_user_id;
+  if not found then
+    raise exception 'Целевой пользователь не найден';
+  end if;
+  target_current_rank := public.lsn_v2_role_rank(target_current_role);
+
+  if target_current_role = 'admin' and actor_role <> 'admin' then
+    raise exception 'Управлять учётной записью администратора может только администратор';
+  end if;
+  if p_new_role = 'admin' and actor_role <> 'admin' then
+    raise exception 'Назначать роль администратора может только администратор';
+  end if;
+
+  if actor_role <> 'admin' then
+    if actor_rank <= target_current_rank then
+      raise exception 'Недостаточно прав: ранг цели равен или превышает ваш';
+    end if;
+    if actor_rank <= new_target_rank then
+      raise exception 'Нельзя назначать роль равную или выше собственной';
+    end if;
+  end if;
+
+  new_title := case p_new_role
+    when 'admin' then '🛡️ Администратор'
+    when 'director' then '👑 Генеральный директор'
+    when 'deputy' then '⭐ Заместитель генерального директора'
+    when 'journalist' then '📝 Журналист'
+    else '👤 Читатель'
+  end;
 
   update public.profiles
-  set
-    role = case
-      when new_role = 'moderator' then 'moderator'
-      when new_role = 'journalist' then 'journalist'
-      else 'editor'
-    end,
-    role_title = case
-      when new_role = 'moderator' then '🛡️ Модератор'
-      when new_role = 'journalist' then '✍️ Журналист'
-      else '📝 Редактор'
-    end,
-    updated_at = now()
-  where id = target_user_id;
+  set role = p_new_role,
+      role_title = new_title,
+      updated_at = now()
+  where id = p_user_id;
 
-  return found;
+  return jsonb_build_object(
+    'success', true,
+    'user_id', p_user_id,
+    'role', p_new_role,
+    'role_title', new_title
+  );
 end;
 $$;
 
@@ -336,7 +376,7 @@ alter table public.lsn_articles
   drop constraint if exists lsn_articles_status_check;
 alter table public.lsn_articles
   add constraint lsn_articles_status_check
-  check (status in ('draft','published'));
+  check (status in ('draft','published','archived'));
 
 alter table public.lsn_articles enable row level security;
 revoke all on public.lsn_articles from anon, authenticated;
@@ -350,7 +390,7 @@ create policy "Public read articles"
   using (status = 'published' or author_id = auth.uid() or exists (
     select 1 from public.profiles p
     where p.id = auth.uid()
-      and p.role in ('admin','leader','deputy','moderator')
+      and p.role in ('admin','director','deputy')
   ));
 
 drop policy if exists "Authors insert articles" on public.lsn_articles;
@@ -358,11 +398,22 @@ create policy "Authors insert articles"
   on public.lsn_articles for insert
   to authenticated
   with check (
-    author_id = auth.uid()
-    and exists (
-      select 1 from public.profiles p
-      where p.id = auth.uid()
-        and p.role in ('admin','leader','deputy','journalist','moderator','editor')
+    (
+      exists (
+        select 1 from public.profiles p
+        where p.id = auth.uid()
+          and p.role in ('admin','director','deputy')
+      )
+    )
+    or (
+      author_id = auth.uid()
+      and status = 'draft'
+      and lower(type) = 'news'
+      and exists (
+        select 1 from public.profiles p
+        where p.id = auth.uid()
+          and p.role = 'journalist'
+      )
     )
   );
 
@@ -371,19 +422,25 @@ create policy "Authors update articles"
   on public.lsn_articles for update
   to authenticated
   using (
-    author_id = auth.uid()
+    (
+      author_id = auth.uid()
+      and status = 'draft'
+    )
     or exists (
       select 1 from public.profiles p
       where p.id = auth.uid()
-        and p.role in ('admin','leader','deputy','moderator')
+        and p.role in ('admin','director','deputy')
     )
   )
   with check (
-    author_id = auth.uid()
+    (
+      author_id = auth.uid()
+      and status = 'draft'
+    )
     or exists (
       select 1 from public.profiles p
       where p.id = auth.uid()
-        and p.role in ('admin','leader','deputy','moderator')
+        and p.role in ('admin','director','deputy')
     )
   );
 
@@ -392,11 +449,10 @@ create policy "Authors delete articles"
   on public.lsn_articles for delete
   to authenticated
   using (
-    author_id = auth.uid()
-    or exists (
+    exists (
       select 1 from public.profiles p
       where p.id = auth.uid()
-        and p.role in ('admin','leader','deputy','moderator')
+        and p.role in ('admin','director','deputy')
     )
   );
 
@@ -428,18 +484,21 @@ create policy "Management manage banners"
   using (exists (
     select 1 from public.profiles p
     where p.id = auth.uid()
-      and p.role in ('admin','leader','deputy','moderator')
+      and p.role in ('admin','director','deputy')
   ))
   with check (exists (
     select 1 from public.profiles p
     where p.id = auth.uid()
-      and p.role in ('admin','leader','deputy','moderator')
+      and p.role in ('admin','director','deputy')
   ));
 
 -- ---------- ARTICLE IMAGE STORAGE ----------
-insert into storage.buckets (id, name, public)
-values ('article-images', 'article-images', true)
-on conflict (id) do update set public = true;
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('article-images', 'article-images', true, 5242880, array['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
+on conflict (id) do update set
+  public = true,
+  file_size_limit = 5242880,
+  allowed_mime_types = array['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 
 drop policy if exists "Article images public read" on storage.objects;
 create policy "Article images public read"
@@ -454,6 +513,11 @@ create policy "Article images owner upload"
   with check (
     bucket_id = 'article-images'
     and (storage.foldername(name))[1] = auth.uid()::text
+    and exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid()
+        and p.role in ('admin', 'director', 'deputy', 'journalist')
+    )
   );
 
 drop policy if exists "Article images owner update" on storage.objects;
@@ -462,7 +526,14 @@ create policy "Article images owner update"
   to authenticated
   using (
     bucket_id = 'article-images'
-    and (storage.foldername(name))[1] = auth.uid()::text
+    and (
+      (storage.foldername(name))[1] = auth.uid()::text
+      or exists (
+        select 1 from public.profiles p
+        where p.id = auth.uid()
+          and p.role in ('admin', 'director', 'deputy')
+      )
+    )
   )
   with check (
     bucket_id = 'article-images'
@@ -475,7 +546,14 @@ create policy "Article images owner delete"
   to authenticated
   using (
     bucket_id = 'article-images'
-    and (storage.foldername(name))[1] = auth.uid()::text
+    and (
+      (storage.foldername(name))[1] = auth.uid()::text
+      or exists (
+        select 1 from public.profiles p
+        where p.id = auth.uid()
+          and p.role in ('admin', 'director', 'deputy')
+      )
+    )
   );
 
 -- ---------- RADIO RATING ----------
@@ -492,24 +570,27 @@ grant select on public.lsn_radio_ratings to anon, authenticated;
 grant insert, update on public.lsn_radio_ratings to authenticated;
 
 drop policy if exists "Public read ratings" on public.lsn_radio_ratings;
-create policy "Public read ratings"
+drop policy if exists "Management update ratings" on public.lsn_radio_ratings;
+drop policy if exists "lsn_radio_ratings_select" on public.lsn_radio_ratings;
+drop policy if exists "lsn_radio_ratings_update" on public.lsn_radio_ratings;
+
+create policy "lsn_radio_ratings_select"
   on public.lsn_radio_ratings for select
   to anon, authenticated
   using (true);
 
-drop policy if exists "Management update ratings" on public.lsn_radio_ratings;
-create policy "Management update ratings"
+create policy "lsn_radio_ratings_update"
   on public.lsn_radio_ratings for all
   to authenticated
   using (exists (
     select 1 from public.profiles p
     where p.id = auth.uid()
-      and p.role in ('admin','leader','deputy','moderator')
+      and p.role in ('admin','director','deputy','journalist')
   ))
   with check (exists (
     select 1 from public.profiles p
     where p.id = auth.uid()
-      and p.role in ('admin','leader','deputy','moderator')
+      and p.role in ('admin','director','deputy','journalist')
   ));
 
 insert into public.lsn_radio_ratings (id, ratings)

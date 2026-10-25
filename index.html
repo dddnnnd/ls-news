@@ -7749,6 +7749,9 @@ h1, h2, h3, h4,
           Пароль
           <input id="login-password" name="password" type="password" autocomplete="current-password" placeholder="Пароль" required minlength="4">
         </label>
+        <div style="display:flex; justify-content:flex-end; margin-top:-4px; margin-bottom:8px;">
+          <button type="button" id="btn-forgot-password" style="background:none; border:none; color:var(--cyan); font-size:12px; cursor:pointer; padding:0; text-decoration:underline;">Забыли пароль?</button>
+        </div>
         <button class="portal-submit" type="submit">Войти</button>
 
         </form>
@@ -8783,23 +8786,54 @@ document.addEventListener('DOMContentLoaded', () => {
   const ratingDialog = $('#lsn-rating-dialog');
   const ratingEditorDrawer = $('#san-edit-drawer');
 
+  const getCurrentIsoWeek = () => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    d.setDate(d.getDate() + 3 - (d.getDay() + 6) % 7);
+    const week1 = new Date(d.getFullYear(), 0, 4);
+    const weekNum = 1 + Math.round(((d - week1) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
+    return `${d.getFullYear()}-W${String(weekNum).padStart(2, '0')}`;
+  };
+
+  async function loadRadioRatingsFromCloud() {
+    if (!sb) return;
+    try {
+      const { data, error } = await sb
+        .from('lsn_radio_ratings')
+        .select('*')
+        .eq('id', 'official_rating')
+        .maybeSingle();
+      if (!error && data && data.ratings && typeof data.ratings === 'object') {
+        sanRatingState = data.ratings;
+        saveSanRatingState();
+        renderSanRatingTableUI();
+      }
+    } catch (err) {
+      console.warn('Radio ratings cloud sync:', err);
+    }
+  }
+  loadRadioRatingsFromCloud();
+
   const checkSundayMondaySync = () => {};
 
   const populateRatingEditorInputs = () => {
-    const lsnR = $('#edit-lsn-rating'); if (lsnR) lsnR.value = sanRatingState.lsn.rating || '';
-    const lsnC = $('#edit-lsn-coins'); if (lsnC) lsnC.value = sanRatingState.lsn.coins || '';
-    const lsnP = $('#edit-lsn-paper'); if (lsnP) lsnP.value = sanRatingState.lsn.paper || '';
-    const lsnA = $('#edit-lsn-awards'); if (lsnA) lsnA.value = sanRatingState.lsn.awards || '';
+    const roleInfo = getUserRoleInfo(currentUser);
+    const isJournalistOnly = (roleInfo.rank === 2);
 
-    const sfnR = $('#edit-sfn-rating'); if (sfnR) sfnR.value = sanRatingState.sfn.rating || '';
-    const sfnC = $('#edit-sfn-coins'); if (sfnC) sfnC.value = sanRatingState.sfn.coins || '';
-    const sfnP = $('#edit-sfn-paper'); if (sfnP) sfnP.value = sanRatingState.sfn.paper || '';
-    const sfnA = $('#edit-sfn-awards'); if (sfnA) sfnA.value = sanRatingState.sfn.awards || '';
+    const lsnR = $('#edit-lsn-rating'); if (lsnR) { lsnR.value = sanRatingState.lsn.rating || ''; lsnR.readOnly = false; lsnR.title = ''; }
+    const lsnC = $('#edit-lsn-coins'); if (lsnC) { lsnC.value = sanRatingState.lsn.coins || ''; lsnC.readOnly = false; lsnC.title = ''; }
+    const lsnP = $('#edit-lsn-paper'); if (lsnP) { lsnP.value = sanRatingState.lsn.paper || ''; lsnP.readOnly = false; lsnP.title = ''; }
+    const lsnA = $('#edit-lsn-awards'); if (lsnA) { lsnA.value = sanRatingState.lsn.awards || ''; lsnA.readOnly = false; lsnA.title = ''; }
 
-    const lvnR = $('#edit-lvn-rating'); if (lvnR) lvnR.value = sanRatingState.lvn.rating || '';
-    const lvnC = $('#edit-lvn-coins'); if (lvnC) lvnC.value = sanRatingState.lvn.coins || '';
-    const lvnP = $('#edit-lvn-paper'); if (lvnP) lvnP.value = sanRatingState.lvn.paper || '';
-    const lvnA = $('#edit-lvn-awards'); if (lvnA) lvnA.value = sanRatingState.lvn.awards || '';
+    const sfnR = $('#edit-sfn-rating'); if (sfnR) { sfnR.value = sanRatingState.sfn.rating || ''; sfnR.readOnly = isJournalistOnly; if (isJournalistOnly) sfnR.title = 'Доступно только руководству'; }
+    const sfnC = $('#edit-sfn-coins'); if (sfnC) { sfnC.value = sanRatingState.sfn.coins || ''; sfnC.readOnly = isJournalistOnly; if (isJournalistOnly) sfnC.title = 'Доступно только руководству'; }
+    const sfnP = $('#edit-sfn-paper'); if (sfnP) { sfnP.value = sanRatingState.sfn.paper || ''; sfnP.readOnly = isJournalistOnly; if (isJournalistOnly) sfnP.title = 'Доступно только руководству'; }
+    const sfnA = $('#edit-sfn-awards'); if (sfnA) { sfnA.value = sanRatingState.sfn.awards || ''; sfnA.readOnly = isJournalistOnly; if (isJournalistOnly) sfnA.title = 'Доступно только руководству'; }
+
+    const lvnR = $('#edit-lvn-rating'); if (lvnR) { lvnR.value = sanRatingState.lvn.rating || ''; lvnR.readOnly = isJournalistOnly; if (isJournalistOnly) lvnR.title = 'Доступно только руководству'; }
+    const lvnC = $('#edit-lvn-coins'); if (lvnC) { lvnC.value = sanRatingState.lvn.coins || ''; lvnC.readOnly = isJournalistOnly; if (isJournalistOnly) lvnC.title = 'Доступно только руководству'; }
+    const lvnP = $('#edit-lvn-paper'); if (lvnP) { lvnP.value = sanRatingState.lvn.paper || ''; lvnP.readOnly = isJournalistOnly; if (isJournalistOnly) lvnP.title = 'Доступно только руководству'; }
+    const lvnA = $('#edit-lvn-awards'); if (lvnA) { lvnA.value = sanRatingState.lvn.awards || ''; lvnA.readOnly = isJournalistOnly; if (isJournalistOnly) lvnA.title = 'Доступно только руководству'; }
   };
 
   const updateRatingEditorButtonUI = () => {
@@ -8813,10 +8847,10 @@ document.addEventListener('DOMContentLoaded', () => {
         editBtn.style.background = 'rgba(245, 158, 11, 0.16)';
         editBtn.style.borderColor = 'rgba(245, 158, 11, 0.45)';
         editBtn.style.color = '#fbbf24';
-        editBtn.title = 'Редактировать показатели рейтинга (Администратор / Лидер / Заместители)';
+        editBtn.title = roleInfo.rank >= 3 ? 'Редактировать сводку радиорейтинга (Руководство)' : 'Редактировать показатели LSN за текущую неделю (Журналист)';
       }
       if (resetBtn) {
-        resetBtn.style.display = 'inline-flex';
+        resetBtn.style.display = roleInfo.rank >= 3 ? 'inline-flex' : 'none';
       }
     } else {
       // Для обычных пользователей - обычный аккуратный вид, без кнопок редактирования
@@ -8833,6 +8867,7 @@ document.addEventListener('DOMContentLoaded', () => {
   $('#open-san-rating-modal')?.addEventListener('click', () => {
     renderSanRatingTableUI();
     updateRatingEditorButtonUI();
+    loadRadioRatingsFromCloud();
     if (ratingDialog && typeof ratingDialog.showModal === 'function') {
       ratingDialog.showModal();
     }
@@ -8851,11 +8886,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  // Toggle editor drawer (Restricted to Admin, Director, Deputy)
+  // Toggle editor drawer (Available to Journalist for LSN current week, and Management for all)
   $('#btn-open-rating-editor')?.addEventListener('click', () => {
     const roleInfo = getUserRoleInfo(currentUser);
     if (!roleInfo.canEditRating) {
-      alert('🔒 Редактирование официального рейтинга разрешено только Руководству (Администратор, Лидер орг. LSN и Заместители).');
+      alert('🔒 Редактирование рейтинга разрешено Журналистам и Руководству.');
       return;
     }
     if (!ratingEditorDrawer) return;
@@ -8874,33 +8909,81 @@ document.addEventListener('DOMContentLoaded', () => {
   $('#san-edit-cancel-btn-bottom')?.addEventListener('click', closeRatingEditor);
 
   // Save edited rating
-  $('#san-save-rating-btn')?.addEventListener('click', () => {
+  $('#san-save-rating-btn')?.addEventListener('click', async () => {
     const roleInfo = getUserRoleInfo(currentUser);
     if (!roleInfo.canEditRating) {
-      alert('🔒 Доступ запрещен: сохранять рейтинг могут только Руководство (Администратор, Лидер орг. LSN и Заместители).');
+      alert('🔒 Доступ запрещен: сохранять рейтинг могут только Журналисты и Руководство.');
       return;
     }
-    sanRatingState.lsn.rating = $('#edit-lsn-rating')?.value.trim() || sanRatingState.lsn.rating;
-    sanRatingState.lsn.coins = $('#edit-lsn-coins')?.value.trim() || sanRatingState.lsn.coins;
-    sanRatingState.lsn.paper = $('#edit-lsn-paper')?.value.trim() || sanRatingState.lsn.paper;
-    sanRatingState.lsn.awards = $('#edit-lsn-awards')?.value.trim() || sanRatingState.lsn.awards;
 
-    sanRatingState.sfn.rating = $('#edit-sfn-rating')?.value.trim() || sanRatingState.sfn.rating;
-    sanRatingState.sfn.coins = $('#edit-sfn-coins')?.value.trim() || sanRatingState.sfn.coins;
-    sanRatingState.sfn.paper = $('#edit-sfn-paper')?.value.trim() || sanRatingState.sfn.paper;
-    sanRatingState.sfn.awards = $('#edit-sfn-awards')?.value.trim() || sanRatingState.sfn.awards;
+    const enteredLsnRating = $('#edit-lsn-rating')?.value.trim() || '';
+    const enteredLsnCoins = $('#edit-lsn-coins')?.value.trim() || '';
+    const enteredLsnPaper = $('#edit-lsn-paper')?.value.trim() || '';
+    const enteredLsnAwards = $('#edit-lsn-awards')?.value.trim() || '';
 
-    sanRatingState.lvn.rating = $('#edit-lvn-rating')?.value.trim() || sanRatingState.lvn.rating;
-    sanRatingState.lvn.coins = $('#edit-lvn-coins')?.value.trim() || sanRatingState.lvn.coins;
-    sanRatingState.lvn.paper = $('#edit-lvn-paper')?.value.trim() || sanRatingState.lvn.paper;
-    sanRatingState.lvn.awards = $('#edit-lvn-awards')?.value.trim() || sanRatingState.lvn.awards;
+    // Validate non-negative numbers
+    const numRating = Number(enteredLsnRating.replace(/[^0-9.-]/g, ''));
+    if (isNaN(numRating) || numRating < 0) {
+      alert('⚠️ Ошибка: показатель рейтинга LSN должен быть неотрицательным числом.');
+      return;
+    }
 
+    const numCoins = enteredLsnCoins ? Number(enteredLsnCoins.replace(/[^0-9.-]/g, '')) : 0;
+    if (isNaN(numCoins) || numCoins < 0) {
+      alert('⚠️ Ошибка: количество coins LSN не может быть отрицательным числом.');
+      return;
+    }
+
+    const numPaper = enteredLsnPaper ? Number(enteredLsnPaper.replace(/[^0-9.-]/g, '')) : 0;
+    if (isNaN(numPaper) || numPaper < 0) {
+      alert('⚠️ Ошибка: количество газет LSN не может быть отрицательным числом.');
+      return;
+    }
+
+    sanRatingState.lsn.rating = enteredLsnRating || sanRatingState.lsn.rating;
+    sanRatingState.lsn.coins = enteredLsnCoins || sanRatingState.lsn.coins;
+    sanRatingState.lsn.paper = enteredLsnPaper || sanRatingState.lsn.paper;
+    sanRatingState.lsn.awards = enteredLsnAwards || sanRatingState.lsn.awards;
+
+    if (roleInfo.rank >= 3) {
+      sanRatingState.sfn.rating = $('#edit-sfn-rating')?.value.trim() || sanRatingState.sfn.rating;
+      sanRatingState.sfn.coins = $('#edit-sfn-coins')?.value.trim() || sanRatingState.sfn.coins;
+      sanRatingState.sfn.paper = $('#edit-sfn-paper')?.value.trim() || sanRatingState.sfn.paper;
+      sanRatingState.sfn.awards = $('#edit-sfn-awards')?.value.trim() || sanRatingState.sfn.awards;
+
+      sanRatingState.lvn.rating = $('#edit-lvn-rating')?.value.trim() || sanRatingState.lvn.rating;
+      sanRatingState.lvn.coins = $('#edit-lvn-coins')?.value.trim() || sanRatingState.lvn.coins;
+      sanRatingState.lvn.paper = $('#edit-lvn-paper')?.value.trim() || sanRatingState.lvn.paper;
+      sanRatingState.lvn.awards = $('#edit-lvn-awards')?.value.trim() || sanRatingState.lvn.awards;
+    }
+
+    sanRatingState.week = getCurrentIsoWeek();
     sanRatingState.lastSyncText = `Обновлено: ${formatNewsDate(Date.now())}`;
     sanRatingState.lastSyncTime = Date.now();
+
+    // Supabase cloud save
+    if (sb && currentUser) {
+      try {
+        const { error: cloudErr } = await sb.from('lsn_radio_ratings').upsert({
+          id: 'official_rating',
+          ratings: sanRatingState,
+          updated_at: new Date().toISOString(),
+          updated_by: currentUser.uuid
+        }, { onConflict: 'id' });
+        if (cloudErr) {
+          console.error('Radio rating cloud update error:', cloudErr);
+          alert('Ошибка сохранения рейтинга на сервере: ' + (cloudErr.message || 'Недостаточно прав'));
+          return;
+        }
+      } catch (err) {
+        console.error('Radio rating network error:', err);
+      }
+    }
+
     saveSanRatingState();
     renderSanRatingTableUI();
     closeRatingEditor();
-    flashUniSaved('Рейтинг успешно сохранён и обновлён на сайте');
+    flashUniSaved('Рейтинг успешно сохранён и синхронизирован');
   });
 
   // Reset to default
@@ -8993,7 +9076,7 @@ document.addEventListener('DOMContentLoaded', () => {
     },
     journalist: {
       rank: 2, level: 'journalist', title: '📝 Журналист', badgeClass: 'role-badge--journalist',
-      canEditRating: false, canEditAll: false, canCreateNews: true, canPublish: false,
+      canEditRating: true, canEditAll: false, canCreateNews: true, canPublish: false,
       canManageAds: false, canManageColumns: false, canManageStaff: false,
       canManageRoles: false, canManageUsers: false, canDeleteUsers: false,
       isJournalist: true, isManagement: false
@@ -10803,7 +10886,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     try {
       const { data: existing, error: existingError } = await sb
-        .from('profiles')
+        .from('lsn_public_profiles')
         .select('id')
         .ilike('username', cleanNick)
         .neq('id', currentUser.uuid)
@@ -10846,6 +10929,30 @@ document.addEventListener('DOMContentLoaded', () => {
   // =========================================================================
   // LOGIN FORM: Надежная авторизация Supabase (роль определяется сервером)
   // =========================================================================
+  $('#btn-forgot-password')?.addEventListener('click', async () => {
+    const ident = ($('#login-identifier')?.value || '').trim();
+    const msg = $('#auth-message');
+    if (!ident) {
+      if (msg) msg.textContent = 'ℹ️ Введите никнейм или email в поле выше и нажмите «Забыли пароль?».';
+      $('#login-identifier')?.focus();
+      return;
+    }
+    if (!sb) {
+      if (msg) msg.textContent = '⚠️ Supabase сейчас недоступен. Попробуйте позже.';
+      return;
+    }
+    if (msg) msg.textContent = 'Отправка запроса на сброс пароля…';
+    try {
+      await sb.functions.invoke('username-password-reset', {
+        body: { username: ident, email: ident, redirectTo: window.location.origin + window.location.pathname }
+      });
+      if (msg) msg.textContent = '✉️ Если аккаунт существует, инструкция по сбросу отправлена на привязанную почту.';
+    } catch (err) {
+      console.warn('Password reset request error:', err);
+      if (msg) msg.textContent = '✉️ Если аккаунт существует, инструкция по сбросу отправлена на привязанную почту.';
+    }
+  });
+
   $('#login-panel')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const identifier = ($('#login-identifier').value || '').trim();
@@ -10891,30 +10998,9 @@ document.addEventListener('DOMContentLoaded', () => {
           console.warn('Edge username-login attempt:', edgeErr);
         }
 
-        // 2. Авторизация по никнейму выполняется через серверные функции / профили
-
-        // 3. Поиск email по профилю
-        if (!signedIn) {
-          try {
-            const { data: prof, error: profErr } = await sb
-              .from('profiles')
-              .select('email')
-              .ilike('username', cleanNick)
-              .maybeSingle();
-            if (!profErr && prof?.email) {
-              const result = await sb.auth.signInWithPassword({ email: prof.email, password });
-              if (!result.error && result.data?.user) {
-                data = result.data;
-                signedIn = true;
-              }
-            }
-          } catch (lookupErr) {
-            console.warn('Profile email lookup fallback:', lookupErr);
-          }
-        }
-
+        // 2. Авторизация по никнейму выполняется строго через защищённую Edge Function username-login
         if (!data?.user) {
-          throw new Error('Неверный никнейм/email или пароль.');
+          throw new Error('Неверный никнейм или пароль. (Вы также можете войти, указав email).');
         }
       }
 
@@ -14417,6 +14503,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
   syncSupabaseSessionAndProfiles();
+  loadRadioRatingsFromCloud();
 });
 </script>
 

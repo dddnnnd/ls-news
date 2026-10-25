@@ -1,58 +1,63 @@
-{
-  "release": "V13 Recovery Verified Edition",
-  "html_bytes": 3369562,
-  "html_sha256": "8004D401084CB2E30370E289EDC2239E9F05F875823741B4ECE17C40899CD83C",
-  "inline_javascript_blocks_total": 2,
-  "inline_javascript_blocks_passed": 2,
-  "inline_javascript_syntax_errors": 0,
-  "edge_function_count": 4,
-  "edge_functions": [
-    "admin-delete-user",
-    "username-login",
-    "username-available",
-    "username-password-reset"
-  ],
-  "duplicate_dom_ids": [],
-  "role_hierarchy_keys": [
-    "admin",
-    "director",
-    "deputy",
-    "journalist",
-    "user"
-  ],
-  "staff_hierarchy_enforced": true,
-  "archive_tab_role_protected": true,
-  "my_activities_author_filtered": true,
-  "roles_panel_simplified": true,
-  "default_news_count": 3,
-  "default_ads_count": 3,
-  "embedded_illustrations": 18,
-  "public_submit_ad_cta": false,
-  "startup_deletes_content_stores": false,
-  "service_role_secret_in_frontend": false,
-  "editorial_backup_controls": true,
-  "supabase_archive_system": true,
-  "author_name": "Ray Westblock",
-  "browser_headless_dom_tested": true,
-  "server_security": {
-    "profiles_trigger_protect_active": true,
-    "articles_guard_trigger_active": true,
-    "self_escalation_blocked": true,
-    "author_id_tampering_blocked": true,
-    "email_tampering_blocked": true,
-    "public_profiles_view_email_hidden": true,
-    "secure_role_rpc_active": true
-  },
-  "automated_test_suite": {
-    "total": 55,
-    "passed": 55,
-    "failed": 0,
-    "all_passed": true
-  },
-  "remaining_manual_steps": [
-    "Execute supabase/migrations/20261025091500_allow_archived_status_in_lsn_articles.sql in Supabase SQL Editor if archive status constraint is not yet applied",
-    "Execute supabase/migrations/20261025140000_strict_five_role_security_and_rls_hardening.sql in Supabase SQL Editor to enforce strict RLS and 5-role security",
-    "Execute supabase/sql/restore_primary_admin.sql in Supabase SQL Editor if Ray Westblock profile requires admin role elevation",
-    "Sign in to V13 as Ray Westblock to confirm profile sync"
-  ]
+﻿{
+    "release":  "V13 Recovery Verified Edition",
+    "html_bytes":  3374805,
+    "html_sha256":  "9FC253C5A3F69B4B4C9465A2CA0B64BB023256BCF77BCA2E83C0B0C626841B90",
+    "inline_javascript_blocks_total":  2,
+    "inline_javascript_blocks_passed":  2,
+    "inline_javascript_syntax_errors":  0,
+    "edge_function_count":  4,
+    "edge_functions":  [
+                           "admin-delete-user",
+                           "username-login",
+                           "username-available",
+                           "username-password-reset"
+                       ],
+    "duplicate_dom_ids":  [
+
+                          ],
+    "role_hierarchy_keys":  [
+                                "admin",
+                                "director",
+                                "deputy",
+                                "journalist",
+                                "user"
+                            ],
+    "staff_hierarchy_enforced":  true,
+    "archive_tab_role_protected":  true,
+    "my_activities_author_filtered":  true,
+    "roles_panel_simplified":  true,
+    "default_news_count":  3,
+    "default_ads_count":  3,
+    "embedded_illustrations":  18,
+    "public_submit_ad_cta":  false,
+    "startup_deletes_content_stores":  false,
+    "service_role_secret_in_frontend":  false,
+    "editorial_backup_controls":  true,
+    "supabase_archive_system":  true,
+    "author_name":  "Ray Westblock",
+    "browser_headless_dom_tested":  true,
+    "server_security":  {
+                            "profiles_trigger_protect_active":  true,
+                            "articles_guard_trigger_active":  true,
+                            "radio_ratings_guard_trigger_active":  true,
+                            "self_escalation_blocked":  true,
+                            "author_id_tampering_blocked":  true,
+                            "email_tampering_blocked":  true,
+                            "public_profiles_view_email_hidden":  true,
+                            "secure_role_rpc_active":  true,
+                            "secure_ratings_rpc_active":  true
+                        },
+    "automated_test_suite":  {
+                                 "total":  62,
+                                 "passed":  62,
+                                 "failed":  0,
+                                 "all_passed":  true
+                             },
+    "remaining_manual_steps":  [
+                                   "Execute supabase/migrations/20261025091500_allow_archived_status_in_lsn_articles.sql in Supabase SQL Editor if archive status constraint is not yet applied",
+                                   "Execute supabase/migrations/20261025140000_strict_five_role_security_and_rls_hardening.sql in Supabase SQL Editor to enforce strict RLS and 5-role security",
+                                   "Execute supabase/migrations/20261025170000_secure_radio_ratings_and_journalist_access.sql in Supabase SQL Editor to enable secure journalist radio rating updates",
+                                   "Execute supabase/sql/restore_primary_admin.sql in Supabase SQL Editor if Ray Westblock profile requires admin role elevation",
+                                   "Sign in to V13 as Ray Westblock to confirm profile sync"
+                               ]
 }
