@@ -8008,9 +8008,18 @@ h1, h2, h3, h4,
         <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:12px; flex-wrap:wrap;">
           <div>
             <h3 style="margin:0; font-size:16px; color:#fff;">Пользователи и роли портала</h3>
-            <span style="font-size:12px; color:#94a3b8;">Назначайте должности в один клик через выпадающий список у каждого пользователя</span>
+            <span style="font-size:12px; color:#94a3b8;">Реестр учётных записей: поиск, фильтрация по рангам и управление доступом</span>
           </div>
-          <input type="search" id="uni-perm-search" placeholder="🔍 Поиск по имени или логину..." style="background:#131822; color:#fff; border:1px solid rgba(255,255,255,0.15); border-radius:10px; padding:8px 14px; font-size:13px; width:280px; max-width:100%;">
+          <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+            <div class="my-act-filters" role="group" id="uni-perm-role-filters">
+              <button type="button" class="my-act-filter-btn is-active" data-perm-filter="all">Все</button>
+              <button type="button" class="my-act-filter-btn" data-perm-filter="admin">Администрация</button>
+              <button type="button" class="my-act-filter-btn" data-perm-filter="management">Руководство</button>
+              <button type="button" class="my-act-filter-btn" data-perm-filter="journalist">Журналисты</button>
+              <button type="button" class="my-act-filter-btn" data-perm-filter="user">Читатели</button>
+            </div>
+            <input type="search" id="uni-perm-search" placeholder="🔍 Поиск по имени или ID..." style="background:#131822; color:#fff; border:1px solid rgba(255,255,255,0.15); border-radius:10px; padding:8px 14px; font-size:13px; width:220px; max-width:100%;">
+          </div>
         </div>
         <div id="uni-perm-readonly-notice" style="padding:14px; background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.25); border-radius:12px; margin-bottom:14px; color:#fef3c7; font-size:13px;" hidden>
           🔒 Управление ролями доступно только <b>Администратору</b>.
@@ -9310,11 +9319,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const itemType = resolveItemType(item);
     if (role.level === 'user') return false;
 
-    if (itemType === 'staff') {
-      if (item.id === 'staff-intro') return false;
-      if (role.level === 'admin') return true;
-      if (role.level === 'director') return getStaffMemberRank(item) < 4;
-      if (role.level === 'deputy') return getStaffMemberRank(item) < 3;
+    // Active Staff deletion is strictly forbidden by system policy
+    if (itemType === 'staff' || item.actType === 'staff' || item.type === 'staff' || String(item.id || '').startsWith('staff-')) {
       return false;
     }
 
@@ -11912,7 +11918,19 @@ document.addEventListener('DOMContentLoaded', () => {
       try { await sb.auth.signOut(); } catch (_) {}
     }
     currentUser = null;
+    currentEditingId = null;
+    myActCurrentFilter = 'all';
+    usersDb = [];
+    journalistsList = [];
     try { localStorage.removeItem(SESSION_USER_KEY); } catch (_) {}
+    try {
+      if (cabinetDialog && typeof cabinetDialog.close === 'function') cabinetDialog.close();
+      else cabinetDialog?.removeAttribute('open');
+    } catch (_) {}
+    const myActList = $('#my-act-items-list');
+    if (myActList) myActList.innerHTML = '';
+    const permList = $('#uni-journalists-list');
+    if (permList) permList.innerHTML = '';
     syncRoleVisibilityUI();
     $('#auth-message').textContent = 'Вы вышли из системы.';
   });
@@ -12553,6 +12571,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // =========================================================================
   // RBAC PERMISSIONS ROSTER CONTROLLER
   // =========================================================================
+  let permCurrentFilter = 'all';
   const renderPermissionsList = () => {
     const matrix = $('#lsn-rbac-matrix-body');
     if (matrix) {
@@ -12584,6 +12603,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (notice) notice.hidden = roleInfo.canManageRoles;
     if (addForm) { addForm.hidden = true; addForm.style.display = 'none'; }
 
+    $$('#uni-perm-role-filters .my-act-filter-btn').forEach(btn => {
+      btn.classList.toggle('is-active', btn.dataset.permFilter === permCurrentFilter);
+    });
+
     if (!listEl) return;
     listEl.innerHTML = '';
 
@@ -12597,6 +12620,16 @@ document.addEventListener('DOMContentLoaded', () => {
     let visibleUsers = getVisibleUsersForActor(currentUser);
     if (query) {
       visibleUsers = visibleUsers.filter(u => matchUser(u, query));
+    }
+    if (permCurrentFilter !== 'all') {
+      visibleUsers = visibleUsers.filter(u => {
+        const r = getUserRoleInfo(u);
+        if (permCurrentFilter === 'admin') return r.level === 'admin';
+        if (permCurrentFilter === 'management') return r.rank === 4 || r.rank === 3;
+        if (permCurrentFilter === 'journalist') return r.rank === 2;
+        if (permCurrentFilter === 'user') return r.rank === 1;
+        return true;
+      });
     }
     if (visibleUsers.length === 0) {
       listEl.innerHTML = `<div style="padding:24px; text-align:center; color:#94a3b8; font-size:13px;">${query ? `🔍 Пользователи по запросу «${escapeHtml(query)}» не найдены.` : 'В базе нет зарегистрированных пользователей.'}</div>`;
@@ -12670,7 +12703,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const metaSubtitle = [
         escapeHtml(u.fullName || u.username),
         u.id ? `Код: ${escapeHtml(u.id)}` : '',
-        u.email ? escapeHtml(u.email) : ''
+        u.created_at ? `Регистрация: ${new Date(u.created_at).toLocaleDateString('ru-RU')}` : ''
       ].filter(Boolean).join(' · ');
 
       card.innerHTML = `
@@ -12686,6 +12719,13 @@ document.addEventListener('DOMContentLoaded', () => {
       listEl.appendChild(card);
     });
   };
+
+  $('#uni-perm-role-filters')?.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-perm-filter]');
+    if (!btn) return;
+    permCurrentFilter = btn.dataset.permFilter || 'all';
+    renderPermissionsList();
+  });
 
   // Sync registered user selection dropdown with input fields
   $('#uni-select-registered-user')?.addEventListener('change', (e) => {
@@ -12949,28 +12989,34 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const allActivities = [
-      ...newsState.map(n => ({ ...n, actType: 'news', actLabel: 'Новость', actClass: 'my-act-card__type--news' })),
-      ...adsState.map(a => ({ ...a, actType: 'ad', actLabel: 'Реклама', actClass: 'my-act-card__type--ad' })),
-      ...columnsState.map(c => ({ ...c, actType: 'column', actLabel: 'Колонка', actClass: 'my-act-card__type--column' }))
+      ...(Array.isArray(newsState) ? newsState : []).map(n => ({ ...n, actType: 'news', actLabel: 'Новость', actClass: 'my-act-card__type--news' })),
+      ...(Array.isArray(adsState) ? adsState : []).map(a => ({ ...a, actType: 'ad', actLabel: 'Реклама', actClass: 'my-act-card__type--ad' })),
+      ...(Array.isArray(columnsState) ? columnsState : []).map(c => ({ ...c, actType: 'column', actLabel: 'Колонка', actClass: 'my-act-card__type--column' }))
     ];
 
     const isUserAuthor = (item) => {
       if (!item || !currentUser) return false;
       const uId = String(currentUser.uuid || currentUser.id || '').trim();
-      const uNick = String(currentUser.username || currentUser.nickname || '').trim().toLowerCase();
-      const uFull = String(currentUser.fullName || '').trim().toLowerCase();
+      if (!uId) return false;
+
+      // Default system/demo articles can NEVER be a user's personal activity
+      const strId = String(item.id || '');
+      if (strId.startsWith('00000000-0000-4000-') || strId.startsWith('01929000-0000-4000-') || strId.startsWith('staff-')) {
+        return false;
+      }
 
       const aId = String(item.author_id || item.authorId || '').trim();
-      const aLogin = String(item.authorLogin || item.login || '').trim().toLowerCase();
-      const aName = String(item.author_name || item.author || '').trim().toLowerCase();
+      if (aId) {
+        return aId.toLowerCase() === uId.toLowerCase();
+      }
 
-      // Explicit ID match
-      if (uId && aId && uId === aId) return true;
-      // Strict login match (ignore generic placeholder 'editor_lsn')
-      if (uNick && aLogin && uNick === aLogin && aLogin !== 'editor_lsn') return true;
-      // Strict exact name equality (never substring 'includes')
-      if (uNick && aName && uNick === aName) return true;
-      if (uFull && aName && uFull === aName) return true;
+      // If item has no cloud author_id, only match if it was explicitly authored by current user's unique login
+      // and NOT a generic or default editorial placeholder
+      const aLogin = String(item.authorLogin || item.login || '').trim().toLowerCase();
+      const uNick = String(currentUser.username || currentUser.nickname || '').trim().toLowerCase();
+      if (uNick && aLogin && aLogin !== 'editor_lsn' && aLogin !== 'lsn_editorial' && aLogin !== 'ray westblock' && aLogin === uNick) {
+        return true;
+      }
       return false;
     };
 
@@ -13652,7 +13698,7 @@ document.addEventListener('DOMContentLoaded', () => {
     openJournalistCabinet(type, id);
   });
 
-  $('#modal-article-del-btn')?.addEventListener('click', (e) => {
+  $('#modal-article-del-btn')?.addEventListener('click', async (e) => {
     if (!lastOpenedModalItem || !lastOpenedModalItem.id) return;
     const btn = e.currentTarget;
     if (!btn.classList.contains('is-confirming')) {
@@ -13676,7 +13722,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const type = lastOpenedModalItem.type || 'news';
     const id = lastOpenedModalItem.id;
-    const modalStore = type === 'ad' ? adsState : type === 'column' ? columnsState : type === 'staff' ? staffState.members : newsState;
+
+    // Active staff deletion is strictly forbidden by system policy
+    if (type === 'staff' || String(id || '').startsWith('staff-')) {
+      btn.classList.remove('is-confirming');
+      btn.innerHTML = btn.dataset.origHtml || '🗑️ Удалить новость';
+      btn.style.background = '';
+      btn.style.borderColor = '';
+      btn.style.color = '';
+      alert('🔒 Удаление действующего состава редакции запрещено правилами безопасности.');
+      return;
+    }
+
+    const modalStore = type === 'ad' ? adsState : type === 'column' ? columnsState : newsState;
     const modalItem = (Array.isArray(modalStore) ? modalStore.find(x => x.id === id) : null) || { id, actType: type };
     if (getUserRoleInfo(currentUser).level === 'journalist') {
       btn.classList.remove('is-confirming');
@@ -13701,75 +13759,94 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    // ZERO-TRUST AUTHENTICATION ENFORCEMENT: Verify active session with Supabase
+    if (sb) {
+      const { data: sData, error: sErr } = await sb.auth.getSession();
+      const activeUser = sData?.session?.user;
+      if (sErr || !activeUser) {
+        btn.classList.remove('is-confirming');
+        btn.innerHTML = btn.dataset.origHtml || '🗑️ Удалить новость';
+        btn.style.background = '';
+        btn.style.borderColor = '';
+        btn.style.color = '';
+        alert('🔒 Ошибка авторизации: активная сессия Supabase отсутствует или устарела. Пожалуйста, выполните вход в систему.');
+        return;
+      }
+    }
+
+    const validCloudId = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(id || ''));
+    const cloudUuid = validCloudId ? id : getStableUuidForLocalId(id);
+
+    // MODEL A: TRUE PHYSICAL DELETE FROM SUPABASE SOURCE OF TRUTH
+    if (sb && ['news', 'ad', 'column'].includes(type)) {
+      const targetId = cloudUuid || id;
+      btn.disabled = true;
+      btn.textContent = 'Удаление из базы…';
+      try {
+        const { error: delError } = await sb.from('lsn_articles').delete().eq('id', targetId);
+        if (delError) {
+          btn.disabled = false;
+          btn.classList.remove('is-confirming');
+          btn.innerHTML = btn.dataset.origHtml || '🗑️ Удалить новость';
+          btn.style.background = '';
+          btn.style.borderColor = '';
+          btn.style.color = '';
+          console.error('Supabase physical delete failed:', delError);
+          alert('⚠️ Ошибка удаления: сервер отклонил операцию (' + (delError.message || 'RLS restricted') + '). Статья не удалена.');
+          return;
+        }
+      } catch (cloudErr) {
+        btn.disabled = false;
+        btn.classList.remove('is-confirming');
+        btn.innerHTML = btn.dataset.origHtml || '🗑️ Удалить новость';
+        btn.style.background = '';
+        btn.style.borderColor = '';
+        btn.style.color = '';
+        console.error('Cloud delete network failure:', cloudErr);
+        alert('⚠️ Сетевая ошибка при удалении: соединение с базой данных разорвано.');
+        return;
+      }
+    }
+
     btn.classList.remove('is-confirming');
     btn.innerHTML = btn.dataset.origHtml || '🗑️ Удалить новость';
     btn.style.background = '';
     btn.style.borderColor = '';
     btn.style.color = '';
+    btn.disabled = false;
 
     const applyLocalDelete = () => {
       if (type === 'news') {
-        newsState = newsState.filter(x => x.id !== id);
+        newsState = newsState.filter(x => x.id !== id && x.id !== cloudUuid);
         saveNewsState();
         renderNewsSections();
       } else if (type === 'ad') {
-        adsState = adsState.filter(x => x.id !== id);
+        adsState = adsState.filter(x => x.id !== id && x.id !== cloudUuid);
         saveAdsState();
         renderAdsCarousel();
       } else if (type === 'column') {
-        columnsState = columnsState.filter(x => x.id !== id);
+        columnsState = columnsState.filter(x => x.id !== id && x.id !== cloudUuid);
         saveColumnsState();
         renderEditorialColumns();
-      } else if (type === 'staff') {
-        staffState.members = staffState.members.filter(x => x.id !== id);
-        saveStaffState();
-        renderStaffSection();
-        if (typeof renderSanRatingTableUI === 'function') renderSanRatingTableUI();
-        if (typeof checkSundayMondaySync === 'function') checkSundayMondaySync();
       }
     };
 
-    // 1. Move to local archive immediately
-    const archivedItem = Object.assign({}, modalItem, {
-      actType: type,
-      archivedAt: new Date().toISOString()
-    });
-    saveItemToLocalArchive(archivedItem);
-
-    // 2. Mark ID as deleted and update screen immediately
+    // Mark as deleted in local registry
     markIdAsDeleted(id);
-    const validCloudId = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(id || ''));
-    const cloudUuid = validCloudId ? id : (STAFF_UUID_MAP[id] || getStableUuidForLocalId(id));
     if (cloudUuid && cloudUuid !== id) markIdAsDeleted(cloudUuid);
 
     applyLocalDelete();
     articleDialog?.close();
-    flashUniSaved('🗑️ Публикация удалена и перемещена в архив');
-
-    // 3. Sync to Supabase: physical delete from source of truth with archive fallback
-    if (sb && ['news', 'ad', 'column', 'staff'].includes(type)) {
-      const targetId = cloudUuid || id;
-      (async () => {
-        try {
-          const { error: delError } = await sb.from('lsn_articles').delete().eq('id', targetId);
-          if (delError) {
-            console.warn('Direct Supabase delete note:', delError.message);
-            await sb.from('lsn_articles').update({
-              status: 'archived',
-              metadata: { ...(modalItem?.metadata || {}), archived: true },
-              updated_at: new Date().toISOString()
-            }).eq('id', targetId);
-          }
-        } catch (cloudErr) {
-          console.warn('Cloud delete/archive sync warning:', cloudErr);
-        }
-      })();
-    }
+    flashUniSaved('🗑️ Публикация успешно удалена из базы данных');
   });
 
   $('#uni-clear-all-btn')?.addEventListener('click', async (e) => {
     const btn = e.currentTarget;
     const roleInfo = getUserRoleInfo(currentUser);
+    if (currentUniType === 'staff') {
+      alert('🔒 Удаление действующего состава редакции запрещено правилами безопасности.');
+      return;
+    }
     const canClearAll = currentUniType === 'news' ? roleInfo.canEditAll
       : currentUniType === 'ad' ? roleInfo.canManageAds
       : currentUniType === 'column' ? roleInfo.canManageColumns
@@ -13922,6 +13999,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const deleteUniItemById = async (id) => {
     if (!id || !currentUser) return;
+    if (currentUniType === 'staff' || String(id || '').startsWith('staff-')) {
+      alert('🔒 Удаление действующего состава редакции запрещено правилами безопасности.');
+      return;
+    }
     const store = getStoreForType(currentUniType);
     const item = store.find(x => x.id === id);
     if (!item) return;
@@ -13935,17 +14016,38 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (id === 'staff-intro') return;
 
-    // 1. Move to local archive immediately
-    const archivedItem = Object.assign({}, item, {
-      actType: currentUniType,
-      archivedAt: new Date().toISOString()
-    });
-    saveItemToLocalArchive(archivedItem);
+    // ZERO-TRUST AUTHENTICATION ENFORCEMENT: Verify active session with Supabase
+    if (sb) {
+      const { data: sData, error: sErr } = await sb.auth.getSession();
+      const activeUser = sData?.session?.user;
+      if (sErr || !activeUser) {
+        alert('🔒 Ошибка авторизации: активная сессия Supabase отсутствует или устарела. Пожалуйста, выполните вход в систему.');
+        return;
+      }
+    }
 
-    // 2. Remove from active store and update screen immediately
-    markIdAsDeleted(id);
     const validCloudId = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(id || ''));
-    const cloudUuid = validCloudId ? id : (STAFF_UUID_MAP[id] || getStableUuidForLocalId(id));
+    const cloudUuid = validCloudId ? id : getStableUuidForLocalId(id);
+
+    // MODEL A: TRUE PHYSICAL DELETE FROM SUPABASE SOURCE OF TRUTH
+    if (sb && ['news', 'ad', 'column'].includes(currentUniType)) {
+      const targetId = cloudUuid || id;
+      try {
+        const { error: delError } = await sb.from('lsn_articles').delete().eq('id', targetId);
+        if (delError) {
+          console.error('Supabase physical delete failed:', delError);
+          alert('⚠️ Ошибка удаления: сервер отклонил операцию (' + (delError.message || 'RLS restricted') + '). Материал не удален.');
+          return;
+        }
+      } catch (err) {
+        console.error('Supabase physical delete network error:', err);
+        alert('⚠️ Сетевая ошибка при удалении: соединение с базой данных разорвано.');
+        return;
+      }
+    }
+
+    // Mark as deleted in local registry
+    markIdAsDeleted(id);
     if (cloudUuid && cloudUuid !== id) markIdAsDeleted(cloudUuid);
 
     if (currentUniType === 'news') {
@@ -13960,38 +14062,12 @@ document.addEventListener('DOMContentLoaded', () => {
       columnsState = columnsState.filter(x => x.id !== id && x.id !== cloudUuid);
       saveColumnsState();
       renderEditorialColumns();
-    } else if (currentUniType === 'staff') {
-      staffState.members = staffState.members.filter(x => x.id !== id && x.id !== cloudUuid);
-      saveStaffState();
-      renderStaffSection();
-      if (typeof renderSanRatingTableUI === 'function') renderSanRatingTableUI();
-      if (typeof checkSundayMondaySync === 'function') checkSundayMondaySync();
     }
 
     const updatedStore = getStoreForType(currentUniType);
     loadItemIntoUniForm(updatedStore[0]?.id || null);
     renderUniItemsList();
-    flashUniSaved('Материал удалён и перемещён в Архив');
-
-    // 3. Sync to Supabase: physical delete from source of truth with archive fallback
-    if (sb && ['news', 'ad', 'column', 'staff'].includes(currentUniType)) {
-      const targetId = cloudUuid || id;
-      (async () => {
-        try {
-          const { error: delError } = await sb.from('lsn_articles').delete().eq('id', targetId);
-          if (delError) {
-            console.warn('Direct Supabase delete note:', delError.message);
-            await sb.from('lsn_articles').update({
-              status: 'archived',
-              metadata: { ...(item?.metadata || {}), archived: true },
-              updated_at: new Date().toISOString()
-            }).eq('id', targetId);
-          }
-        } catch (err) {
-          console.warn('Supabase delete/archive sync warning:', err);
-        }
-      })();
-    }
+    flashUniSaved('🗑️ Материал успешно удалён из базы данных');
   };
 
   $('#uni-items-list')?.addEventListener('click', (e) => {
@@ -15109,35 +15185,57 @@ document.addEventListener('DOMContentLoaded', () => {
         renderStaffSection();
       }
 
-      const cloudStaff = data.filter(row => row.type === 'staff' && !isArchivedRow(row) && !isItemDeleted(row.id) && row.id !== STAFF_UUID_MAP['staff-intro'] && !(row.metadata && row.metadata.isStaffIntro)).map(row => {
-        let name = row.title || '';
-        let role = row.category || 'Сотрудник LSN';
-        let bio = row.body || '';
-        let badge = (row.metadata && row.metadata.badge) || '';
-        if (name.toLowerCase().includes('logan white') || name.toLowerCase().includes('логан уайт')) {
-          role = 'Экс-главный директор · Завершил руководство';
-          badge = 'ЭКС-ДИРЕКТОР';
-          bio = 'Завершил работу на посту главного директора редакции Los Santos News.';
+      const getLocalIdForStaffUuid = (uuid) => {
+        for (const [localId, mapUuid] of Object.entries(STAFF_UUID_MAP)) {
+          if (mapUuid === uuid) return localId;
         }
-        return {
-          id: row.id,
-          name,
-          role,
-          bio,
-          customImg: safeImageUrl(row.image_url),
-          skinId: (row.metadata && row.metadata.skinId) || 'skin_director',
-          badge
-        };
-      });
-      if (cloudStaff.length > 0) {
-        const cloudNames = new Set(cloudStaff.map(x => (x.name || '').toLowerCase()));
-        const hasCloudLogan = cloudStaff.some(x => (x.name || '').toLowerCase().includes('logan') || (x.name || '').toLowerCase().includes('логан'));
-        const addDefaults = DEFAULT_STAFF_DATA.members.filter(d => {
-          const dName = (d.name || '').toLowerCase();
-          if (hasCloudLogan && (dName.includes('logan') || dName.includes('логан'))) return false;
-          return !cloudNames.has(dName);
+        return null;
+      };
+
+      const cloudStaffRows = data.filter(row => row.type === 'staff' && !isArchivedRow(row) && !isItemDeleted(row.id) && row.id !== STAFF_UUID_MAP['staff-intro'] && !(row.metadata && row.metadata.isStaffIntro));
+
+      if (cloudStaffRows.length > 0) {
+        if (!staffState.members || !Array.isArray(staffState.members) || staffState.members.length === 0) {
+          staffState.members = JSON.parse(JSON.stringify(DEFAULT_STAFF_DATA.members));
+        }
+
+        cloudStaffRows.forEach(row => {
+          const matchedLocalId = (row.metadata && row.metadata.local_id) || getLocalIdForStaffUuid(row.id);
+          const rowTitleLower = (row.title || '').trim().toLowerCase();
+          
+          let target = staffState.members.find(m => {
+            if (matchedLocalId && m.id === matchedLocalId) return true;
+            if (m.cloudUuid && m.cloudUuid === row.id) return true;
+            if (m.id === row.id) return true;
+            if (STAFF_UUID_MAP[m.id] === row.id) return true;
+            const mNameLower = (m.name || '').trim().toLowerCase();
+            if (mNameLower && (mNameLower === rowTitleLower || mNameLower.includes(rowTitleLower) || rowTitleLower.includes(mNameLower))) return true;
+            if (rowTitleLower.includes('logan') && mNameLower.includes('logan')) return true;
+            return false;
+          });
+
+          if (target) {
+            target.name = row.title || target.name;
+            target.role = row.category || target.role;
+            target.bio = row.body || target.bio;
+            if (row.image_url) target.customImg = safeImageUrl(row.image_url);
+            if (row.metadata && row.metadata.skinId) target.skinId = row.metadata.skinId;
+            if (row.metadata && row.metadata.badge) target.badge = row.metadata.badge;
+            target.cloudUuid = row.id;
+          } else {
+            staffState.members.push({
+              id: matchedLocalId || row.id,
+              name: row.title || '',
+              role: row.category || 'Сотрудник LSN',
+              bio: row.body || '',
+              customImg: safeImageUrl(row.image_url),
+              skinId: (row.metadata && row.metadata.skinId) || 'skin_director',
+              badge: (row.metadata && row.metadata.badge) || '',
+              cloudUuid: row.id
+            });
+          }
         });
-        staffState.members = [...addDefaults.filter(d => d.id === 'staff-1'), ...cloudStaff, ...addDefaults.filter(d => d.id !== 'staff-1')];
+
         saveStaffState();
         renderStaffSection();
       }
