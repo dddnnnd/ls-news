@@ -9238,8 +9238,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!item) return 0;
     const text = ((item.role || '') + ' ' + (item.badge || '') + ' ' + (item.name || '')).toLowerCase();
     const login = (item.authorLogin || item.login || '').toLowerCase();
+    if (text.includes('экс-') || text.includes('экс ') || text.includes('бывший')) return 1;
     if (text.includes('админ') || text.includes('admin') || item.id === 'staff-admin') return 5;
-    if (text.includes('ген. директор') || text.includes('генеральный директор') || text.includes('руководство commerce') || item.id === 'staff-1') return 4;
+    if (text.includes('ген. директор') || text.includes('генеральный директор') || text.includes('главный директор') || text.includes('руководство commerce') || item.id === 'staff-1') return 4;
     if (text.includes('заместитель') || text.includes('зам.') || text.includes('программный') || item.id === 'staff-2') return 3;
     if (text.includes('редактор') || text.includes('журналист') || text.includes('корреспондент')) return 2;
     return 1;
@@ -10541,7 +10542,7 @@ document.addEventListener('DOMContentLoaded', () => {
       important: true,
       title: 'Los Santos News удерживает 1-е место в рейтинге радиокомпаний штата с индексом 342 000',
       category: 'Главное · Район Commerce · 102.2 FM',
-      author: 'Маркус Вэнс',
+      author: 'Виктория Мёрфи',
       createdAt: Date.now() - 2 * 60 * 60 * 1000,
       img: LSN_SITE_ALBUM[13].src,
       body: 'По итогам свежего подсчёта активности радиокомпаний штата Сан-Андреас редакция Los Santos News (волна 102.2 FM) уверенно занимает первую строчку с показателем 342 000 единиц рейтинга, опережая Las Venturas News (289 000) и San Fierro News (254 000).\n\nКруглосуточная работа центрального штаба в районе Commerce, оперативные вылеты воздушного борта SAN NEWS D193SA и прямые репортажи с мест событий обеспечили нашей станции рекордный охват аудитории по всему Лос-Сантосу.'
@@ -10813,12 +10814,21 @@ document.addEventListener('DOMContentLoaded', () => {
     members: [
       {
         id: 'staff-1',
-        name: 'Маркус Вэнс (Marcus Vance)',
-        role: 'Генеральный директор [10] · Руководство Commerce',
-        badge: 'ГЕН. ДИРЕКТОР',
+        name: 'Виктория Мёрфи (Viktoiya Murphy)',
+        role: 'Главный директор [10] · Руководство Commerce',
+        badge: 'ГЛАВНЫЙ ДИРЕКТОР',
         skinId: 'skin_director',
         customImg: '',
-        bio: 'Возглавляет медиахолдинг Los Santos News в районе Commerce. Курирует редакционную политику, финансовую стратегию, партнёрские контракты и удержание 1-го места в рейтинге радиокомпаний штата.'
+        bio: 'Главный директор редакции Los Santos News. Руководит редакционной политикой, вещанием радиостанции 102.2 FM и развитием медиахолдинга в штате Сан-Андреас.'
+      },
+      {
+        id: 'staff-former-director',
+        name: 'Логан Уайт (Logan White)',
+        role: 'Экс-главный директор · Завершил руководство',
+        badge: 'ЭКС-ДИРЕКТОР',
+        skinId: 'skin_director',
+        customImg: '',
+        bio: 'Завершил работу на посту главного директора редакции Los Santos News.'
       },
       {
         id: 'staff-2',
@@ -14659,6 +14669,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const STAFF_UUID_MAP = {
     'staff-1': '7a2d1001-4455-4000-8000-000000000001',
+    'staff-former-director': '7a2d1008-4455-4000-8000-000000000008',
     'staff-2': '7a2d1002-4455-4000-8000-000000000002',
     'staff-3': '7a2d1003-4455-4000-8000-000000000003',
     'staff-4': '7a2d1004-4455-4000-8000-000000000004',
@@ -15141,17 +15152,35 @@ document.addEventListener('DOMContentLoaded', () => {
         renderStaffSection();
       }
 
-      const cloudStaff = data.filter(row => row.type === 'staff' && !isArchivedRow(row) && row.id !== STAFF_UUID_MAP['staff-intro'] && !(row.metadata && row.metadata.isStaffIntro)).map(row => ({
-        id: row.id,
-        name: row.title,
-        role: row.category || 'Сотрудник LSN',
-        bio: row.body || '',
-        customImg: safeImageUrl(row.image_url),
-        skinId: (row.metadata && row.metadata.skinId) || 'skin_director',
-        badge: (row.metadata && row.metadata.badge) || ''
-      }));
+      const cloudStaff = data.filter(row => row.type === 'staff' && !isArchivedRow(row) && row.id !== STAFF_UUID_MAP['staff-intro'] && !(row.metadata && row.metadata.isStaffIntro)).map(row => {
+        let name = row.title || '';
+        let role = row.category || 'Сотрудник LSN';
+        let bio = row.body || '';
+        let badge = (row.metadata && row.metadata.badge) || '';
+        if (name.toLowerCase().includes('logan white') || name.toLowerCase().includes('логан уайт')) {
+          role = 'Экс-главный директор · Завершил руководство';
+          badge = 'ЭКС-ДИРЕКТОР';
+          bio = 'Завершил работу на посту главного директора редакции Los Santos News.';
+        }
+        return {
+          id: row.id,
+          name,
+          role,
+          bio,
+          customImg: safeImageUrl(row.image_url),
+          skinId: (row.metadata && row.metadata.skinId) || 'skin_director',
+          badge
+        };
+      });
       if (cloudStaff.length > 0) {
-        staffState.members = cloudStaff;
+        const cloudNames = new Set(cloudStaff.map(x => (x.name || '').toLowerCase()));
+        const hasCloudLogan = cloudStaff.some(x => (x.name || '').toLowerCase().includes('logan') || (x.name || '').toLowerCase().includes('логан'));
+        const addDefaults = DEFAULT_STAFF_DATA.members.filter(d => {
+          const dName = (d.name || '').toLowerCase();
+          if (hasCloudLogan && (dName.includes('logan') || dName.includes('логан'))) return false;
+          return !cloudNames.has(dName);
+        });
+        staffState.members = [...addDefaults.filter(d => d.id === 'staff-1'), ...cloudStaff, ...addDefaults.filter(d => d.id !== 'staff-1')];
         saveStaffState();
         renderStaffSection();
       }
