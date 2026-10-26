@@ -10557,10 +10557,9 @@ document.addEventListener('DOMContentLoaded', () => {
       body: 'Экипаж вертолёта SAN NEWS D193SA провёл вечерний мониторинг дорожной обстановки на главной автомагистрали Лос-Сантоса и развязке у района Commerce.\n\nВ прямом эфире на частоте 102.2 FM корреспонденты передали сводку движения в сторону Вайнвуд-Хиллз и делового центра. Благодаря новой оптике и поисковому прожектору зрители и читатели портала могут круглосуточно следить за панорамой города прямо на главной странице сайта.'
     }
   ];
-  newsState = JSON.parse(JSON.stringify(DEFAULT_NEWS_DATA)).filter(x => !isItemDeleted(x.id));
-  try {
-    const rawN = localStorage.getItem(NEWS_STORAGE_KEY) || localStorage.getItem('lsn_news_store_v18') || localStorage.getItem('lsn_news_store_v16') || localStorage.getItem('lsn_news_store_v12');
-    if (rawN) {
+  const rawN = localStorage.getItem(NEWS_STORAGE_KEY) || localStorage.getItem('lsn_news_store_v18') || localStorage.getItem('lsn_news_store_v16') || localStorage.getItem('lsn_news_store_v12');
+  if (rawN !== null) {
+    try {
       const parsedN = JSON.parse(rawN);
       if (Array.isArray(parsedN)) {
         newsState = parsedN.filter(item =>
@@ -10568,11 +10567,12 @@ document.addEventListener('DOMContentLoaded', () => {
           !LEGACY_DEMO_NEWS_IDS.has(String(item.id)) &&
           !isItemDeleted(item.id)
         );
+      } else {
+        newsState = [];
       }
-    }
-  } catch (_) { newsState = []; }
-  if (!isSectionCleared('news') && (!newsState || newsState.length === 0)) {
-    newsState = JSON.parse(JSON.stringify(DEFAULT_NEWS_DATA)).filter(x => !isItemDeleted(x.id));
+    } catch (_) { newsState = []; }
+  } else {
+    newsState = isSectionCleared('news') ? [] : JSON.parse(JSON.stringify(DEFAULT_NEWS_DATA)).filter(x => !isItemDeleted(x.id));
   }
   // Ensure news items have atmospheric illustration if cached as empty
   if (Array.isArray(newsState)) {
@@ -10663,18 +10663,16 @@ document.addEventListener('DOMContentLoaded', () => {
   if (isSectionCleared('ad')) {
     adsState = [];
   } else {
-    adsState = [];
     try {
       const rawAds = localStorage.getItem(ADS_STORAGE_KEY) || localStorage.getItem('lsn_ads_store_v18') || localStorage.getItem('lsn_ads_store_v12');
-      if (rawAds) {
+      if (rawAds !== null) {
         const parsed = JSON.parse(rawAds);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          adsState = parsed.filter(x => !isItemDeleted(x.id));
-        }
+        adsState = Array.isArray(parsed) ? parsed.filter(x => !isItemDeleted(x.id)) : [];
+      } else {
+        adsState = JSON.parse(JSON.stringify(DEFAULT_ADS_DATA)).filter(x => !isItemDeleted(x.id));
       }
-    } catch (_) {}
-    if (adsState.length === 0) {
-      adsState = JSON.parse(JSON.stringify(DEFAULT_ADS_DATA)).filter(x => !isItemDeleted(x.id));
+    } catch (_) {
+      adsState = [];
     }
   }
   const restoreDefaultAds = async () => {
@@ -10769,21 +10767,17 @@ document.addEventListener('DOMContentLoaded', () => {
   if (isSectionCleared('column')) {
     columnsState = [];
   } else {
-    columnsState = JSON.parse(JSON.stringify(DEFAULT_COLUMNS_DATA)).filter(x => !isItemDeleted(x.id));
     try {
       const rawC = localStorage.getItem(COLUMNS_STORAGE_KEY) || localStorage.getItem('lsn_columns_store_v18') || localStorage.getItem('lsn_columns_store_v12');
-      if (rawC) {
+      if (rawC !== null) {
         const parsedC = JSON.parse(rawC);
-        if (Array.isArray(parsedC)) {
-          const map = new Map();
-          columnsState.forEach(item => map.set(item.id, item));
-          parsedC.forEach(item => {
-            if (!isItemDeleted(item.id)) map.set(item.id, item);
-          });
-          columnsState = Array.from(map.values()).filter(x => !isItemDeleted(x.id));
-        }
+        columnsState = Array.isArray(parsedC) ? parsedC.filter(x => !isItemDeleted(x.id)) : [];
+      } else {
+        columnsState = JSON.parse(JSON.stringify(DEFAULT_COLUMNS_DATA)).filter(x => !isItemDeleted(x.id));
       }
-    } catch (_) {}
+    } catch (_) {
+      columnsState = [];
+    }
   }
   if (Array.isArray(columnsState)) {
     columnsState.forEach((item, idx) => {
@@ -13430,11 +13424,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (sb && validCloudId) {
       try {
-        // Strictly verify that the record in Supabase is actually archived before hard deleting it!
         const { error } = await sb.from('lsn_articles')
           .delete()
-          .eq('id', id)
-          .or('status.eq.archived,and(status.eq.draft,metadata->>archived.eq.true)');
+          .eq('id', id);
         if (error) {
           console.error('Supabase hard delete error:', error);
           flashUniSaved('⚠️ Ошибка удаления из Supabase: ' + error.message);
@@ -13746,43 +13738,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 2. Mark ID as deleted and update screen immediately
     markIdAsDeleted(id);
+    const validCloudId = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(id || ''));
+    const cloudUuid = validCloudId ? id : (STAFF_UUID_MAP[id] || getStableUuidForLocalId(id));
+    if (cloudUuid && cloudUuid !== id) markIdAsDeleted(cloudUuid);
+
     applyLocalDelete();
     articleDialog?.close();
-    flashUniSaved('🗑️ Публикация перемещена в архив');
+    flashUniSaved('🗑️ Публикация удалена и перемещена в архив');
 
-    // 3. Sync to Supabase in background
-    const validCloudId = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(id || ''));
+    // 3. Sync to Supabase: physical delete from source of truth with archive fallback
     if (sb && ['news', 'ad', 'column', 'staff'].includes(type)) {
+      const targetId = cloudUuid || id;
       (async () => {
         try {
-          let res;
-          if (validCloudId) {
-            res = await sb.from('lsn_articles')
-              .update({ status: 'archived', updated_at: new Date().toISOString() })
-              .eq('id', id)
-              .select('id');
-            if (res.error && (res.error.message?.includes('status') || res.error.code === '23514')) {
-              const { data: curMeta } = await sb.from('lsn_articles').select('metadata').eq('id', id).maybeSingle();
-              res = await sb.from('lsn_articles')
-                .update({ status: 'draft', metadata: { ...(curMeta?.metadata || {}), archived: true }, updated_at: new Date().toISOString() })
-                .eq('id', id)
-                .select('id');
-            }
-          }
-          if (!res || res.error || !Array.isArray(res.data) || res.data.length === 0) {
-            const row = mapLocalItemToCloudRow(type, modalItem, true);
-            if (row) {
-              row.status = 'archived';
-              row.metadata = { ...(row.metadata || {}), archived: true };
-              let upsertRes = await sb.from('lsn_articles').upsert(row, { onConflict: 'id' }).select('id');
-              if (upsertRes.error && (upsertRes.error.message?.includes('status') || upsertRes.error.code === '23514')) {
-                row.status = 'draft';
-                await sb.from('lsn_articles').upsert(row, { onConflict: 'id' });
-              }
-            }
+          const { error: delError } = await sb.from('lsn_articles').delete().eq('id', targetId);
+          if (delError) {
+            console.warn('Direct Supabase delete note:', delError.message);
+            await sb.from('lsn_articles').update({
+              status: 'archived',
+              metadata: { ...(modalItem?.metadata || {}), archived: true },
+              updated_at: new Date().toISOString()
+            }).eq('id', targetId);
           }
         } catch (cloudErr) {
-          console.warn('Cloud archive note:', cloudErr);
+          console.warn('Cloud delete/archive sync warning:', cloudErr);
         }
       })();
     }
@@ -13965,20 +13944,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 2. Remove from active store and update screen immediately
     markIdAsDeleted(id);
+    const validCloudId = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(id || ''));
+    const cloudUuid = validCloudId ? id : (STAFF_UUID_MAP[id] || getStableUuidForLocalId(id));
+    if (cloudUuid && cloudUuid !== id) markIdAsDeleted(cloudUuid);
+
     if (currentUniType === 'news') {
-      newsState = newsState.filter(x => x.id !== id);
+      newsState = newsState.filter(x => x.id !== id && x.id !== cloudUuid);
       saveNewsState();
       renderNewsSections();
     } else if (currentUniType === 'ad') {
-      adsState = adsState.filter(x => x.id !== id);
+      adsState = adsState.filter(x => x.id !== id && x.id !== cloudUuid);
       saveAdsState();
       renderAdsCarousel();
     } else if (currentUniType === 'column') {
-      columnsState = columnsState.filter(x => x.id !== id);
+      columnsState = columnsState.filter(x => x.id !== id && x.id !== cloudUuid);
       saveColumnsState();
       renderEditorialColumns();
     } else if (currentUniType === 'staff') {
-      staffState.members = staffState.members.filter(x => x.id !== id);
+      staffState.members = staffState.members.filter(x => x.id !== id && x.id !== cloudUuid);
       saveStaffState();
       renderStaffSection();
       if (typeof renderSanRatingTableUI === 'function') renderSanRatingTableUI();
@@ -13988,35 +13971,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const updatedStore = getStoreForType(currentUniType);
     loadItemIntoUniForm(updatedStore[0]?.id || null);
     renderUniItemsList();
-    flashUniSaved('Материал перемещён в Архив');
+    flashUniSaved('Материал удалён и перемещён в Архив');
 
-    // 3. Sync cloud in background
-    const validCloudId = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(id || ''));
+    // 3. Sync to Supabase: physical delete from source of truth with archive fallback
     if (sb && ['news', 'ad', 'column', 'staff'].includes(currentUniType)) {
+      const targetId = cloudUuid || id;
       (async () => {
         try {
-          let updateRes;
-          if (validCloudId) {
-            updateRes = await sb.from('lsn_articles').update({ status: 'archived', updated_at: new Date().toISOString() }).eq('id', id).select('id');
-            if (updateRes.error && (updateRes.error.message?.includes('status') || updateRes.error.code === '23514')) {
-              const { data: curMeta } = await sb.from('lsn_articles').select('metadata').eq('id', id).maybeSingle();
-              updateRes = await sb.from('lsn_articles').update({ status: 'draft', metadata: { ...(curMeta?.metadata || {}), archived: true }, updated_at: new Date().toISOString() }).eq('id', id).select('id');
-            }
-          }
-          if (!updateRes || updateRes.error || !Array.isArray(updateRes.data) || updateRes.data.length === 0) {
-            const cloudRow = mapLocalItemToCloudRow(currentUniType, item, true);
-            if (cloudRow) {
-              cloudRow.status = 'archived';
-              cloudRow.metadata = { ...(cloudRow.metadata || {}), archived: true };
-              let upsertRes = await sb.from('lsn_articles').upsert(cloudRow, { onConflict: 'id' }).select('id');
-              if (upsertRes.error && (upsertRes.error.message?.includes('status') || upsertRes.error.code === '23514')) {
-                cloudRow.status = 'draft';
-                await sb.from('lsn_articles').upsert(cloudRow, { onConflict: 'id' });
-              }
-            }
+          const { error: delError } = await sb.from('lsn_articles').delete().eq('id', targetId);
+          if (delError) {
+            console.warn('Direct Supabase delete note:', delError.message);
+            await sb.from('lsn_articles').update({
+              status: 'archived',
+              metadata: { ...(item?.metadata || {}), archived: true },
+              updated_at: new Date().toISOString()
+            }).eq('id', targetId);
           }
         } catch (err) {
-          console.warn('Supabase archive update note:', err);
+          console.warn('Supabase delete/archive sync warning:', err);
         }
       })();
     }
@@ -15050,7 +15022,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const isPublishedRow = (row) => row && (row.status || 'published') === 'published' && !isArchivedRow(row);
       const isDraftRow = (row) => row && row.status === 'draft' && !isArchivedRow(row);
       window.editorialDraftsState = data.filter(isDraftRow);
-      const cloudNews = data.filter(row => row.type === 'news' && isPublishedRow(row)).map(row => ({
+      const cloudNews = data.filter(row => row.type === 'news' && isPublishedRow(row) && !isItemDeleted(row.id)).map(row => ({
         id: row.id,
         title: row.title,
         category: row.category || 'Новости',
@@ -15068,25 +15040,16 @@ document.addEventListener('DOMContentLoaded', () => {
         cloudNews.forEach((cn, i) => {
           if (!cn.img) cn.img = LSN_SITE_ALBUM[i % LSN_SITE_ALBUM.length]?.src || '';
         });
-        // If fewer than 3 news items in cloud and section not cleared, merge with defaults
-        if (cloudNews.length < 3 && !isSectionCleared('news')) {
-          const cloudIds = new Set(cloudNews.map(x => x.id));
-          const addDefaults = DEFAULT_NEWS_DATA.filter(d => !cloudIds.has(d.id));
-          newsState = [...cloudNews, ...addDefaults.slice(0, 3 - cloudNews.length)];
-        } else {
-          newsState = cloudNews;
-        }
-        saveNewsState();
-        renderNewsSections();
-      } else if (isSectionCleared('news')) {
-        newsState = [];
+        newsState = cloudNews;
         saveNewsState();
         renderNewsSections();
       } else {
+        newsState = [];
+        saveNewsState();
         renderNewsSections();
       }
 
-      const cloudColumns = data.filter(row => row.type === 'column' && isPublishedRow(row)).map(row => ({
+      const cloudColumns = data.filter(row => row.type === 'column' && isPublishedRow(row) && !isItemDeleted(row.id)).map(row => ({
         id: row.id,
         title: row.title,
         subtitle: row.category || 'Колонка',
@@ -15102,15 +15065,13 @@ document.addEventListener('DOMContentLoaded', () => {
         columnsState = cloudColumns;
         saveColumnsState();
         renderEditorialColumns();
-      } else if (isSectionCleared('column')) {
+      } else {
         columnsState = [];
         saveColumnsState();
         renderEditorialColumns();
-      } else {
-        renderEditorialColumns();
       }
 
-      const cloudAds = data.filter(row => row.type === 'ad' && isPublishedRow(row)).map(row => ({
+      const cloudAds = data.filter(row => row.type === 'ad' && isPublishedRow(row) && !isItemDeleted(row.id)).map(row => ({
         id: row.id,
         title: row.title,
         tag: row.category || 'Los Santos News · Партнёры',
@@ -15127,13 +15088,9 @@ document.addEventListener('DOMContentLoaded', () => {
         saveAdsState();
         renderAdsCarousel();
       } else {
-        if (isSectionCleared('ad')) {
-          adsState = [];
-          saveAdsState();
-          renderAdsCarousel();
-        } else {
-          renderAdsCarousel();
-        }
+        adsState = [];
+        saveAdsState();
+        renderAdsCarousel();
       }
 
       const introRow = data.find(row => row.id === STAFF_UUID_MAP['staff-intro'] || (row.metadata && row.metadata.isStaffIntro));
@@ -15152,7 +15109,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renderStaffSection();
       }
 
-      const cloudStaff = data.filter(row => row.type === 'staff' && !isArchivedRow(row) && row.id !== STAFF_UUID_MAP['staff-intro'] && !(row.metadata && row.metadata.isStaffIntro)).map(row => {
+      const cloudStaff = data.filter(row => row.type === 'staff' && !isArchivedRow(row) && !isItemDeleted(row.id) && row.id !== STAFF_UUID_MAP['staff-intro'] && !(row.metadata && row.metadata.isStaffIntro)).map(row => {
         let name = row.title || '';
         let role = row.category || 'Сотрудник LSN';
         let bio = row.body || '';
