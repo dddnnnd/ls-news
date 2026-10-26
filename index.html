@@ -7829,6 +7829,9 @@ h1, h2, h3, h4,
 
         <form id="uni-editor-form" class="cab-ad-form">
           <input type="hidden" id="uni-item-id">
+          <input type="hidden" id="uni-staff-author-id">
+          <input type="hidden" id="uni-staff-author-login">
+          <div id="uni-staff-target-pill" style="font-size:12px; color:#38bdf8; background:rgba(56,189,248,0.1); border:1px solid rgba(56,189,248,0.25); border-radius:6px; padding:6px 10px; margin-bottom:10px;" hidden></div>
 
           <label>
             <span id="uni-label-title">Заголовок</span>
@@ -8091,6 +8094,76 @@ h1, h2, h3, h4,
   </main>
 </dialog>
 
+<!-- EDITORIAL PROFILE CENTER DIALOG (Full-System User & Staff Dossier Hub) -->
+<dialog id="profile-center-dialog" class="auth-dialog auth-dialog--wide" closedby="any" aria-labelledby="profile-center-title">
+  <div class="profile-center-container">
+    <div class="auth-dialog__head" style="border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:14px;">
+      <div style="display:flex; align-items:center; gap:14px;">
+        <div id="pc-header-avatar" style="width:48px; height:48px; border-radius:50%; background:linear-gradient(135deg, #0ea5e9, #0284c7); display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:800; color:#fff; border:2px solid #38bdf8;">
+          👤
+        </div>
+        <div>
+          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <h2 id="profile-center-title" style="margin:0; font-size:18px; color:#fff; font-weight:800;">Профиль пользователя</h2>
+            <span id="pc-header-badge" class="role-badge role-badge--reader">Читатель</span>
+            <span id="pc-header-status" style="font-size:11px; padding:2px 8px; border-radius:999px; background:rgba(34,197,94,0.15); color:#4ade80; font-weight:700;">🟢 В штате</span>
+          </div>
+          <div id="pc-header-sub" style="font-size:12.5px; color:#94a3b8; margin-top:3px;">Учётная запись Los Santos News</div>
+        </div>
+      </div>
+      <button type="button" class="auth-dialog__close" id="profile-center-close-btn" aria-label="Закрыть">✕</button>
+    </div>
+
+    <div class="profile-center-body" style="padding:18px 0; display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:16px;">
+      <!-- CARD 1: УЧЁТНАЯ ЗАПИСЬ -->
+      <div class="profile-center-card" style="background:#131822; border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:16px;">
+        <h3 style="margin:0 0 12px 0; font-size:14px; color:#38bdf8; display:flex; align-items:center; gap:8px;">
+          <span>👤 Учётная запись</span>
+        </h3>
+        <div style="display:flex; flex-direction:column; gap:8px; font-size:13px; color:#cbd5e1;">
+          <div><span style="color:#64748b;">Имя пользователя:</span> <strong id="pc-card-username" style="color:#fff;">-</strong></div>
+          <div><span style="color:#64748b;">Дата регистрации:</span> <span id="pc-card-regdate">-</span></div>
+          <div><span style="color:#64748b;">Текущий ранг:</span> <span id="pc-card-rank">-</span></div>
+        </div>
+      </div>
+
+      <!-- CARD 2: АНКЕТА СОТРУДНИКА (STAFF PROFILE) -->
+      <div class="profile-center-card" style="background:#131822; border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:16px;">
+        <h3 style="margin:0 0 12px 0; font-size:14px; color:#fbbf24; display:flex; align-items:center; gap:8px;">
+          <span>📋 Анкета сотрудника (Staff Profile)</span>
+        </h3>
+        <div id="pc-staff-content" style="font-size:13px; color:#cbd5e1;">
+          <!-- Filled dynamically -->
+        </div>
+      </div>
+
+      <!-- CARD 3: МАТЕРИАЛЫ И АКТИВНОСТЬ -->
+      <div class="profile-center-card" style="background:#131822; border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:16px;">
+        <h3 style="margin:0 0 12px 0; font-size:14px; color:#a78bfa; display:flex; align-items:center; gap:8px;">
+          <span>📰 Материалы и публикации</span>
+        </h3>
+        <div id="pc-materials-content" style="font-size:13px; color:#cbd5e1; max-height:160px; overflow-y:auto;">
+          <!-- Filled dynamically -->
+        </div>
+      </div>
+
+      <!-- CARD 4: УПРАВЛЕНИЕ ПОЛНОМОЧИЯМИ -->
+      <div class="profile-center-card" id="pc-role-card" style="background:#131822; border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:16px;">
+        <h3 style="margin:0 0 12px 0; font-size:14px; color:#4ade80; display:flex; align-items:center; gap:8px;">
+          <span>🛡️ Управление должностью</span>
+        </h3>
+        <div id="pc-role-content" style="font-size:13px; color:#cbd5e1;">
+          <!-- Filled dynamically -->
+        </div>
+      </div>
+    </div>
+
+    <div class="auth-dialog__actions" style="margin-top:16px; border-top:1px solid rgba(255,255,255,0.08); padding-top:14px; display:flex; justify-content:flex-end; gap:10px;">
+      <button type="button" class="lsn-staff-btn" id="pc-close-btn">Закрыть</button>
+    </div>
+  </div>
+</dialog>
+
 
 
 <!-- Ad Reader Dialog (Opens when clicking any advertisement slide) -->
@@ -8344,6 +8417,7 @@ document.addEventListener('DOMContentLoaded', () => {
           detectSessionInUrl: true
         }
       });
+      window.sb = sb;
       console.log('✅ Supabase подключён к проекту:', SUPABASE_CONFIG.url);
     } catch (e) {
       console.warn('Supabase init error:', e);
@@ -8389,7 +8463,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const verifiedRoleTitle = (profile && profile.role_title) ? String(profile.role_title) : 'Читатель';
 
       currentUser = {
-        id: profile?.user_id_code || session.user.id.slice(0, 8),
+        id: session.user.id.slice(0, 8),
         uuid: session.user.id,
         username: profile?.username || session.user.user_metadata?.username || (email.includes('@') ? email.split('@')[0] : 'Пользователь'),
         fullName: profile?.username || session.user.user_metadata?.full_name || (email.includes('@') ? email.split('@')[0] : 'Пользователь'),
@@ -8413,29 +8487,28 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!sb || !currentUser || !getUserRoleInfo(currentUser).canManageRoles) { usersDb = []; return []; }
     try {
       let profilesData = [];
-      // Prefer lsn_public_profiles view: accessible to all management and protects emails
-      const { data: pubData, error: pubErr } = await sb
-        .from('lsn_public_profiles')
-        .select('id,user_id_code,username,role,role_title,created_at,updated_at')
-        .order('created_at', { ascending: true });
+      // 1. First attempt secure directory RPC (enforcing strict visibility: Deputy sees only journalist & user)
+      try {
+        const { data: dirData, error: dirErr } = await sb.rpc('lsn_get_directory_users');
+        if (!dirErr && Array.isArray(dirData)) {
+          profilesData = dirData;
+        }
+      } catch (_) {}
 
-      if (!pubErr && Array.isArray(pubData) && pubData.length > 0) {
-        profilesData = pubData;
-      } else {
-        // Fallback to profiles table for admin
-        const { data, error } = await sb
-          .from('profiles')
-          .select('id,user_id_code,username,email,role,role_title,created_at,updated_at')
+      // 2. Fallback to lsn_public_profiles view
+      if (profilesData.length === 0) {
+        const { data: pubData, error: pubErr } = await sb
+          .from('lsn_public_profiles')
+          .select('id,username,role,role_title,created_at,updated_at')
           .order('created_at', { ascending: true });
-        if (!error && Array.isArray(data)) profilesData = data;
+        if (!pubErr && Array.isArray(pubData)) profilesData = pubData;
       }
 
       usersDb = (profilesData || []).map(p => ({
-        id: p.user_id_code || p.id,
+        id: p.id,
         uuid: p.id,
         username: p.username || '',
         fullName: p.username || '',
-        email: p.email || '',
         role: p.role || 'user',
         roleTitle: p.role_title || (ROLE_HIERARCHY[p.role]?.title || '👤 Читатель'),
         created_at: p.created_at,
@@ -9198,10 +9271,41 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   // Management roles can see/manage accounts strictly below their own rank.
+  // Invariants:
+  // - Deputy sees strictly ranks < 3 (Journalist, User)
+  // - Director sees strictly ranks < 4 (Deputy, Journalist, User)
+  // - Admin sees all
   const getVisibleUsersForActor = (actor) => {
+    if (!actor) return [];
     const ar = getUserRoleInfo(actor);
     if (!ar.canManageRoles) return [];
-    return usersDb || [];
+    const all = Array.isArray(usersDb) ? usersDb : [];
+    if (ar.level === 'admin') return all;
+    if (ar.level === 'director') {
+      return all.filter(u => {
+        const ur = getUserRoleInfo(u);
+        return ur.rank < 4 && ur.level !== 'admin';
+      });
+    }
+    if (ar.level === 'deputy') {
+      return all.filter(u => {
+        const ur = getUserRoleInfo(u);
+        return ur.rank < 3 && ur.level !== 'admin' && ur.level !== 'director' && ur.level !== 'deputy';
+      });
+    }
+    return [];
+  };
+
+  const findUserInDirectory = (actor, identifier) => {
+    if (!actor || !identifier) return null;
+    const visible = getVisibleUsersForActor(actor);
+    const cleanId = String(identifier).trim().toLowerCase();
+    return visible.find(u => {
+      return String(u.id || '').toLowerCase() === cleanId ||
+             String(u.uuid || '').toLowerCase() === cleanId ||
+             String(u.username || '').toLowerCase() === cleanId ||
+             String(u.login || '').toLowerCase() === cleanId;
+    }) || null;
   };
 
   const canUserManageTargetUser = (actor, targetUser) => {
@@ -9319,9 +9423,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const itemType = resolveItemType(item);
     if (role.level === 'user') return false;
 
-    // Active Staff deletion is strictly forbidden by system policy
+    // Staff profile deletion: ONLY Admin is permitted to delete staff profiles (except staff-intro header which cannot be deleted)
     if (itemType === 'staff' || item.actType === 'staff' || item.type === 'staff' || String(item.id || '').startsWith('staff-')) {
-      return false;
+      if (item.id === 'staff-intro') return false;
+      return role.level === 'admin';
     }
 
     if (role.canEditAll) return true;
@@ -9332,15 +9437,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const canCreateOwnStaffDossier = (role = getUserRoleInfo(currentUser), user = currentUser) => {
     if (!role || role.rank < ROLE_HIERARCHY.journalist.rank || !user) return false;
+    if (role.level === 'admin') return true; // Admin can create multiple dossiers
     return !getCurrentUserStaffDossier(user);
   };
 
-  const canCreateEditorialType = (type, role = getUserRoleInfo(currentUser)) => {
+  const canCreateEditorialType = (type, role = getUserRoleInfo(currentUser), forUser = null) => {
     if (!role || role.level === 'user') return false;
     if (type === 'news') return !!role.canCreateNews;
     if (type === 'ad') return !!role.canManageAds;
     if (type === 'column') return !!role.canManageColumns;
-    if (type === 'staff') return !!role.canManageStaff || canCreateOwnStaffDossier(role, currentUser);
+    if (type === 'staff') {
+      if (role.level === 'admin') return true;
+      const targetUser = forUser || currentUser;
+      if (role.rank >= 2) return !getCurrentUserStaffDossier(targetUser);
+      return false;
+    }
     return false;
   };
 
@@ -9356,6 +9467,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   window.ROLE_HIERARCHY = ROLE_HIERARCHY; window.UNASSIGNED_USER_ROLE = UNASSIGNED_USER_ROLE; window.matchUser = matchUser;
   window.getVisibleUsersForActor = getVisibleUsersForActor;
+  window.findUserInDirectory = findUserInDirectory;
   window.canUserManageTargetUser = canUserManageTargetUser;
   window.getAllowedAssignableRoles = getAllowedAssignableRoles;
   Object.defineProperty(window, 'usersDb', {
@@ -9367,6 +9479,9 @@ document.addEventListener('DOMContentLoaded', () => {
   window.canUserEditOrDeleteItem = canUserEditOrDeleteItem;
   window.canUserEditItem = canUserEditItem;
   window.canUserDeleteItem = canUserDeleteItem;
+  window.canCreateEditorialType = canCreateEditorialType;
+  window.getCurrentUserStaffDossier = getCurrentUserStaffDossier;
+  window.isOwnStaffDossier = isOwnStaffDossier;
   Object.defineProperty(window, 'currentUser', {
     get: () => currentUser,
     set: (v) => { currentUser = v; },
@@ -10893,7 +11008,8 @@ document.addEventListener('DOMContentLoaded', () => {
       localStorage.setItem(STAFF_STORAGE_KEY, JSON.stringify(staffState));
       localStorage.setItem('lsn_staff_roster_v18', JSON.stringify(staffState));
     } catch (_) {}
-  }
+  };
+  window.saveStaffState = saveStaffState;
   if (!staffState.articleImg) {
     staffState.articleImg = DEFAULT_STAFF_DATA.articleImg;
   };
@@ -12361,12 +12477,16 @@ document.addEventListener('DOMContentLoaded', () => {
         myDossierBtn.hidden = !canPersonal || !!myDossier;
       }
       if (newBtn) {
-        if (roleInfo.canManageStaff) {
+        if (roleInfo.level === 'admin') {
           newBtn.hidden = false;
           newBtn.textContent = '+ Сотрудник';
-        } else if (roleInfo.level === 'journalist') {
-          newBtn.hidden = !!myDossier;
-          newBtn.textContent = '+ Моя анкета';
+        } else if (roleInfo.rank >= ROLE_HIERARCHY.journalist.rank) {
+          newBtn.hidden = false;
+          if (myDossier) {
+            newBtn.textContent = 'Открыть мою анкету';
+          } else {
+            newBtn.textContent = '+ Создать анкету';
+          }
         } else {
           newBtn.hidden = true;
         }
@@ -12569,9 +12689,257 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   // =========================================================================
-  // RBAC PERMISSIONS ROSTER CONTROLLER
+  // RBAC PERMISSIONS ROSTER CONTROLLER & EDITORIAL PROFILE CENTER
   // =========================================================================
   let permCurrentFilter = 'all';
+
+  const assignUserRole = async (targetIdOrUsername, newLvl) => {
+    const actorRole = getUserRoleInfo(currentUser);
+    if (!actorRole.canManageRoles) return false;
+    const targetUser = (usersDb || []).find(x =>
+      (x.id && String(x.id).toLowerCase() === String(targetIdOrUsername).toLowerCase()) ||
+      (x.username && String(x.username).toLowerCase() === String(targetIdOrUsername).toLowerCase())
+    );
+    if (!targetUser) return false;
+    if (!canUserManageTargetUser(currentUser, targetUser)) {
+      alert('🔒 Запрещено: вы не можете изменить роль этому пользователю или самому себе.');
+      return false;
+    }
+    const newRoleInfo = ROLE_HIERARCHY[newLvl];
+    if (!newRoleInfo || newRoleInfo.level === 'admin' || newRoleInfo.rank >= actorRole.rank) {
+      alert('🔒 Можно назначать только роли ниже собственной.');
+      return false;
+    }
+    targetUser.role = newLvl;
+    targetUser.roleTitle = newRoleInfo.title;
+
+    const activeSb = window.sb || sb;
+    const userUuid = targetUser.uuid || (targetUser.id && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(targetUser.id) ? targetUser.id : null);
+    if (activeSb && userUuid) {
+      try {
+        const { error: rpcErr } = await activeSb.rpc('lsn_set_user_role', {
+          p_user_id: userUuid,
+          p_new_role: newLvl
+        });
+        if (rpcErr) {
+          console.error('Supabase role update error:', rpcErr);
+          await loadAdminProfiles();
+          renderPermissionsList();
+          alert('⚠️ Роль не сохранена в базе Supabase: ' + (rpcErr.message || 'сервер отклонил операцию'));
+          return false;
+        }
+      } catch (err) {
+        console.error('Supabase role update network error:', err);
+      }
+    }
+    renderPermissionsList();
+    flashUniSaved(`Роль ${escapeHtml(targetUser.username)} обновлена на «${escapeHtml(newRoleInfo.title)}»`);
+    return true;
+  };
+
+  const revokeUserRole = async (targetIdOrUsername) => {
+    return assignUserRole(targetIdOrUsername, 'user');
+  };
+
+  const openUserProfileCenter = (targetUser) => {
+    if (!targetUser) return;
+    const dialog = $('#profile-center-dialog');
+    if (!dialog) return;
+
+    // Zero-modal conflict: ensure cabinet dialog is closed
+    const cabinetDialog = $('#cabinet-dialog');
+    if (cabinetDialog && cabinetDialog.open) cabinetDialog.close();
+
+    const uRole = getUserRoleInfo(targetUser);
+    const actorRole = getUserRoleInfo(currentUser);
+    const canManageThis = canUserManageTargetUser(currentUser, targetUser);
+    const isMe = currentUser && (
+      (currentUser.id && targetUser.id && currentUser.id === targetUser.id) ||
+      (currentUser.username && targetUser.username && currentUser.username.toLowerCase() === targetUser.username.toLowerCase())
+    );
+
+    // Find staff profile
+    const staffDossier = getCurrentUserStaffDossier(targetUser);
+
+    // Header
+    const avatarEl = $('#pc-header-avatar');
+    if (avatarEl) avatarEl.textContent = (targetUser.username || 'U').charAt(0).toUpperCase();
+
+    const titleEl = $('#profile-center-title');
+    if (titleEl) titleEl.textContent = targetUser.username || 'Пользователь';
+
+    const badgeEl = $('#pc-header-badge');
+    if (badgeEl) {
+      badgeEl.className = 'role-badge ' + (uRole.badgeClass || 'role-badge--reader');
+      badgeEl.textContent = uRole.title || 'Читатель';
+    }
+
+    const statusEl = $('#pc-header-status');
+    if (statusEl) {
+      if (staffDossier) {
+        statusEl.style.display = 'inline-block';
+        statusEl.style.background = 'rgba(34,197,94,0.15)';
+        statusEl.style.color = '#4ade80';
+        statusEl.textContent = '🟢 В штате (Есть анкета)';
+      } else if (uRole.rank >= 2) {
+        statusEl.style.display = 'inline-block';
+        statusEl.style.background = 'rgba(234,179,8,0.15)';
+        statusEl.style.color = '#fbbf24';
+        statusEl.textContent = '🟡 Сотрудник без анкеты';
+      } else {
+        statusEl.style.display = 'inline-block';
+        statusEl.style.background = 'rgba(148,163,184,0.15)';
+        statusEl.style.color = '#94a3b8';
+        statusEl.textContent = '⚪ Читатель портала';
+      }
+    }
+
+    const subEl = $('#pc-header-sub');
+    if (subEl) subEl.textContent = targetUser.fullName || targetUser.username || 'Los Santos News';
+
+    // Card 1: Account
+    const cUsername = $('#pc-card-username');
+    if (cUsername) cUsername.textContent = targetUser.username || '-';
+
+    const cRegdate = $('#pc-card-regdate');
+    if (cRegdate) cRegdate.textContent = targetUser.created_at ? new Date(targetUser.created_at).toLocaleDateString('ru-RU') : 'Ранее зарегистрирован';
+
+    const cRank = $('#pc-card-rank');
+    if (cRank) cRank.textContent = `${uRole.title} [Ранг: ${uRole.rank}]`;
+
+    // Card 2: Staff Profile Dossier
+    const staffContent = $('#pc-staff-content');
+    if (staffContent) {
+      if (staffDossier) {
+        const canEditDossier = canUserEditItem(staffDossier);
+        const canDeleteDossier = canUserDeleteItem(staffDossier); // Admin only!
+        staffContent.innerHTML = `
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <div><span style="color:#64748b;">Должность в анкете:</span> <strong style="color:#fff;">${escapeHtml(staffDossier.role || '-')}</strong></div>
+            <div><span style="color:#64748b;">Имя в анкете:</span> <strong style="color:#fff;">${escapeHtml(staffDossier.name || '-')}</strong></div>
+            ${staffDossier.bio ? `<div><span style="color:#64748b;">О себе / Биография:</span> <p style="margin:4px 0 0; color:#94a3b8; font-size:12px; font-style:italic;">${escapeHtml(staffDossier.bio)}</p></div>` : ''}
+            <div style="display:flex; gap:8px; margin-top:8px; flex-wrap:wrap;">
+              ${canEditDossier ? `<button type="button" class="cab-ad-mini-btn" id="pc-btn-edit-dossier" style="background:#0284c7; color:#fff; border:none; padding:5px 12px; border-radius:6px; font-size:12px; cursor:pointer;">✏️ Редактировать анкету</button>` : ''}
+              ${canDeleteDossier ? `<button type="button" class="cab-ad-mini-btn cab-ad-mini-btn--del" id="pc-btn-del-dossier" style="background:#dc2626; color:#fff; border:none; padding:5px 12px; border-radius:6px; font-size:12px; cursor:pointer;">🗑️ Удалить анкету</button>` : ''}
+            </div>
+          </div>
+        `;
+        $('#pc-btn-edit-dossier')?.addEventListener('click', () => {
+          dialog.close();
+          openJournalistCabinet('staff', staffDossier.id);
+        });
+        $('#pc-btn-del-dossier')?.addEventListener('click', async () => {
+          if (confirm(`Удалить анкету сотрудника ${staffDossier.name}? (Учётная запись пользователя сохранится)`)) {
+            dialog.close();
+            await deleteUniItemById(staffDossier.id);
+          }
+        });
+      } else {
+        const canCreateForThis = (actorRole.level === 'admin') || (isMe && actorRole.rank >= 2);
+        const buttonText = actorRole.level === 'admin'
+          ? `+ Создать анкету для ${escapeHtml(targetUser.username)}`
+          : '+ Создать анкету';
+        staffContent.innerHTML = `
+          <div style="color:#94a3b8; font-size:12.5px;">
+            <p style="margin:0 0 8px 0;">Анкета сотрудника редакции отсутствует.</p>
+            ${canCreateForThis ? `<button type="button" class="cab-ad-mini-btn" id="pc-btn-create-dossier" style="background:#059669; color:#fff; border:none; padding:6px 14px; border-radius:8px; font-size:12px; font-weight:700; cursor:pointer;">${buttonText}</button>` : ''}
+          </div>
+        `;
+        $('#pc-btn-create-dossier')?.addEventListener('click', () => {
+          dialog.close();
+          openJournalistCabinet('staff');
+          loadItemIntoUniForm(null);
+          const fTitle = $('#uni-field-title');
+          const fSub = $('#uni-field-sub');
+          if (fTitle) fTitle.value = targetUser.fullName || targetUser.username || '';
+          if (fSub) fSub.value = uRole.title || 'Сотрудник LSN';
+          const authorIdInput = $('#uni-staff-author-id');
+          const authorLoginInput = $('#uni-staff-author-login');
+          if (authorIdInput) authorIdInput.value = targetUser.uuid || targetUser.id || '';
+          if (authorLoginInput) authorLoginInput.value = targetUser.username || '';
+          const targetPill = $('#uni-staff-target-pill');
+          if (targetPill) {
+            targetPill.textContent = `🎯 Создание анкеты для сотрудника: ${targetUser.username} [${uRole.title}]`;
+            targetPill.hidden = false;
+          }
+        });
+      }
+    }
+
+    // Card 3: Authored Materials
+    const matContent = $('#pc-materials-content');
+    if (matContent) {
+      const uLogin = (targetUser.username || '').toLowerCase();
+      const uId = String(targetUser.id || targetUser.uuid || '');
+      const authoredNews = (newsState || []).filter(n => {
+        const aLogin = String(n.authorLogin || n.author || '').toLowerCase();
+        const aId = String(n.author_id || '');
+        return (uId && aId && uId === aId) || (uLogin && aLogin && aLogin.includes(uLogin));
+      });
+      if (authoredNews.length === 0) {
+        matContent.innerHTML = '<span style="color:#64748b; font-size:12px;">Публикаций в эфире нет.</span>';
+      } else {
+        matContent.innerHTML = `<ul style="margin:0; padding-left:18px; font-size:12px; display:flex; flex-direction:column; gap:4px;">` +
+          authoredNews.map(n => `<li style="color:#e2e8f0;"><span style="color:#a78bfa;">[${n.status || 'published'}]</span> ${escapeHtml(n.title || 'Без названия')} <span style="color:#64748b;">(${new Date(n.createdAt || Date.now()).toLocaleDateString('ru-RU')})</span></li>`).join('') +
+          `</ul>`;
+      }
+    }
+
+    // Card 4: Role Management
+    const roleContent = $('#pc-role-content');
+    if (roleContent) {
+      if (isMe) {
+        roleContent.innerHTML = `<span style="color:#38bdf8; font-size:12px;">🔒 Ваш аккаунт (самовыдача и изменение роли отключены).</span>`;
+      } else if (canManageThis) {
+        const allowedAssignable = getAllowedAssignableRoles(currentUser);
+        const options = allowedAssignable.map(opt =>
+          `<option value="${opt.level}"${uRole.level === opt.level ? ' selected' : ''}>${opt.title}</option>`
+        ).join('');
+        roleContent.innerHTML = `
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <label style="font-size:12px; color:#64748b;">Назначить новую должность:</label>
+            <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+              <select id="pc-select-role" style="background:#1e293b; color:#fff; border:1px solid rgba(255,255,255,0.15); border-radius:6px; padding:6px 10px; font-size:12px;">
+                ${options}
+              </select>
+              <button type="button" class="cab-ad-mini-btn" id="pc-btn-save-role" style="background:#0ea5e9; color:#fff; border:none; padding:6px 12px; border-radius:6px; font-size:12px; cursor:pointer;">Сохранить роль</button>
+            </div>
+            ${uRole.rank >= 2 ? `<button type="button" class="cab-ad-mini-btn cab-ad-mini-btn--del" id="pc-btn-revoke-role" style="margin-top:6px; align-self:flex-start;">Снять полномочия до читателя</button>` : ''}
+          </div>
+        `;
+        $('#pc-btn-save-role')?.addEventListener('click', async () => {
+          const newRole = $('#pc-select-role')?.value;
+          if (!newRole) return;
+          if (confirm(`Назначить пользователю ${targetUser.username} роль «${newRole}»?`)) {
+            await assignUserRole(targetUser.id || targetUser.username, newRole);
+            dialog.close();
+            renderPermissionsList();
+          }
+        });
+        $('#pc-btn-revoke-role')?.addEventListener('click', async () => {
+          if (confirm(`Отозвать полномочия у ${targetUser.username} и перевести в читатели?`)) {
+            await revokeUserRole(targetUser.id || targetUser.username);
+            dialog.close();
+            renderPermissionsList();
+          }
+        });
+      } else {
+        roleContent.innerHTML = `<span style="color:#64748b; font-size:12px;">(Ранг пользователя равен или выше вашего — управление недоступно)</span>`;
+      }
+    }
+
+    // Close handlers
+    const closeBtn = $('#profile-center-close-btn');
+    if (closeBtn) closeBtn.onclick = () => dialog.close();
+    const closeBtnFooter = $('#pc-close-btn');
+    if (closeBtnFooter) closeBtnFooter.onclick = () => dialog.close();
+    dialog.onclick = (e) => {
+      if (e.target === dialog) dialog.close();
+    };
+
+    if (!dialog.open) dialog.showModal();
+  };
+
   const renderPermissionsList = () => {
     const matrix = $('#lsn-rbac-matrix-body');
     if (matrix) {
@@ -12702,7 +13070,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const metaSubtitle = [
         escapeHtml(u.fullName || u.username),
-        u.id ? `Код: ${escapeHtml(u.id)}` : '',
+        u.id ? `ID: ${escapeHtml(String(u.id).slice(0, 8))}…` : '',
         u.created_at ? `Регистрация: ${new Date(u.created_at).toLocaleDateString('ru-RU')}` : ''
       ].filter(Boolean).join(' · ');
 
@@ -12711,7 +13079,10 @@ document.addEventListener('DOMContentLoaded', () => {
           <div>
             <span class="cab-ad-item__title" style="display:inline; margin:0; font-weight:700;">${escapeHtml(u.username)}</span>
           </div>
-          <span class="role-badge ${uRole.badgeClass}">${escapeHtml(uRole.title)}</span>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <button type="button" class="cab-ad-mini-btn" data-open-user-profile="${escapeHtml(u.id || u.username)}" style="background:rgba(56,189,248,0.12); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); border-radius:6px; padding:3px 9px; font-size:11.5px; cursor:pointer;">👤 Карточка</button>
+            <span class="role-badge ${uRole.badgeClass}">${escapeHtml(uRole.title)}</span>
+          </div>
         </div>
         <p class="cab-ad-item__short" style="margin:4px 0 0; color:#cbd5e1;">${metaSubtitle}</p>
         ${actionsHtml}
@@ -12719,6 +13090,15 @@ document.addEventListener('DOMContentLoaded', () => {
       listEl.appendChild(card);
     });
   };
+
+  $('#uni-journalists-list')?.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-open-user-profile]');
+    if (btn) {
+      const idOrUser = btn.dataset.openUserProfile;
+      const target = findUserInDirectory(currentUser, idOrUser) || (usersDb || []).find(u => u.id === idOrUser || u.username === idOrUser);
+      if (target) openUserProfileCenter(target);
+    }
+  });
 
   $('#uni-perm-role-filters')?.addEventListener('click', (e) => {
     const btn = e.target.closest('[data-perm-filter]');
@@ -13581,18 +13961,22 @@ document.addEventListener('DOMContentLoaded', () => {
       if (myDossierBtn) {
         myDossierBtn.hidden = !(roleInfo.rank >= ROLE_HIERARCHY.journalist.rank) || !!own;
       }
-      if (roleInfo.canManageStaff) {
+      if (roleInfo.level === 'admin') {
         if (newBtn) {
           newBtn.hidden = false;
           newBtn.textContent = '+ Сотрудник';
         }
         defaultId = specificItemId || own?.id || 'staff-intro';
-      } else if (roleInfo.level === 'journalist') {
+      } else if (roleInfo.rank >= ROLE_HIERARCHY.journalist.rank) {
         if (newBtn) {
-          newBtn.hidden = !!own;
-          newBtn.textContent = '+ Моё досье';
+          newBtn.hidden = false;
+          if (own) {
+            newBtn.textContent = 'Открыть мою анкету';
+          } else {
+            newBtn.textContent = '+ Создать анкету';
+          }
         }
-        defaultId = specificItemId || own?.id || null;
+        defaultId = specificItemId || own?.id || 'staff-intro';
       } else {
         if (newBtn) newBtn.hidden = true;
         type = 'news';
@@ -13631,6 +14015,9 @@ document.addEventListener('DOMContentLoaded', () => {
   window.syncRoleVisibilityUI = syncRoleVisibilityUI;
   window.renderMyActivitiesList = renderMyActivitiesList;
   window.renderPermissionsList = renderPermissionsList;
+  window.assignUserRole = assignUserRole;
+  window.revokeUserRole = revokeUserRole;
+  window.openUserProfileCenter = openUserProfileCenter;
   window.renderArchiveList = renderArchiveList;
   window.restoreFromArchive = restoreFromArchive;
   window.permanentlyDeleteFromArchive = permanentlyDeleteFromArchive;
@@ -13723,18 +14110,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const type = lastOpenedModalItem.type || 'news';
     const id = lastOpenedModalItem.id;
 
-    // Active staff deletion is strictly forbidden by system policy
+    // Active staff deletion: ONLY Admin is permitted to delete staff profiles
     if (type === 'staff' || String(id || '').startsWith('staff-')) {
-      btn.classList.remove('is-confirming');
-      btn.innerHTML = btn.dataset.origHtml || '🗑️ Удалить новость';
-      btn.style.background = '';
-      btn.style.borderColor = '';
-      btn.style.color = '';
-      alert('🔒 Удаление действующего состава редакции запрещено правилами безопасности.');
-      return;
+      if (getUserRoleInfo(currentUser).level !== 'admin') {
+        btn.classList.remove('is-confirming');
+        btn.innerHTML = btn.dataset.origHtml || '🗑️ Удалить новость';
+        btn.style.background = '';
+        btn.style.borderColor = '';
+        btn.style.color = '';
+        alert('🔒 Удаление анкет действующего состава разрешено только Администратору.');
+        return;
+      }
     }
 
-    const modalStore = type === 'ad' ? adsState : type === 'column' ? columnsState : newsState;
+    const modalStore = type === 'ad' ? adsState : type === 'column' ? columnsState : type === 'staff' ? staffState.members : newsState;
     const modalItem = (Array.isArray(modalStore) ? modalStore.find(x => x.id === id) : null) || { id, actType: type };
     if (getUserRoleInfo(currentUser).level === 'journalist') {
       btn.classList.remove('is-confirming');
@@ -13775,10 +14164,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const validCloudId = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(id || ''));
-    const cloudUuid = validCloudId ? id : getStableUuidForLocalId(id);
+    const cloudUuid = validCloudId ? id : ((typeof STAFF_UUID_MAP !== 'undefined' && STAFF_UUID_MAP[id]) || getStableUuidForLocalId(id));
 
-    // MODEL A: TRUE PHYSICAL DELETE FROM SUPABASE SOURCE OF TRUTH
-    if (sb && ['news', 'ad', 'column'].includes(type)) {
+    // MODEL A: TRUE PHYSICAL DELETE FROM SUPABASE SOURCE OF TRUTH (Only lsn_articles, never touching public.profiles)
+    if (sb && ['news', 'ad', 'column', 'staff'].includes(type)) {
       const targetId = cloudUuid || id;
       btn.disabled = true;
       btn.textContent = 'Удаление из базы…';
@@ -13828,6 +14217,10 @@ document.addEventListener('DOMContentLoaded', () => {
         columnsState = columnsState.filter(x => x.id !== id && x.id !== cloudUuid);
         saveColumnsState();
         renderEditorialColumns();
+      } else if (type === 'staff') {
+        staffState.members = staffState.members.filter(x => x.id !== id && x.id !== cloudUuid);
+        saveStaffState();
+        renderStaffSection();
       }
     };
 
@@ -13953,6 +14346,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   $('#uni-new-item-btn')?.addEventListener('click', () => {
     const roleInfo = getUserRoleInfo(currentUser);
+    if (currentUniType === 'staff') {
+      const own = getCurrentUserStaffDossier(currentUser);
+      if (roleInfo.level !== 'admin' && own) {
+        loadItemIntoUniForm(own.id);
+        return;
+      }
+    }
     if (!canCreateEditorialType(currentUniType, roleInfo)) {
       flashUniSaved('🔒 У этой роли нет права создавать материалы в этом разделе.');
       return;
@@ -13997,28 +14397,41 @@ document.addEventListener('DOMContentLoaded', () => {
     flashUniSaved('Изображение убрано');
   });
 
-  const deleteUniItemById = async (id) => {
+  const deleteUniItemById = async (id, explicitType = null) => {
     if (!id || !currentUser) return;
-    if (currentUniType === 'staff' || String(id || '').startsWith('staff-')) {
-      alert('🔒 Удаление действующего состава редакции запрещено правилами безопасности.');
-      return;
-    }
+    const role = getUserRoleInfo(currentUser);
     const store = getStoreForType(currentUniType);
-    const item = store.find(x => x.id === id);
-    if (!item) return;
-    if (!canUserDeleteItem(item)) {
-      alert(currentUniType === 'ad'
-        ? 'Удалять объявления может только руководство.'
-        : currentUniType === 'column'
-          ? 'Удалять колонки может только руководство.'
-          : 'Доступ запрещен для этой роли.');
+    const staffItem = (staffState?.members || []).find(x => x.id === id);
+    const item = (Array.isArray(store) ? store.find(x => x.id === id) : null) || staffItem;
+    if (!item && id !== 'staff-intro') return;
+
+    if (id === 'staff-intro') {
+      alert('🔒 Главная колонка редакции не может быть удалена.');
       return;
     }
-    if (id === 'staff-intro') return;
+
+    const isStaff = (currentUniType === 'staff') || (explicitType === 'staff') || !!staffItem || String(id || '').startsWith('staff-') || item?.type === 'staff';
+
+    if (isStaff) {
+      if (role.level !== 'admin') {
+        alert('🔒 Удаление анкет действующего состава разрешено только Администратору.');
+        return;
+      }
+    } else {
+      if (!canUserDeleteItem(item)) {
+        alert(currentUniType === 'ad'
+          ? 'Удалять объявления может только руководство.'
+          : currentUniType === 'column'
+            ? 'Удалять колонки может только руководство.'
+            : 'Доступ запрещен для этой роли.');
+        return;
+      }
+    }
 
     // ZERO-TRUST AUTHENTICATION ENFORCEMENT: Verify active session with Supabase
-    if (sb) {
-      const { data: sData, error: sErr } = await sb.auth.getSession();
+    const activeSb = window.sb || sb;
+    if (activeSb) {
+      const { data: sData, error: sErr } = await activeSb.auth.getSession();
       const activeUser = sData?.session?.user;
       if (sErr || !activeUser) {
         alert('🔒 Ошибка авторизации: активная сессия Supabase отсутствует или устарела. Пожалуйста, выполните вход в систему.');
@@ -14027,13 +14440,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const validCloudId = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(id || ''));
-    const cloudUuid = validCloudId ? id : getStableUuidForLocalId(id);
+    const cloudUuid = validCloudId ? id : ((typeof STAFF_UUID_MAP !== 'undefined' && STAFF_UUID_MAP[id]) || getStableUuidForLocalId(id));
 
-    // MODEL A: TRUE PHYSICAL DELETE FROM SUPABASE SOURCE OF TRUTH
-    if (sb && ['news', 'ad', 'column'].includes(currentUniType)) {
+    // MODEL A: TRUE PHYSICAL DELETE FROM SUPABASE SOURCE OF TRUTH (Only lsn_articles, NEVER touching public.profiles)
+    if (activeSb && (['news', 'ad', 'column', 'staff'].includes(currentUniType) || isStaff)) {
       const targetId = cloudUuid || id;
       try {
-        const { error: delError } = await sb.from('lsn_articles').delete().eq('id', targetId);
+        const { error: delError } = await activeSb.from('lsn_articles').delete().eq('id', targetId);
         if (delError) {
           console.error('Supabase physical delete failed:', delError);
           alert('⚠️ Ошибка удаления: сервер отклонил операцию (' + (delError.message || 'RLS restricted') + '). Материал не удален.');
@@ -14063,12 +14476,19 @@ document.addEventListener('DOMContentLoaded', () => {
       saveColumnsState();
       renderEditorialColumns();
     }
+    
+    if (currentUniType === 'staff' || isStaff) {
+      staffState.members = staffState.members.filter(x => x.id !== id && x.id !== cloudUuid);
+      saveStaffState();
+      renderStaffSection();
+    }
 
     const updatedStore = getStoreForType(currentUniType);
     loadItemIntoUniForm(updatedStore[0]?.id || null);
     renderUniItemsList();
     flashUniSaved('🗑️ Материал успешно удалён из базы данных');
   };
+  window.deleteUniItemById = deleteUniItemById;
 
   $('#uni-items-list')?.addEventListener('click', (e) => {
     const selBtn = e.target.closest('[data-uni-select]');
@@ -14412,7 +14832,27 @@ document.addEventListener('DOMContentLoaded', () => {
           return;
         }
         if (!item) {
-          item = { id, tone: 'amber', authorLogin: currentUser?.username || 'editor_lsn', author_id: currentUser?.uuid || null };
+          if (roleInfo.level === 'user') {
+            flashUniSaved('🔒 Читатель не может создавать анкету сотрудника.');
+            return;
+          }
+          if (roleInfo.level !== 'admin') {
+            const existingDossier = getCurrentUserStaffDossier(currentUser);
+            if (existingDossier) {
+              flashUniSaved('🔒 У вас уже есть анкета сотрудника. Разрешена только 1 анкета на сотрудника.');
+              return;
+            }
+          }
+          const newStaffId = (id && id.startsWith('staff-') && !staffState.members.some(x => x.id === id))
+            ? id
+            : 'staff-' + createArticleUuid();
+          const explicitAuthorId = (roleInfo.level === 'admin' && $('#uni-staff-author-id')?.value)
+            ? $('#uni-staff-author-id').value
+            : (currentUser?.uuid || null);
+          const explicitAuthorLogin = (roleInfo.level === 'admin' && $('#uni-staff-author-login')?.value)
+            ? $('#uni-staff-author-login').value
+            : (currentUser?.username || 'editor_lsn');
+          item = { id: newStaffId, tone: 'amber', authorLogin: explicitAuthorLogin, author_id: explicitAuthorId };
           staffState.members.push(item);
         }
         if (!item.authorLogin) item.authorLogin = currentUser?.username || 'editor_lsn';
@@ -14424,10 +14864,11 @@ document.addEventListener('DOMContentLoaded', () => {
         item.skinId = currentArtPreset;
         saveStaffState();
         renderStaffSection();
-        if (sb) {
+        const activeClient = window.sb || sb;
+        if (activeClient) {
           try {
-            const staffUuid = getStableUuidForLocalId(item.id);
-            await sb.from('lsn_articles').upsert({
+            const staffUuid = isUuidValue(item.id) ? item.id : ((typeof STAFF_UUID_MAP !== 'undefined' && STAFF_UUID_MAP[item.id]) || getStableUuidForLocalId(item.id));
+            await activeClient.from('lsn_articles').upsert({
               id: staffUuid,
               type: 'staff',
               title: item.name,
@@ -14436,7 +14877,7 @@ document.addEventListener('DOMContentLoaded', () => {
               lead: makeShortPreview(item.bio || '', 150),
               excerpt: makeShortPreview(item.bio || '', 150),
               image_url: safeImageUrl(item.customImg) || null,
-              author_name: currentUser?.fullName || currentUser?.username || 'Редакция LSN',
+              author_name: item.authorLogin || currentUser?.fullName || currentUser?.username || 'Редакция LSN',
               author_id: item.author_id || currentUser?.uuid || null,
               status: 'published',
               metadata: {
@@ -15582,7 +16023,42 @@ document.addEventListener('DOMContentLoaded', () => {
   #cabinet-dialog .cab-ads-list-col, #cabinet-dialog .cab-ads-form-col { padding: 12px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  #cabinet-dialog *, #cabinet-dialog *::before, #cabinet-dialog *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; }
+  #cabinet-dialog *, #cabinet-dialog *::before, #cabinet-dialog *::after,
+  #profile-center-dialog *, #profile-center-dialog *::before, #profile-center-dialog *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; }
+}
+
+/* Editorial Profile Center Redesign */
+#profile-center-dialog.auth-dialog--wide {
+  width: min(880px, calc(100vw - 24px));
+  max-width: 880px;
+  max-height: 94vh;
+  padding: 0;
+  border: 1px solid rgba(56, 189, 248, 0.28);
+  border-radius: 22px;
+  background: #0a111a;
+  color: #edf4f6;
+  box-shadow: 0 30px 100px rgba(0,0,0,0.75), 0 0 0 1px rgba(255,255,255,0.03);
+  overflow: hidden;
+}
+#profile-center-dialog::backdrop {
+  background: rgba(3, 7, 12, 0.82);
+  backdrop-filter: blur(14px) saturate(0.9);
+}
+#profile-center-dialog .profile-center-container {
+  position: relative;
+  max-height: 94vh;
+  overflow-y: auto;
+  padding: clamp(16px, 2.8vw, 28px);
+  background: radial-gradient(ellipse at 12% 0%, rgba(56, 189, 248, 0.08), transparent 28rem), #0a111a;
+}
+@media (max-width: 680px) {
+  #profile-center-dialog .profile-center-body {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  #profile-center-dialog.auth-dialog--wide {
+    width: calc(100vw - 12px);
+    border-radius: 16px;
+  }
 }
 </style>
 

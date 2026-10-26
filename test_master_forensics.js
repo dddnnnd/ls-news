@@ -149,7 +149,7 @@ async function main() {
 
       // Simulate Account A login
       window.currentUser = {
-        id: 'USR-101',
+        id: 'b0e3286c-0bb3-4f89-b3b8-2a6f1dbc9bef',
         uuid: 'b0e3286c-0bb3-4f89-b3b8-2a6f1dbc9bef',
         username: 'Ray Westblock',
         fullName: 'Ray Westblock',
@@ -220,7 +220,7 @@ async function main() {
   const dirTest = await cdpEval(`
     (async () => {
       window.currentUser = {
-        id: 'USR-101',
+        id: 'b0e3286c-0bb3-4f89-b3b8-2a6f1dbc9bef',
         uuid: 'b0e3286c-0bb3-4f89-b3b8-2a6f1dbc9bef',
         username: 'Ray Westblock',
         fullName: 'Ray Westblock',
@@ -264,7 +264,7 @@ async function main() {
   const staffTest = await cdpEval(`
     (async () => {
       window.currentUser = {
-        id: 'USR-101',
+        id: 'b0e3286c-0bb3-4f89-b3b8-2a6f1dbc9bef',
         uuid: 'b0e3286c-0bb3-4f89-b3b8-2a6f1dbc9bef',
         username: 'Ray Westblock',
         role: 'admin'
