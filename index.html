@@ -10926,83 +10926,28 @@ document.addEventListener('DOMContentLoaded', () => {
     articleTitle: 'Команда 102.2 FM: люди, которые держат Лос-Сантос в курсе событий 24/7',
     articleLead: 'За каждым экстренным включением на волне 102.2 FM, каждым воздушным репортажем борта SAN NEWS D193SA и каждым выпуском городской газеты стоит слаженный коллектив редакции Los Santos News в районе Commerce.',
     articleBody: 'Наша студия работает без перерывов и выходных: ведущие прямого эфира проводят аналитические программы, викторины и интервью с ключевыми фигурами штата Сан-Андреас, а отдел оперативной хроники и папарацци первым оказывается в центре главных происшествий от Вайнвуда до порта Лос-Сантоса.',
-    members: [
-      {
-        id: 'staff-1',
-        name: 'Виктория Мёрфи (Viktoiya Murphy)',
-        role: 'Главный директор [10] · Руководство Commerce',
-        badge: 'ГЛАВНЫЙ ДИРЕКТОР',
-        skinId: 'skin_director',
-        customImg: '',
-        bio: 'Главный директор редакции Los Santos News. Руководит редакционной политикой, вещанием радиостанции 102.2 FM и развитием медиахолдинга в штате Сан-Андреас.'
-      },
-      {
-        id: 'staff-former-director',
-        name: 'Логан Уайт (Logan White)',
-        role: 'Экс-главный директор · Завершил руководство',
-        badge: 'ЭКС-ДИРЕКТОР',
-        skinId: 'skin_director',
-        customImg: '',
-        bio: 'Завершил работу на посту главного директора редакции Los Santos News.'
-      },
-      {
-        id: 'staff-2',
-        name: 'Джулиан Мерсер (Julian Mercer)',
-        role: 'Программный директор [9] · Волна 102.2 FM',
-        badge: 'ЭФИР 102.2 FM',
-        skinId: 'skin_program',
-        customImg: '',
-        bio: 'Главный голос радиоволны 102.2 FM. Отвечает за сетку круглосуточного вещания, экстренные новостные сводки, вечерние шоу, интерактивные рубрики со слушателями и подготовку радиоведущих.'
-      },
-      {
-        id: 'staff-3',
-        name: 'Виктор Кроу (Victor Crowe)',
-        role: 'Технический директор [8] · Борт D193SA',
-        badge: 'БОРТ D193SA',
-        skinId: 'skin_tech',
-        customImg: '',
-        bio: 'Руководит технической службой вещания, выездными фургонами SAN NEWS и воздушным патрулированием на вертолёте D193SA. Обеспечивает прямую трансляцию с мест главных происшествий.'
-      },
-      {
-        id: 'staff-4',
-        name: 'Елена Ростова (Elena Rostova)',
-        role: 'Главный редактор [7] · Пресса и расследования',
-        badge: 'ПРЕССА LSN',
-        skinId: 'skin_editor',
-        customImg: '',
-        bio: 'Координирует выпуск еженедельной газеты Los Santos News, проверяет журналистские расследования и управляет партнёрскими материалами редакции.'
-      }
-,
-      {
-        id: 'staff-5',
-        name: 'Джулиан Рид (Julian Reed)',
-        role: 'Специальный корреспондент [6] · Отдел расследований',
-        badge: 'ЖУРНАЛИСТ',
-        skinId: 'skin_editor',
-        authorLogin: 'julian_reed',
-        customImg: '',
-        bio: 'Ведущий репортёр отдела новостей и авторских колонок. Освещает ключевые события города Лос-Сантос, криминальную хронику и интервью с жителями штата.'
-      }
-    ]
+    members: []
   };
 
+  const LEGACY_DEMO_STAFF_IDS = new Set(['staff-1', 'staff-former-director', 'staff-2', 'staff-3', 'staff-4', 'staff-5']);
   const STAFF_STORAGE_KEY = 'lsn_staff_roster_v20';
   staffState = JSON.parse(JSON.stringify(DEFAULT_STAFF_DATA));
-  staffState.members = staffState.members.filter(x => !isItemDeleted(x.id));
+  staffState.members = [];
   try {
     const rawS = localStorage.getItem(STAFF_STORAGE_KEY) || localStorage.getItem('lsn_staff_roster_v18') || localStorage.getItem('lsn_staff_roster_v12');
     if (rawS) {
       const parsedS = JSON.parse(rawS);
       if (parsedS && Array.isArray(parsedS.members)) {
-        const map = new Map();
-        staffState.members.forEach(item => map.set(item.id, item));
-        parsedS.members.forEach(item => {
-          if (!isItemDeleted(item.id)) map.set(item.id, item);
-        });
-        staffState.members = Array.from(map.values()).filter(x => !isItemDeleted(x.id));
+        staffState.members = parsedS.members.filter(item =>
+          item && item.id &&
+          !LEGACY_DEMO_STAFF_IDS.has(String(item.id)) &&
+          !isItemDeleted(item.id)
+        );
       }
     }
-  } catch (_) {}
+  } catch (_) {
+    staffState.members = [];
+  }
   const saveStaffState = () => {
     try {
       localStorage.setItem(STAFF_STORAGE_KEY, JSON.stringify(staffState));
@@ -15635,51 +15580,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const cloudStaffRows = data.filter(row => row.type === 'staff' && !isArchivedRow(row) && !isItemDeleted(row.id) && row.id !== STAFF_UUID_MAP['staff-intro'] && !(row.metadata && row.metadata.isStaffIntro));
 
-      if (cloudStaffRows.length > 0) {
-        if (!staffState.members || !Array.isArray(staffState.members) || staffState.members.length === 0) {
-          staffState.members = JSON.parse(JSON.stringify(DEFAULT_STAFF_DATA.members));
-        }
+      const cloudItems = cloudStaffRows.map(row => {
+        const matchedLocalId = (row.metadata && row.metadata.local_id) || getLocalIdForStaffUuid(row.id);
+        return {
+          id: matchedLocalId || row.id,
+          name: row.title || '',
+          role: row.category || 'Сотрудник LSN',
+          bio: row.body || '',
+          customImg: safeImageUrl(row.image_url),
+          skinId: (row.metadata && row.metadata.skinId) || 'skin_director',
+          badge: (row.metadata && row.metadata.badge) || '',
+          cloudUuid: row.id,
+          author_id: row.author_id || null,
+          authorLogin: (row.metadata && row.metadata.authorLogin) || null
+        };
+      });
 
-        cloudStaffRows.forEach(row => {
-          const matchedLocalId = (row.metadata && row.metadata.local_id) || getLocalIdForStaffUuid(row.id);
-          const rowTitleLower = (row.title || '').trim().toLowerCase();
-          
-          let target = staffState.members.find(m => {
-            if (matchedLocalId && m.id === matchedLocalId) return true;
-            if (m.cloudUuid && m.cloudUuid === row.id) return true;
-            if (m.id === row.id) return true;
-            if (STAFF_UUID_MAP[m.id] === row.id) return true;
-            const mNameLower = (m.name || '').trim().toLowerCase();
-            if (mNameLower && (mNameLower === rowTitleLower || mNameLower.includes(rowTitleLower) || rowTitleLower.includes(mNameLower))) return true;
-            if (rowTitleLower.includes('logan') && mNameLower.includes('logan')) return true;
-            return false;
-          });
+      const validLocalItems = (staffState.members || []).filter(m =>
+        m && m.id &&
+        !LEGACY_DEMO_STAFF_IDS.has(String(m.id)) &&
+        !isItemDeleted(m.id) &&
+        !cloudItems.some(c => c.id === m.id || (m.cloudUuid && m.cloudUuid === c.cloudUuid))
+      );
 
-          if (target) {
-            target.name = row.title || target.name;
-            target.role = row.category || target.role;
-            target.bio = row.body || target.bio;
-            if (row.image_url) target.customImg = safeImageUrl(row.image_url);
-            if (row.metadata && row.metadata.skinId) target.skinId = row.metadata.skinId;
-            if (row.metadata && row.metadata.badge) target.badge = row.metadata.badge;
-            target.cloudUuid = row.id;
-          } else {
-            staffState.members.push({
-              id: matchedLocalId || row.id,
-              name: row.title || '',
-              role: row.category || 'Сотрудник LSN',
-              bio: row.body || '',
-              customImg: safeImageUrl(row.image_url),
-              skinId: (row.metadata && row.metadata.skinId) || 'skin_director',
-              badge: (row.metadata && row.metadata.badge) || '',
-              cloudUuid: row.id
-            });
-          }
-        });
-
-        saveStaffState();
-        renderStaffSection();
-      }
+      staffState.members = [...cloudItems, ...validLocalItems];
+      saveStaffState();
+      renderStaffSection();
 
       hasAuthoritativeArticleSnapshot = true;
       return true;

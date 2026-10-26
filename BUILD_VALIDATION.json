@@ -1,7 +1,7 @@
 {
   "release": "V13 Recovery Verified Edition",
-  "html_bytes": 3456596,
-  "html_sha256": "6810E166CD62317523AD42D4FCE6CB3174EDA3CC6402E9B3145376D0A4C474F8",
+  "html_bytes": 3452081,
+  "html_sha256": "AFAC567E6B9BF3D25DF03C6EF943CE85C8DAB6D0C9679D5E8A64C6F856D92400",
   "inline_javascript_blocks_total": 2,
   "inline_javascript_blocks_passed": 2,
   "inline_javascript_syntax_errors": 0,
