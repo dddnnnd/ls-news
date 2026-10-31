@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LSN — Интерактивный предпросмотр 3-х концепций</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,500;0,700;0,900;1,700&family=JetBrains+Mono:wght@500;700&family=Montserrat:wght@500;600;700;800&family=Rubik:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;0,6..72,700;1,6..72,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --app-bg: #090b10;
+      --app-nav-bg: #121622;
+      --app-border: rgba(245, 158, 11, 0.2);
+      --app-accent: #f59e0b;
+      --app-text: #f1f5f9;
+      --app-muted: #94a3b8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--app-bg);
+      color: var(--app-text);
+      font-family: 'Rubik', sans-serif;
+      overflow-x: hidden;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* TOP MASTER CONTROL BAR */
+    .master-bar {
+      position: sticky;
+      top: 0;
+      z-index: 9999;
+      background: #0d111a;
+      border-bottom: 1px solid rgba(245, 158, 11, 0.3);
+      padding: 10px 16px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+    }
+    .master-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .master-badge {
+      background: #f59e0b;
+      color: #000;
+      font-weight: 800;
+      font-size: 11px;
+      padding: 3px 7px;
+      border-radius: 4px;
+      letter-spacing: 0.05em;
+    }
+    .master-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .btn-group {
+      display: flex;
+      background: #171c28;
+      padding: 3px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.08);
+      gap: 3px;
+    }
+    .ctl-btn {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+    .ctl-btn:hover {
+      color: #fff;
+      background: rgba(255,255,255,0.05);
+    }
+    .ctl-btn.active {
+      background: #f59e0b;
+      color: #000;
+      font-weight: 700;
+      box-shadow: 0 2px 8px rgba(245,158,11,0.35);
+    }
+
+    /* SCREEN TABS BAR */
+    .screen-bar {
+      background: #121722;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      overflow-x: auto;
+    }
+    .screen-tab {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: #cbd5e1;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 12.5px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+    .screen-tab:hover { background: rgba(255,255,255,0.09); color: #fff; }
+    .screen-tab.active {
+      background: rgba(245,158,11,0.15);
+      border-color: #f59e0b;
+      color: #f59e0b;
+      font-weight: 700;
+    }
+
+    /* STAGE CONTAINER */
+    .stage-wrapper {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      padding: 24px;
+      background: #06080c;
+      transition: all 0.3s ease;
+      overflow-y: auto;
+    }
+    .viewport-container {
+      width: 100%;
+      max-width: 1280px;
+      transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: var(--vp-bg, #0b0e14);
+      color: var(--vp-text, #f8fafc);
+    }
+
+    /* MOBILE SIMULATOR FRAME */
+    .stage-wrapper.is-mobile {
+      padding: 30px 10px;
+      background: #040508;
+    }
+    .stage-wrapper.is-mobile .viewport-container {
+      max-width: 390px;
+      border: 10px solid #1e2430;
+      border-radius: 36px;
+      box-shadow: 0 0 0 2px #334155, 0 25px 60px rgba(0,0,0,0.8);
+      position: relative;
+    }
+    .mobile-notch {
+      display: none;
+      width: 120px;
+      height: 18px;
+      background: #1e2430;
+      border-bottom-left-radius: 12px;
+      border-bottom-right-radius: 12px;
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1000;
+    }
+    .stage-wrapper.is-mobile .mobile-notch { display: block; }
+
+    /* THEME VARIABLES FOR SIMULATED VIEWPORT */
+    .theme-dark {
+      --vp-bg: #090c12;
+      --vp-card: #121722;
+      --vp-card-hover: #181f2e;
+      --vp-border: rgba(255, 255, 255, 0.08);
+      --vp-text: #f8fafc;
+      --vp-muted: #94a3b8;
+      --vp-accent: #f59e0b;
+      --vp-accent-rgb: 245, 158, 11;
+      --vp-header-bg: rgba(9, 12, 18, 0.95);
+      --vp-quote-bg: rgba(245, 158, 11, 0.05);
+      --vp-quote-border: #f59e0b;
+    }
+    .theme-light {
+      --vp-bg: #f8fafc;
+      --vp-card: #ffffff;
+      --vp-card-hover: #f1f5f9;
+      --vp-border: rgba(0, 0, 0, 0.1);
+      --vp-text: #0f172a;
+      --vp-muted: #64748b;
+      --vp-accent: #d97706;
+      --vp-accent-rgb: 217, 119, 6;
+      --vp-header-bg: rgba(255, 255, 255, 0.96);
+      --vp-quote-bg: #fef3c7;
+      --vp-quote-border: #d97706;
+    }
+
+    /* CONCEPT SPECIFIC HEADERS */
+    .c-header {
+      padding: 14px 24px;
+      border-bottom: 1px solid var(--vp-border);
+      background: var(--vp-header-bg);
+      backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .c-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    .c-nav {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .c-nav a {
+      color: var(--vp-muted);
+      text-decoration: none;
+      transition: color 0.15s;
+      cursor: pointer;
+    }
+    .c-nav a:hover, .c-nav a.active { color: var(--vp-accent); }
+
+    /* ===================================================
+       CONCEPT 1: LSN NEWSROOM
+       =================================================== */
+    .c1-font-serif { font-family: 'Newsreader', serif; }
+    .c1-hero-grid {
+      display: grid;
+      grid-template-columns: 1.8fr 1.2fr;
+      gap: 24px;
+      padding: 28px;
+      border-bottom: 1px solid var(--vp-border);
+    }
+    .c1-headline-card {
+      background: var(--vp-card);
+      border: 1px solid var(--vp-border);
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .c1-headline-card:hover { transform: translateY(-2px); }
+    .c1-card-img {
+      width: 100%;
+      height: 280px;
+      object-fit: cover;
+      background: #1e2430;
+    }
+    .c1-card-body { padding: 22px; }
+    .c1-tag {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--vp-accent);
+      margin-bottom: 8px;
+      display: inline-block;
+    }
+    .c1-title {
+      font-family: 'Newsreader', serif;
+      font-size: 26px;
+      font-weight: 700;
+      line-height: 1.25;
+      margin-bottom: 12px;
+    }
+    .c1-lead {
+      font-size: 14.5px;
+      color: var(--vp-muted);
+      line-height: 1.6;
+      margin-bottom: 14px;
+    }
+    .c1-meta {
+      font-size: 12px;
+      color: var(--vp-muted);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .c1-chronicle-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .c1-chronicle-item {
+      background: var(--vp-card);
+      border: 1px solid var(--vp-border);
+      border-radius: 6px;
+      padding: 14px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .c1-chronicle-item:hover { border-color: var(--vp-accent); }
+    .c1-chronicle-time {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--vp-accent);
+      margin-bottom: 4px;
+    }
+    .c1-chronicle-h {
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1.35;
+    }
+
+    /* ===================================================
+       CONCEPT 2: LSN BROADCAST
+       =================================================== */
+    .c2-onair-bar {
+      background: linear-gradient(90deg, #991b1b 0%, #1e1b4b 100%);
+      color: #fff;
+      padding: 8px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12.5px;
+      font-weight: 600;
+    }
+    .c2-pulse {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background: #ef4444;
+      border-radius: 50%;
+      margin-right: 6px;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(1.3); } 100% { opacity: 1; transform: scale(1); } }
+    .c2-ticker {
+      background: #11141c;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding: 6px 24px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 12px;
+    }
+    .c2-ticker-badge {
+      background: #ef4444;
+      color: #fff;
+      font-weight: 800;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 3px;
+    }
+    .c2-split {
+      display: grid;
+      grid-template-columns: 320px 1fr 280px;
+      gap: 20px;
+      padding: 24px;
+    }
+    .c2-timeline {
+      background: var(--vp-card);
+      border: 1px solid var(--vp-border);
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .c2-main-story {
+      background: var(--vp-card);
+      border: 1px solid var(--vp-border);
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .c2-audio-player {
+      background: rgba(0,0,0,0.25);
+      border-top: 1px solid var(--vp-border);
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .c2-play-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--vp-accent);
+      color: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 800;
+      border: none;
+      cursor: pointer;
+    }
+
+    /* ===================================================
+       CONCEPT 3: LOS SANTOS MEDIA
+       =================================================== */
+    .c3-portal-bar {
+      background: #18202f;
+      padding: 8px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      font-size: 12px;
+      color: #cbd5e1;
+    }
+    .c3-district-select {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: #fff;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+    .c3-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      padding: 24px;
+    }
+    .c3-widget {
+      background: var(--vp-card);
+      border: 1px solid var(--vp-border);
+      border-radius: 8px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .c3-widget-hdr {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--vp-border);
+      padding-bottom: 8px;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    /* ===================================================
+       ARTICLE VIEW SCREEN (WITH DIRECT URL & SHARE)
+       =================================================== */
+    .article-view {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 36px 20px;
+    }
+    .article-direct-url-bar {
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid var(--vp-accent);
+      border-radius: 8px;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 24px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+    }
+    .article-share-btn {
+      background: var(--vp-accent);
+      color: #000;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .article-h1 {
+      font-size: 32px;
+      font-weight: 800;
+      line-height: 1.25;
+      margin-bottom: 14px;
+    }
+    .article-quote-box {
+      background: var(--vp-quote-bg);
+      border-left: 4px solid var(--vp-quote-border);
+      padding: 16px 20px;
+      margin: 24px 0;
+      border-radius: 0 8px 8px 0;
+      font-style: italic;
+      font-size: 16px;
+    }
+    .article-callout {
+      background: rgba(14, 165, 233, 0.1);
+      border: 1px solid #0ea5e9;
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin: 20px 0;
+      font-size: 14px;
+    }
+
+    /* ===================================================
+       MODERN RICH EDITOR SCREEN
+       =================================================== */
+    .editor-container {
+      padding: 24px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .editor-top-meta {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .editor-input {
+      width: 100%;
+      background: var(--vp-card);
+      border: 1px solid var(--vp-border);
+      border-radius: 6px;
+      padding: 10px 14px;
+      color: var(--vp-text);
+      font-size: 14px;
+    }
+    .editor-toolbar {
+      background: var(--vp-card);
+      border: 1px solid var(--vp-border);
+      border-radius: 8px 8px 0 0;
+      padding: 8px 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      border-bottom: none;
+    }
+    .tb-btn {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: var(--vp-text);
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .tb-btn:hover { background: var(--vp-accent); color: #000; }
+    .editor-area {
+      width: 100%;
+      min-height: 280px;
+      background: var(--vp-card);
+      border: 1px solid var(--vp-border);
+      border-radius: 0 0 8px 8px;
+      padding: 18px;
+      color: var(--vp-text);
+      font-size: 15px;
+      line-height: 1.6;
+      outline: none;
+      white-space: pre-wrap;
+    }
+    .editor-statusbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      font-size: 12px;
+      color: var(--vp-muted);
+      border-top: 1px solid var(--vp-border);
+      background: rgba(0,0,0,0.15);
+      border-radius: 0 0 8px 8px;
+    }
+
+    /* RESPONSIVE OVERRIDES IN MOBILE SIMULATOR */
+    .stage-wrapper.is-mobile .c1-hero-grid,
+    .stage-wrapper.is-mobile .c2-split,
+    .stage-wrapper.is-mobile .c3-grid {
+      grid-template-columns: 1fr !important;
+      padding: 14px !important;
+      gap: 16px !important;
+    }
+    .stage-wrapper.is-mobile .c-header {
+      padding: 12px 14px;
+    }
+    .stage-wrapper.is-mobile .c-nav {
+      display: none; /* In mobile replaced by hamburger or bottom bar */
+    }
+    .stage-wrapper.is-mobile .c1-title {
+      font-size: 20px;
+    }
+    .stage-wrapper.is-mobile .editor-top-meta {
+      grid-template-columns: 1fr;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- MASTER INTERACTIVE CONTROL BAR -->
+  <header class="master-bar">
+    <div class="master-brand">
+      <span class="master-badge">LSN EVOLUTION</span>
+      <span class="master-title">Интерактивный предпросмотр концепций</span>
+    </div>
+
+    <!-- CONCEPT SELECTOR -->
+    <div class="btn-group">
+      <button type="button" class="ctl-btn active" id="btn-c1" onclick="switchConcept('c1')">
+        📰 1. LSN Newsroom
+      </button>
+      <button type="button" class="ctl-btn" id="btn-c2" onclick="switchConcept('c2')">
+        🎙️ 2. LSN Broadcast
+      </button>
+      <button type="button" class="ctl-btn" id="btn-c3" onclick="switchConcept('c3')">
+        🏙️ 3. Los Santos Media
+      </button>
+    </div>
+
+    <!-- VIEWPORT TOGGLE -->
+    <div class="btn-group">
+      <button type="button" class="ctl-btn active" id="btn-vp-desktop" onclick="switchViewport('desktop')">
+        💻 Desktop
+      </button>
+      <button type="button" class="ctl-btn" id="btn-vp-mobile" onclick="switchViewport('mobile')">
+        📱 Mobile
+      </button>
+    </div>
+
+    <!-- THEME TOGGLE -->
+    <div class="btn-group">
+      <button type="button" class="ctl-btn active" id="btn-theme-dark" onclick="switchTheme('dark')">
+        🌙 Тёмная
+      </button>
+      <button type="button" class="ctl-btn" id="btn-theme-light" onclick="switchTheme('light')">
+        ☀️ Светлая
+      </button>
+    </div>
+  </header>
+
+  <!-- SCREEN TABS NAVIGATOR -->
+  <nav class="screen-bar">
+    <button type="button" class="screen-tab active" id="stab-home" onclick="switchScreen('home')">
+      🏠 Главная страница
+    </button>
+    <button type="button" class="screen-tab" id="stab-article" onclick="switchScreen('article')">
+      📄 Чтение статьи (+ Ссылка и Share)
+    </button>
+    <button type="button" class="screen-tab" id="stab-info" onclick="switchScreen('info')">
+      ℹ️ Раздел «Информация» (LSN Docs)
+    </button>
+    <button type="button" class="screen-tab" id="stab-cabinet" onclick="switchScreen('cabinet')">
+      📋 Кабинет журналиста
+    </button>
+    <button type="button" class="screen-tab" id="stab-editor" onclick="switchScreen('editor')">
+      ✍️ Редактор статей (Rich Editor)
+    </button>
+  </nav>
+
+  <!-- STAGE VIEWPORT WRAPPER -->
+  <main class="stage-wrapper" id="stage-wrapper">
+    <div class="viewport-container theme-dark" id="viewport-box">
+      <div class="mobile-notch"></div>
+      <div id="screen-content">
+        <!-- DYNAMICALLY INJECTED CONTENT -->
+      </div>
+    </div>
+  </main>
+
+  <script>
+    let currentConcept = 'c1';
+    let currentViewport = 'desktop';
+    let currentTheme = 'dark';
+    let currentScreen = 'home';
+
+    function switchConcept(c) {
+      currentConcept = c;
+      document.querySelectorAll('#btn-c1, #btn-c2, #btn-c3').forEach(b => b.classList.remove('active'));
+      document.getElementById('btn-' + c).classList.add('active');
+      render();
+    }
+
+    function switchViewport(vp) {
+      currentViewport = vp;
+      document.querySelectorAll('#btn-vp-desktop, #btn-vp-mobile').forEach(b => b.classList.remove('active'));
+      document.getElementById('btn-vp-' + vp).classList.add('active');
+      const stage = document.getElementById('stage-wrapper');
+      if (vp === 'mobile') stage.classList.add('is-mobile');
+      else stage.classList.remove('is-mobile');
+      render();
+    }
+
+    function switchTheme(t) {
+      currentTheme = t;
+      document.querySelectorAll('#btn-theme-dark, #btn-theme-light').forEach(b => b.classList.remove('active'));
+      document.getElementById('btn-theme-' + t).classList.add('active');
+      const vpBox = document.getElementById('viewport-box');
+      vpBox.className = 'viewport-container theme-' + t;
+    }
+
+    function switchScreen(s) {
+      currentScreen = s;
+      document.querySelectorAll('.screen-tab').forEach(b => b.classList.remove('active'));
+      document.getElementById('stab-' + s).classList.add('active');
+      render();
+    }
+
+    function render() {
+      const container = document.getElementById('screen-content');
+      if (currentScreen === 'home') container.innerHTML = renderHomeScreen();
+      else if (currentScreen === 'article') container.innerHTML = renderArticleScreen();
+      else if (currentScreen === 'info') container.innerHTML = renderInfoScreen();
+      else if (currentScreen === 'cabinet') container.innerHTML = renderCabinetScreen();
+      else if (currentScreen === 'editor') container.innerHTML = renderEditorScreen();
+    }
+
+    /* RENDER HEADER BASED ON CONCEPT */
+    function renderHeader() {
+      if (currentConcept === 'c1') {
+        return `
+          <header class="c-header">
+            <div class="c-brand">
+              <span style="background:var(--vp-accent); color:#000; padding:2px 8px; border-radius:4px; font-weight:900;">LSN</span>
+              <span style="font-size:17px;">LOS SANTOS NEWS</span>
+              <span style="font-size:11px; color:var(--vp-muted); border-left:1px solid var(--vp-border); padding-left:10px;">COMMERCE HQ · 102.2 FM</span>
+            </div>
+            <nav class="c-nav">
+              <a class="active">Главная</a>
+              <a>Новости</a>
+              <a>Расследования</a>
+              <a>Информация</a>
+              <a>Реклама</a>
+              <a>Досье</a>
+              <button type="button" class="tb-btn" style="background:var(--vp-accent); color:#000;" onclick="switchScreen('cabinet')">Кабинет</button>
+            </nav>
+          </header>
+        `;
+      } else if (currentConcept === 'c2') {
+        return `
+          <div class="c2-onair-bar">
+            <div><span class="c2-pulse"></span> ПРЯМОЙ ЭФИР: 102.2 FM · Программа «Вечерний Лос-Сантос»</div>
+            <div>Ведущий: <b>Ray Westblock</b> · Рейтинг San™: <b>#1 (228K nws)</b></div>
+          </div>
+          <header class="c-header">
+            <div class="c-brand">
+              <span style="font-size:20px; font-weight:900; color:var(--vp-accent);">102.2 FM</span>
+              <span style="font-size:16px;">LSN BROADCAST</span>
+            </div>
+            <nav class="c-nav">
+              <a class="active">Студия Live</a>
+              <a>Хроника</a>
+              <a>Сетка вещания</a>
+              <a>Информация</a>
+              <a>Реклама</a>
+              <button type="button" class="tb-btn" style="background:#ef4444; color:#fff;" onclick="switchScreen('cabinet')">Пульт эфира</button>
+            </nav>
+          </header>
+          <div class="c2-ticker">
+            <span class="c2-ticker-badge">МОЛНИЯ LSN</span>
+            <span>Полиция Лос-Сантоса оцепила район порта · Вертолёт D193SA ведёт прямую трансляцию...</span>
+          </div>
+        `;
+      } else {
+        return `
+          <div class="c3-portal-bar">
+            <div>Штат Сан-Андреас · Городской информационный портал Лос-Сантоса</div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span>Район:</span>
+              <select class="c3-district-select">
+                <option>Commerce (Центр)</option>
+                <option>Vinewood</option>
+                <option>Downtown</option>
+                <option>Santos Port</option>
+              </select>
+            </div>
+          </div>
+          <header class="c-header">
+            <div class="c-brand">
+              <span style="font-size:18px; font-weight:900;">LOS SANTOS MEDIA</span>
+              <span style="font-size:12px; color:var(--vp-muted);">Официальный вестник штата</span>
+            </div>
+            <nav class="c-nav">
+              <a class="active">Главный портал</a>
+              <a>Город</a>
+              <a>Объявления</a>
+              <a>Справочник</a>
+              <a>Организации</a>
+              <button type="button" class="tb-btn" style="background:var(--vp-accent); color:#000;" onclick="switchScreen('cabinet')">Кабинет пресс-службы</button>
+            </nav>
+          </header>
+        `;
+      }
+    }
+
+    /* 1. HOMEPAGE SCREEN */
+    function renderHomeScreen() {
+      let bodyHtml = '';
+      if (currentConcept === 'c1') {
+        bodyHtml = `
+          <div class="c1-hero-grid">
+            <div class="c1-headline-card" onclick="switchScreen('article')">
+              <div class="c1-card-img" style="background: url('https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=800&auto=format&fit=crop&q=80') center/cover;"></div>
+              <div class="c1-card-body">
+                <span class="c1-tag">ЭКСКЛЮЗИВ LSN · РАССЛЕДОВАНИЕ</span>
+                <h2 class="c1-title">Тишина у воды: как рыболовный промысел в округе Ред формирует теневую экономику Лос-Сантоса</h2>
+                <p class="c1-lead">Специальный репортаж из прибрежной зоны. Разговор с инспекторами Департамента охраны природы и местными жителями о том, куда уходят ночные уловы.</p>
+                <div class="c1-meta">
+                  <span>Автор: <b>Ray Westblock</b></span>
+                  <span>·</span>
+                  <span>Время чтения: 4 мин</span>
+                  <span>·</span>
+                  <span>Commerce Daily</span>
+                </div>
+              </div>
+            </div>
+            <div class="c1-chronicle-list">
+              <div style="font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:0.06em; color:var(--vp-muted); margin-bottom:4px;">
+                Хроника редакции · Сегодня
+              </div>
+              <div class="c1-chronicle-item" onclick="switchScreen('article')">
+                <div class="c1-chronicle-time">14:22 · ЭФИР 102.2 FM</div>
+                <div class="c1-chronicle-h">Los Santos News удерживает 1-е место в рейтинге радиокомпаний штата с индексом 228 000 nws</div>
+              </div>
+              <div class="c1-chronicle-item" onclick="switchScreen('article')">
+                <div class="c1-chronicle-time">12:05 · ГОРОД</div>
+                <div class="c1-chronicle-h">Центр лицензирования открывает контрактный набор: до 5 000 000 вирт за 10 дней службы</div>
+              </div>
+              <div class="c1-chronicle-item" onclick="switchScreen('article')">
+                <div class="c1-chronicle-time">09:40 · ДЕПАРТАМЕНТ</div>
+                <div class="c1-chronicle-h">LSPD объявляет дополнительный набор в патрульный дивизион центрального района</div>
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (currentConcept === 'c2') {
+        bodyHtml = `
+          <div class="c2-split">
+            <div class="c2-timeline">
+              <div style="font-weight:800; font-size:13px; text-transform:uppercase; color:var(--vp-accent); border-bottom:1px solid var(--vp-border); padding-bottom:8px;">
+                🔴 LIVE-ЛЕНТА 102.2 FM
+              </div>
+              <div style="font-size:12px; border-left:2px solid #ef4444; padding-left:10px;">
+                <div style="color:#ef4444; font-weight:700;">14:50 СЕЙЧАС В ЭФИРЕ</div>
+                <div style="font-weight:600; margin-top:2px;">Сводка криминальной хроники Вайнвуда</div>
+              </div>
+              <div style="font-size:12px; border-left:2px solid var(--vp-border); padding-left:10px;">
+                <div style="color:var(--vp-muted);">14:15 РЕПОРТАЖ</div>
+                <div>Борт D193SA докладывает о заторе на въезде в Сан-Фиерро</div>
+              </div>
+              <div style="font-size:12px; border-left:2px solid var(--vp-border); padding-left:10px;">
+                <div style="color:var(--vp-muted);">13:30 ВИКТОРИНА</div>
+                <div>Розыгрыш призового фонда в 100 000 вирт от радиостанции</div>
+              </div>
+            </div>
+            <div class="c2-main-story">
+              <div style="height:220px; background:url('https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=800&auto=format&fit=crop&q=80') center/cover;"></div>
+              <div style="padding:18px; flex:1;">
+                <span class="c1-tag">ОПЕРАТИВНЫЙ ЭФИР</span>
+                <h3 style="font-size:22px; font-weight:800; margin-bottom:8px;">Борт SAN NEWS D193SA над мэрией: прямая трансляция с высоты 300 метров</h3>
+                <p style="font-size:13.5px; color:var(--vp-muted); line-height:1.5;">Наши корреспонденты первыми прибыли на место проведения городского митинга у фонтана мэрии. Слушайте аудиозапись включения с места.</p>
+              </div>
+              <div class="c2-audio-player">
+                <button type="button" class="c2-play-btn">▶</button>
+                <div style="flex:1;">
+                  <div style="font-size:12px; font-weight:700;">Включение специального репортёра (01:45)</div>
+                  <div style="height:4px; background:rgba(255,255,255,0.15); border-radius:2px; margin-top:6px; width:65%; background:var(--vp-accent);"></div>
+                </div>
+              </div>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:16px;">
+              <div class="c3-widget" style="padding:14px;">
+                <div style="font-weight:700; font-size:13px; color:var(--vp-accent);">РЕЙТИНГ SAN™ #1</div>
+                <div style="font-size:24px; font-weight:900;">228 000 nws</div>
+                <div style="font-size:11.5px; color:var(--vp-muted);">Лидер штата Сан-Андреас 4-ю неделю подряд</div>
+              </div>
+              <div class="c3-widget" style="padding:14px;">
+                <div style="font-weight:700; font-size:13px;">ГОЛОСОВАНИЕ ЭФИРА</div>
+                <div style="font-size:12px; color:var(--vp-muted);">Нужно ли ограничить скорость на мосту Лос-Сантос — Лас-Вентурас?</div>
+                <button type="button" class="tb-btn" style="width:100%; margin-top:8px;">Да (68%)</button>
+              </div>
+            </div>
+          </div>
+        `;
+      } else {
+        bodyHtml = `
+          <div class="c3-grid">
+            <div class="c3-widget">
+              <div class="c3-widget-hdr">
+                <span>🏛️ Официальный вестник</span>
+                <span style="font-size:11px; color:var(--vp-accent);">Мэрия LS</span>
+              </div>
+              <div style="font-size:13.5px; font-weight:600; cursor:pointer;" onclick="switchScreen('article')">
+                Новый регламент парковки в районе Commerce и у центральной студии LSN
+              </div>
+              <p style="font-size:12.5px; color:var(--vp-muted);">С понедельника вводится эвакуация транспорта, оставленного на тротуарах у главного офиса радиостанции.</p>
+            </div>
+            <div class="c3-widget">
+              <div class="c3-widget-hdr">
+                <span>💼 Коммерческая витрина</span>
+                <span style="font-size:11px; color:var(--vp-accent);">Реклама LSN</span>
+              </div>
+              <div style="font-size:13.5px; font-weight:600;">
+                Контрактный набор в Министерство здравоохранения
+              </div>
+              <p style="font-size:12.5px; color:var(--vp-muted);">Высокие оклады, оплачиваемая ординатура и страховка для фельдшеров скорой помощи.</p>
+            </div>
+            <div class="c3-widget">
+              <div class="c3-widget-hdr">
+                <span>📖 Информация для жителей</span>
+                <span style="font-size:11px; color:var(--vp-accent);" onclick="switchScreen('info')">Справочник →</span>
+              </div>
+              <div style="font-size:13.5px; font-weight:600;">
+                Гайд для новоприбывших: как устроиться на радиоволну 102.2 FM
+              </div>
+              <p style="font-size:12.5px; color:var(--vp-muted);">Требования к кандидатам, необходимые документы и система рангов в редакции.</p>
+            </div>
+          </div>
+        `;
+      }
+      return renderHeader() + bodyHtml;
+    }
+
+    /* 2. ARTICLE SCREEN (WITH DIRECT URL & SHARE) */
+    function renderArticleScreen() {
+      return renderHeader() + `
+        <div class="article-view">
+          <div class="article-direct-url-bar">
+            <div style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+              🔗 <b>Прямая ссылка:</b> https://lsnews.sa/?p=096d6192-d0b1-448d-a8df-319ac3d95d3d
+            </div>
+            <button type="button" class="article-share-btn" onclick="alert('✅ Ссылка на публикацию скопирована в буфер обмена!')">
+              Поделиться 📤
+            </button>
+          </div>
+
+          <span class="c1-tag">РАССЛЕДОВАНИЯ · ПРЕССА LSN</span>
+          <h1 class="article-h1">Тишина у воды: как рыболовный промысел в округе Ред формирует теневую экономику Лос-Сантоса</h1>
+          
+          <div style="display:flex; align-items:center; gap:16px; margin-bottom:20px; font-size:13px; color:var(--vp-muted);">
+            <span>Автор: <strong style="color:var(--vp-text);">Ray Westblock</strong> (Администратор редакции)</span>
+            <span>·</span>
+            <span>28 октября 2026, 14:30</span>
+            <span>·</span>
+            <span>Штаб Commerce</span>
+          </div>
+
+          <div style="width:100%; height:360px; border-radius:10px; background:url('https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1000&auto=format&fit=crop&q=80') center/cover; margin-bottom:24px;"></div>
+
+          <p style="font-size:16px; line-height:1.7; margin-bottom:18px;">
+            За каждым тихим рассветом на пирсе Санта-Мария или у излучины реки в округе Ред скрывается не просто умиротворяющее хобби сотен жителей штата. В последние месяцы рыбалка превратилась в самостоятельную экономическую отрасль с оборотом в миллионы вирт.
+          </p>
+
+          <div class="article-quote-box">
+            «Мы фиксируем рост поставок редких пород рыбы напрямую в рестораны Вайнвуда минуя официальные торговые склады. Это живые деньги, которые циркулируют без декларирования».
+            <div style="font-size:13px; font-weight:700; margin-top:8px; color:var(--vp-accent);">— Источник в Департаменте лицензирования штата</div>
+          </div>
+
+          <p style="font-size:16px; line-height:1.7; margin-bottom:18px;">
+            Инспекторы рыбоохраны признают: имеющегося штата патрульных катеров недостаточно для контроля каждого залива от Монтгомери до Паломино-Крик. На волне 102.2 FM мы продолжим следить за развитием ситуации.
+          </p>
+
+          <div class="article-callout">
+            ℹ️ <b>Официальная памятка LSN:</b> Лицензия на коммерческий вылов рыбы оформляется в Центре лицензирования города Сан-Фиерро. Штраф за браконьерство составляет до 50 000 вирт с конфискацией снастей.
+          </div>
+        </div>
+      `;
+    }
+
+    /* 3. INFORMATION SCREEN */
+    function renderInfoScreen() {
+      return renderHeader() + `
+        <div style="max-width:960px; margin:0 auto; padding:32px 20px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:24px;">
+            <div>
+              <span class="c1-tag">ОФИЦИАЛЬНЫЙ РАЗДЕЛ</span>
+              <h1 style="font-size:28px; font-weight:800;">Информация и Справочник LSN</h1>
+            </div>
+            <button type="button" class="tb-btn" style="background:var(--vp-accent); color:#000;" onclick="switchScreen('editor')">+ Создать материал в Инфо</button>
+          </div>
+
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:18px;">
+            <div class="c3-widget">
+              <div style="font-size:20px;">📻</div>
+              <h3 style="font-size:16px; font-weight:700;">Сетка радиовещания 102.2 FM</h3>
+              <p style="font-size:13px; color:var(--vp-muted);">Полное расписание программ, часы работы диджеев, тарифы на заказ поздравлений и музыкальных треков в прямом эфире.</p>
+              <a style="font-size:12.5px; color:var(--vp-accent); font-weight:700;">Открыть регламент →</a>
+            </div>
+
+            <div class="c3-widget">
+              <div style="font-size:20px;">📢</div>
+              <h3 style="font-size:16px; font-weight:700;">Правила подачи рекламы (ПРО)</h3>
+              <p style="font-size:13px; color:var(--vp-muted);">Единые правила редактирования объявлений (ПРО) для штата Сан-Андреас. Запрещённые сокращения, формат цен и контактов.</p>
+              <a style="font-size:12.5px; color:var(--vp-accent); font-weight:700;">Открыть правила →</a>
+            </div>
+
+            <div class="c3-widget">
+              <div style="font-size:20px;">👔</div>
+              <h3 style="font-size:16px; font-weight:700;">Трудоустройство в редакцию</h3>
+              <p style="font-size:13px; color:var(--vp-muted);">Критерии отбора на должности стажёров, репортёров и ведущих радио. Система карьерного роста от ранга 1 до 10.</p>
+              <a style="font-size:12.5px; color:var(--vp-accent); font-weight:700;">Условия контракта →</a>
+            </div>
+
+            <div class="c3-widget">
+              <div style="font-size:20px;">🚁</div>
+              <h3 style="font-size:16px; font-weight:700;">Спецборт SAN NEWS D193SA</h3>
+              <p style="font-size:13px; color:var(--vp-muted);">Технические характеристики вертолёта воздушной разведки, протоколы согласования полётов с диспетчерами аэропорта LS.</p>
+              <a style="font-size:12.5px; color:var(--vp-accent); font-weight:700;">Протокол полётов →</a>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    /* 4. JOURNALIST CABINET SCREEN */
+    function renderCabinetScreen() {
+      return renderHeader() + `
+        <div style="max-width:1100px; margin:0 auto; padding:28px 20px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid var(--vp-border); padding-bottom:14px;">
+            <div>
+              <h2 style="font-size:22px; font-weight:800;">Редакционный кабинет: Ray Westblock [Администратор]</h2>
+              <div style="font-size:12.5px; color:var(--vp-muted); margin-top:4px;">Штаб Commerce · Управление публикациями и радиорейтингом</div>
+            </div>
+            <button type="button" class="tb-btn" style="background:var(--vp-accent); color:#000; padding:8px 16px;" onclick="switchScreen('editor')">
+              + Новая публикация
+            </button>
+          </div>
+
+          <div style="display:grid; grid-template-columns:240px 1fr; gap:20px;">
+            <div style="display:flex; flex-direction:column; gap:6px;">
+              <button type="button" class="tb-btn" style="text-align:left; background:var(--vp-accent); color:#000;">📄 Все материалы (8)</button>
+              <button type="button" class="tb-btn" style="text-align:left;">🟡 Мои черновики (2)</button>
+              <button type="button" class="tb-btn" style="text-align:left;">📰 Новости (2)</button>
+              <button type="button" class="tb-btn" style="text-align:left;">📑 Статьи и Колонки (1)</button>
+              <button type="button" class="tb-btn" style="text-align:left;">📢 Реклама (3)</button>
+              <button type="button" class="tb-btn" style="text-align:left;">ℹ️ Информация (1)</button>
+              <button type="button" class="tb-btn" style="text-align:left;">👥 Досье состава (2)</button>
+              <button type="button" class="tb-btn" style="text-align:left;">🔒 Доступ и роли</button>
+            </div>
+
+            <div style="background:var(--vp-card); border:1px solid var(--vp-border); border-radius:8px; overflow:hidden;">
+              <div style="padding:12px 18px; background:rgba(0,0,0,0.15); border-bottom:1px solid var(--vp-border); font-size:12.5px; font-weight:700; display:grid; grid-template-columns:1fr 140px 120px 140px;">
+                <span>Заголовок публикации</span>
+                <span>Категория</span>
+                <span>Статус</span>
+                <span>Действия</span>
+              </div>
+
+              <div style="padding:14px 18px; border-bottom:1px solid var(--vp-border); display:grid; grid-template-columns:1fr 140px 120px 140px; align-items:center; font-size:13px;">
+                <div>
+                  <div style="font-weight:700;">Тишина у воды: рыбалка как часть жизни штата</div>
+                  <div style="font-size:11px; color:var(--vp-muted);">ID: 096d6192... · Автор: Ray Westblock</div>
+                </div>
+                <span>Колонка</span>
+                <span style="color:#22c55e; font-weight:700;">🟢 Опубликовано</span>
+                <div style="display:flex; gap:6px;">
+                  <button type="button" class="tb-btn" onclick="switchScreen('editor')">Правка</button>
+                  <button type="button" class="tb-btn" onclick="switchScreen('article')">Открыть</button>
+                </div>
+              </div>
+
+              <div style="padding:14px 18px; border-bottom:1px solid var(--vp-border); display:grid; grid-template-columns:1fr 140px 120px 140px; align-items:center; font-size:13px;">
+                <div>
+                  <div style="font-weight:700;">LSPD открывает набор на контрактную службу</div>
+                  <div style="font-size:11px; color:var(--vp-muted);">ID: e10e8b38... · Автор: Ray Westblock</div>
+                </div>
+                <span>Реклама</span>
+                <span style="color:#22c55e; font-weight:700;">🟢 Опубликовано</span>
+                <div style="display:flex; gap:6px;">
+                  <button type="button" class="tb-btn" onclick="switchScreen('editor')">Правка</button>
+                  <button type="button" class="tb-btn" onclick="switchScreen('article')">Открыть</button>
+                </div>
+              </div>
+
+              <div style="padding:14px 18px; display:grid; grid-template-columns:1fr 140px 120px 140px; align-items:center; font-size:13px;">
+                <div>
+                  <div style="font-weight:700;">[Черновик] Тарифы на радиорекламу в преддверии праздников</div>
+                  <div style="font-size:11px; color:var(--vp-muted);">Сохранено локально 5 мин назад</div>
+                </div>
+                <span>Информация</span>
+                <span style="color:#eab308; font-weight:700;">🟡 Черновик</span>
+                <div style="display:flex; gap:6px;">
+                  <button type="button" class="tb-btn" onclick="switchScreen('editor')">Продолжить</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    /* 5. MODERN RICH EDITOR SCREEN */
+    function renderEditorScreen() {
+      return renderHeader() + `
+        <div class="editor-container">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
+            <div>
+              <span class="c1-tag">РЕДАКЦИОННАЯ СИСТЕМА LSN</span>
+              <h2 style="font-size:24px; font-weight:800;">Редактор публикации</h2>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <button type="button" class="tb-btn" onclick="switchScreen('article')">👁️ Предпросмотр</button>
+              <button type="button" class="tb-btn" style="background:#22c55e; color:#000; font-weight:800;" onclick="alert('✅ Материал готов к отправке в Supabase!')">💾 Опубликовать</button>
+            </div>
+          </div>
+
+          <div class="editor-top-meta">
+            <div>
+              <label style="font-size:12px; font-weight:700; color:var(--vp-muted); display:block; margin-bottom:6px;">Тип материала:</label>
+              <select class="editor-input">
+                <option>Статья / Аналитическое расследование (Column)</option>
+                <option>Городская новость (News)</option>
+                <option>Информация и правила (Information)</option>
+                <option>Коммерческая реклама (Ad)</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size:12px; font-weight:700; color:var(--vp-muted); display:block; margin-bottom:6px;">Категория / Подзаголовок:</label>
+              <input type="text" class="editor-input" value="Расследования · Пресса LSN">
+            </div>
+          </div>
+
+          <div style="margin-bottom:16px;">
+            <label style="font-size:12px; font-weight:700; color:var(--vp-muted); display:block; margin-bottom:6px;">Заголовок статьи:</label>
+            <input type="text" class="editor-input" style="font-size:18px; font-weight:700;" value="Тишина у воды: как рыболовный промысел в округе Ред формирует теневую экономику">
+          </div>
+
+          <div style="margin-bottom:16px;">
+            <label style="font-size:12px; font-weight:700; color:var(--vp-muted); display:block; margin-bottom:6px;">Обложка публикации (Drag & Drop или URL):</label>
+            <div style="border:2px dashed var(--vp-border); border-radius:8px; padding:16px; text-align:center; cursor:pointer; background:rgba(255,255,255,0.02);">
+              📁 Перетащите изображение сюда или <span style="color:var(--vp-accent); text-decoration:underline;">выберите из альбома LSN (18 фото)</span>
+            </div>
+          </div>
+
+          <!-- MODERN TOOLBAR -->
+          <div class="editor-toolbar">
+            <button type="button" class="tb-btn" title="Жирный (Ctrl+B)"><b>B</b></button>
+            <button type="button" class="tb-btn" title="Курсив (Ctrl+I)"><i>I</i></button>
+            <button type="button" class="tb-btn" title="Подчёркнутый (Ctrl+U)"><u>U</u></button>
+            <button type="button" class="tb-btn" title="Зачёркнутый"><s>S</s></button>
+            <span style="color:var(--vp-border); margin:0 4px;">|</span>
+            <button type="button" class="tb-btn">H2</button>
+            <button type="button" class="tb-btn">H3</button>
+            <span style="color:var(--vp-border); margin:0 4px;">|</span>
+            <button type="button" class="tb-btn">“ Цитата</button>
+            <button type="button" class="tb-btn">• Список</button>
+            <button type="button" class="tb-btn">1. Список</button>
+            <button type="button" class="tb-btn">🔗 Ссылка</button>
+            <span style="color:var(--vp-border); margin:0 4px;">|</span>
+            <button type="button" class="tb-btn">ℹ️ Инфоблок</button>
+            <button type="button" class="tb-btn">⚠️ Важно</button>
+            <button type="button" class="tb-btn">― Разделитель</button>
+            <span style="flex:1;"></span>
+            <button type="button" class="tb-btn" title="Очистить форматирование">🧹 Очистить</button>
+            <button type="button" class="tb-btn" title="Полноэкранный режим">⛶ Zen</button>
+          </div>
+
+          <!-- EDITABLE CONTENT AREA -->
+          <div class="editor-area" contenteditable="true">
+За каждым тихим рассветом на пирсе Санта-Мария или у излучины реки в округе Ред скрывается не просто умиротворяющее хобби сотен жителей штата. В последние месяцы рыбалка превратилась в самостоятельную экономическую отрасль с оборотом в миллионы вирт.
+
+[quote] «Мы фиксируем рост поставок редких пород рыбы напрямую в рестораны Вайнвуда минуя официальные торговые склады. Это живые деньги, которые циркулируют без декларирования». [/quote]
+
+Инспекторы рыбоохраны признают: имеющегося штата патрульных катеров недостаточно для контроля каждого залива от Монтгомери до Паломино-Крик. На волне 102.2 FM мы продолжим следить за развитием ситуации.
+          </div>
+
+          <!-- STATUSBAR WITH COUNTERS & AUTOSAVE -->
+          <div class="editor-statusbar">
+            <div>
+              <span>Слов: <b>84</b></span>
+              <span style="margin:0 8px;">·</span>
+              <span>Символов: <b>612</b></span>
+              <span style="margin:0 8px;">·</span>
+              <span>Время чтения: <b>~1 мин</b></span>
+            </div>
+            <div>
+              <span style="color:#22c55e;">● Автосохранение активно</span> (Черновик в localStorage: 14:52)
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // INITIAL RENDER
+    render();
+  </script>
+</body>
+</html>

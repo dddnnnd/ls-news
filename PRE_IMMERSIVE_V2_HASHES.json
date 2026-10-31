@@ -1,0 +1,52 @@
+[
+    {
+        "File":  "index.html",
+        "Hash":  "AFAC567E6B9BF3D25DF03C6EF943CE85C8DAB6D0C9679D5E8A64C6F856D92400",
+        "Size":  3452081
+    },
+    {
+        "File":  "lsn-visual-concept-a.html",
+        "Hash":  "512E8C87686B89B1B733420EBD395562DB0295615BAC02C82038C8E617CE367E",
+        "Size":  56113
+    },
+    {
+        "File":  "lsn-visual-concept-b.html",
+        "Hash":  "826FF570C1661509A6CBD3DE55127C127EE7A7FF9650D3D1FBC99CEA750103AB",
+        "Size":  44542
+    },
+    {
+        "File":  "lsn-visual-concept-c.html",
+        "Hash":  "A836FFA94229D003274F9BD50916E7F43F5F2F7F891B1A04535D8E35A8DCF88E",
+        "Size":  34601
+    },
+    {
+        "File":  "lsn-visual-experiments.html",
+        "Hash":  "BD94047073225DBE01B9FD107000115987E66EF78E58BA12E5FD0FC39A57790D",
+        "Size":  19565
+    },
+    {
+        "File":  "lsn-newsroom-preview.html",
+        "Hash":  "B64B7968960B81C6A04B9A1A7F780DDEDBC4126D96F1959831472608B931D68C",
+        "Size":  95113
+    },
+    {
+        "File":  "lsn-design-lab.html",
+        "Hash":  "F122C0679357411DF55E2591F1221D110C2E3BFCAA796D2C2FE415C2AF41108C",
+        "Size":  25852
+    },
+    {
+        "File":  "lsn-live-concept.html",
+        "Hash":  "829B8795442B636714FDCEA8B3A88335CE63BA493B9995A72F1D730414F17C33",
+        "Size":  67214
+    },
+    {
+        "File":  "lsn-city-concept.html",
+        "Hash":  "EFEDD77236B977DDE1C3C8C0BCCD619B8816C6A4852387DB9500D2A63CF05771",
+        "Size":  46374
+    },
+    {
+        "File":  "lsn-broadcast-concept.html",
+        "Hash":  "3593DAD26BF42E2C2B9F7A21D682322317FC85596B8C022E41C477B27F94BC99",
+        "Size":  41567
+    }
+]
