@@ -7152,28 +7152,118 @@ dialog#article-dialog::backdrop {
   align-items: center !important;
   flex-wrap: wrap !important;
   gap: 16px !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
-  padding-bottom: 18px !important;
+  border-bottom: 1px solid rgba(245, 158, 11, 0.14) !important;
+  padding: 14px 16px !important;
   margin-bottom: 32px !important;
   font-size: 13px !important;
   color: #94a3b8 !important;
+  background: rgba(12, 16, 23, 0.72) !important;
+  border: 1px solid rgba(245, 158, 11, 0.16) !important;
+  border-radius: 10px !important;
 }
 
 .article-reader-author-info {
   display: flex !important;
   align-items: center !important;
-  gap: 12px !important;
+  gap: 13px !important;
+  min-width: 0 !important;
+  flex: 1 1 240px !important;
+}
+
+.lsn-author-avatar-shell {
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 50% !important;
+  flex-shrink: 0 !important;
+  position: relative !important;
+  overflow: hidden !important;
+  background: radial-gradient(circle at 32% 28%, #1a212d 0%, #0b0f16 100%) !important;
+  border: 1px solid rgba(245, 158, 11, 0.32) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 2px 8px rgba(0, 0, 0, 0.35) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.lsn-author-avatar-shell--lg {
+  width: 56px !important;
+  height: 56px !important;
 }
 
 .article-reader-author-avatar {
-  width: 42px !important;
-  height: 42px !important;
+  width: 100% !important;
+  height: 100% !important;
   border-radius: 50% !important;
   object-fit: cover !important;
-  border: 1.5px solid rgba(245, 158, 11, 0.4) !important;
-  background: #141923 !important;
+  object-position: center 20% !important;
+  border: none !important;
+  background: transparent !important;
+  display: block;
 }
 
+.lsn-author-avatar-fallback {
+  font-family: var(--font-mono, 'JetBrains Mono', monospace) !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.05em !important;
+  color: #e5cfa8 !important;
+  line-height: 1 !important;
+  user-select: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-transform: uppercase !important;
+}
+
+.lsn-author-avatar-fallback--lg {
+  font-size: 15px !important;
+}
+
+.article-reader-author-meta {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  gap: 3px !important;
+  min-width: 0 !important;
+}
+
+.article-reader-author-line {
+  display: block !important;
+  line-height: 1.35 !important;
+}
+
+.article-reader-author-prefix {
+  font-family: var(--font-sans, 'Plus Jakarta Sans', system-ui, sans-serif) !important;
+  font-size: 12.5px !important;
+  font-weight: 500 !important;
+  color: #8b9bb0 !important;
+  margin-right: 4px !important;
+}
+
+.article-reader-author-name {
+  font-family: var(--font-sans, 'Plus Jakarta Sans', system-ui, sans-serif) !important;
+  font-size: 14.5px !important;
+  font-weight: 700 !important;
+  color: #f8fafc !important;
+  letter-spacing: -0.01em !important;
+  overflow-wrap: anywhere !important;
+}
+
+.article-reader-author-role {
+  font-family: var(--font-mono, 'JetBrains Mono', monospace) !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  color: #d8c2a0 !important;
+  letter-spacing: 0.03em !important;
+  line-height: 1.3 !important;
+}
+
+.article-reader-byline-right {
+  display: flex !important;
+  align-items: center !important;
+  gap: 14px !important;
+  flex-wrap: wrap !important;
+}
 .article-reader-cover-box {
   width: 100% !important;
   max-height: 520px !important;
@@ -7302,38 +7392,103 @@ dialog#article-dialog::backdrop {
 .article-author-card {
   display: flex !important;
   align-items: center !important;
-  gap: 20px !important;
-  background: rgba(18, 24, 34, 0.7) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  border-radius: 14px !important;
-  padding: 24px !important;
-  margin: 48px 0 36px !important;
+  gap: 18px !important;
+  background: rgba(12, 16, 23, 0.78) !important;
+  border: 1px solid rgba(245, 158, 11, 0.18) !important;
+  border-radius: 12px !important;
+  padding: 20px 22px !important;
+  margin: 44px 0 32px !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28) !important;
 }
 
 .article-author-card__avatar {
-  width: 64px !important;
-  height: 64px !important;
+  width: 100% !important;
+  height: 100% !important;
   border-radius: 50% !important;
   object-fit: cover !important;
-  border: 2px solid rgba(245, 158, 11, 0.4) !important;
-  background: #0f131a !important;
+  object-position: center 20% !important;
+  border: none !important;
+  background: transparent !important;
   flex-shrink: 0 !important;
+  display: block;
+}
+
+.article-author-card__content {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  gap: 5px !important;
+  min-width: 0 !important;
+  flex: 1 !important;
+}
+
+.article-author-card__head {
+  display: flex !important;
+  align-items: baseline !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+  line-height: 1.3 !important;
+}
+
+.article-author-card__prefix {
+  font-family: var(--font-sans, 'Plus Jakarta Sans', system-ui, sans-serif) !important;
+  font-size: 12.5px !important;
+  font-weight: 500 !important;
+  color: #8b9bb0 !important;
 }
 
 .article-author-card__content h4 {
-  font-family: var(--font-display, 'Playfair Display', serif) !important;
-  font-size: 18px !important;
-  color: #fff !important;
-  margin: 0 0 4px !important;
+  font-family: var(--font-sans, 'Plus Jakarta Sans', system-ui, sans-serif) !important;
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  color: #f8fafc !important;
+  margin: 0 !important;
+  letter-spacing: -0.01em !important;
+  overflow-wrap: anywhere !important;
+}
+
+.article-author-card__role {
+  font-family: var(--font-mono, 'JetBrains Mono', monospace) !important;
+  font-size: 10.5px !important;
+  font-weight: 600 !important;
+  color: #d8c2a0 !important;
+  background: rgba(15, 20, 28, 0.78) !important;
+  border: 1px solid rgba(201, 115, 22, 0.24) !important;
+  padding: 2px 8px !important;
+  border-radius: 999px !important;
+  letter-spacing: 0.03em !important;
 }
 
 .article-author-card__content p {
-  font-size: 13.5px !important;
+  font-size: 13px !important;
   color: #94a3b8 !important;
   margin: 0 !important;
-  line-height: 1.5 !important;
+  line-height: 1.52 !important;
 }
 
+@media (max-width: 640px) {
+  .article-reader-byline {
+    padding: 12px 14px !important;
+    gap: 12px !important;
+  }
+  .article-author-card {
+    padding: 16px !important;
+    gap: 14px !important;
+    align-items: flex-start !important;
+  }
+  .lsn-author-avatar-shell--lg {
+    width: 48px !important;
+    height: 48px !important;
+  }
+  .modal-breadcrumbs {
+    flex-wrap: wrap !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+  .modal-crumb-current {
+    max-width: 180px !important;
+  }
+}
 /* BACK TO TOP FLOATING BUTTON */
 .article-reader-backtop {
   display: inline-flex !important;
@@ -8563,16 +8718,22 @@ dialog#article-dialog::backdrop {
     <h1 id="modal-article-title" class="article-reader-headline"></h1>
 
     <div class="article-reader-byline">
-      <div class="article-reader-author-info">
-        <img id="modal-author-avatar" class="article-reader-author-avatar" src="assets/lsn-immersive-v3/downtown.jpg" alt="">
-        <div>
-          <span id="modal-article-author"></span>
-          <div style="font-size:11.5px; color:#64748b;" id="modal-author-dept">Отдел специальных расследований LSN</div>
+      <div class="article-reader-author-info" id="modal-author-info-block">
+        <div class="lsn-author-avatar-shell" id="modal-author-avatar-wrap">
+          <img id="modal-author-avatar" class="article-reader-author-avatar" alt="" hidden style="display:none;">
+          <span class="lsn-author-avatar-fallback" id="modal-author-avatar-fallback" aria-hidden="true">LS</span>
+        </div>
+        <div class="article-reader-author-meta">
+          <div class="article-reader-author-line" id="modal-article-author">
+            <span class="article-reader-author-prefix">Автор:</span>
+            <strong class="article-reader-author-name" id="modal-article-author-name">Редакция LSN</strong>
+          </div>
+          <div class="article-reader-author-role" id="modal-author-dept">Редакция Los Santos News</div>
         </div>
       </div>
-      <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
-        <time id="modal-article-date" class="article-date" style="color:#94a3b8; font-size:13px;"></time>
-        <span class="modal-read-time" id="modal-article-read-time" style="color:#fbbf24; font-weight:600; font-size:12.5px;">⏱ ~2 мин. чтения</span>
+      <div class="article-reader-byline-right">
+        <time id="modal-article-date" class="article-date" style="color:#94a3b8; font-size:12.5px;"></time>
+        <span class="modal-read-time" id="modal-article-read-time" style="color:#d8c2a0; font-weight:600; font-size:11.5px; border-color:rgba(245,158,11,0.24); background:rgba(245,158,11,0.08);">⏱ ~2 мин. чтения</span>
       </div>
     </div>
 
@@ -8593,10 +8754,17 @@ dialog#article-dialog::backdrop {
 
     <!-- Author Dossier Card -->
     <div class="article-author-card" id="modal-article-author-card">
-      <img id="modal-author-card-avatar" class="article-author-card__avatar" src="assets/lsn-immersive-v3/downtown.jpg" alt="">
+      <div class="lsn-author-avatar-shell lsn-author-avatar-shell--lg" id="modal-author-card-avatar-wrap">
+        <img id="modal-author-card-avatar" class="article-author-card__avatar" alt="" hidden style="display:none;">
+        <span class="lsn-author-avatar-fallback lsn-author-avatar-fallback--lg" id="modal-author-card-avatar-fallback" aria-hidden="true">LS</span>
+      </div>
       <div class="article-author-card__content">
-        <h4 id="modal-author-card-name">Рэймонд Чен</h4>
-        <p id="modal-author-card-bio">Журналист редакции Los Santos News. Ведущий рубрики городских расследований и криминальной хроники штата Сан-Андреас.</p>
+        <div class="article-author-card__head">
+          <span class="article-author-card__prefix">Автор:</span>
+          <h4 id="modal-author-card-name">Редакция LSN</h4>
+          <span class="article-author-card__role" id="modal-author-card-role">Редактор</span>
+        </div>
+        <p id="modal-author-card-bio">Журналист редакции Los Santos News. Оперативные репортажи и аналитика из всех районов штата Сан-Андреас.</p>
       </div>
     </div>
 
@@ -12783,8 +12951,9 @@ document.addEventListener('DOMContentLoaded', () => {
         titleEl.style.webkitTextFillColor = '';
       }
     }
+    const displayAuthorName = (author || 'Редакция LSN').trim();
     if (authorEl) {
-      authorEl.innerHTML = `<span style="color:#94a3b8;font-size:13px;">Автор: <b style="color:#e2e8f0;font-weight:600;">${escapeHtml(author || 'Редакция LSN')}</b></span>`;
+      authorEl.innerHTML = `<span class="article-reader-author-prefix">Автор:</span> <strong class="article-reader-author-name" id="modal-article-author-name">${escapeHtml(displayAuthorName)}</strong>`;
     }
     if (dateEl) dateEl.textContent = dateText || 'Район Commerce · 102.2 FM';
 
@@ -12815,25 +12984,105 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    // Author dossier matching
+    // Author dossier matching & zero-broken-image avatar resolution
     const authorCard = $('#modal-article-author-card');
     const authorNameEl = $('#modal-author-card-name');
+    const authorRoleEl = $('#modal-author-card-role');
     const authorBioEl = $('#modal-author-card-bio');
     const authorAvatarEl = $('#modal-author-card-avatar');
+    const authorAvatarFallbackEl = $('#modal-author-card-avatar-fallback');
+    const authorAvatarWrapEl = $('#modal-author-card-avatar-wrap');
     const authorHeaderAvatarEl = $('#modal-author-avatar');
+    const authorHeaderFallbackEl = $('#modal-author-avatar-fallback');
+    const authorHeaderWrapEl = $('#modal-author-avatar-wrap');
     const authorDeptEl = $('#modal-author-dept');
 
-    const matchedAuthor = (staffState?.members || []).find(m => m && m.name && author && m.name.toLowerCase().includes(author.toLowerCase()));
-    const authorPhoto = safeImageUrl(matchedAuthor?.photo || matchedAuthor?.img) || 'assets/lsn-immersive-v3/downtown.jpg';
-    const authorRole = matchedAuthor?.role || 'Редакция Los Santos News';
+    const normAuthor = displayAuthorName.toLowerCase();
+    const matchedAuthor = (staffState?.members || []).find(m => {
+      if (!m) return false;
+      const mName = String(m.name || '').trim().toLowerCase();
+      const mLogin = String(m.authorLogin || '').trim().toLowerCase();
+      return (mName && normAuthor && (mName === normAuthor || mName.includes(normAuthor) || normAuthor.includes(mName))) ||
+             (mLogin && normAuthor && mLogin === normAuthor);
+    });
+
+    const computeAuthorInitials = (rawName) => {
+      const cleaned = String(rawName || '').replace(/102\.2\s*FM/gi, '').replace(/[·•|—\-]/g, ' ').trim();
+      if (!cleaned || /^редакция/i.test(cleaned) || /^los\s+santos\s+news/i.test(cleaned)) return 'LS';
+      const parts = cleaned.split(/\s+/).filter(Boolean);
+      if (parts.length >= 2) {
+        return (parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase();
+      }
+      return cleaned.slice(0, 2).toUpperCase();
+    };
+
+    const resolveAuthorPhotoUrl = (member) => {
+      if (!member) return '';
+      const direct = safeImageUrl(member.customImg || member.photo || member.img);
+      if (direct && !direct.includes('lsn-immersive-v3/downtown.jpg')) return direct;
+      if (member.skinId && Array.isArray(LSN_SKINS)) {
+        const skin = LSN_SKINS.find(s => s.id === member.skinId);
+        if (skin && skin.src) return skin.src;
+      }
+      return '';
+    };
+
+    const bindAvatarWithFallback = (imgNode, fallbackNode, wrapNode, url, initialsText) => {
+      if (fallbackNode) {
+        fallbackNode.textContent = initialsText;
+        fallbackNode.hidden = false;
+        fallbackNode.style.display = 'inline-flex';
+      }
+      if (!imgNode) return;
+      imgNode.onload = null;
+      imgNode.onerror = null;
+      imgNode.hidden = true;
+      imgNode.style.display = 'none';
+      wrapNode?.classList.remove('has-photo');
+
+      const cleanUrl = safeImageUrl(url);
+      if (!cleanUrl || cleanUrl.includes('lsn-immersive-v3/downtown.jpg')) {
+        imgNode.removeAttribute('src');
+        return;
+      }
+      imgNode.onload = () => {
+        if (imgNode.naturalWidth > 0) {
+          imgNode.hidden = false;
+          imgNode.style.display = 'block';
+          if (fallbackNode) {
+            fallbackNode.hidden = true;
+            fallbackNode.style.display = 'none';
+          }
+          wrapNode?.classList.add('has-photo');
+        }
+      };
+      imgNode.onerror = () => {
+        imgNode.onload = null;
+        imgNode.onerror = null;
+        imgNode.removeAttribute('src');
+        imgNode.hidden = true;
+        imgNode.style.display = 'none';
+        if (fallbackNode) {
+          fallbackNode.hidden = false;
+          fallbackNode.style.display = 'inline-flex';
+        }
+        wrapNode?.classList.remove('has-photo');
+      };
+      imgNode.src = cleanUrl;
+    };
+
+    const authorInitials = computeAuthorInitials(matchedAuthor?.name || displayAuthorName);
+    const authorPhoto = resolveAuthorPhotoUrl(matchedAuthor);
+    const authorRole = matchedAuthor?.role || (/^редакция/i.test(displayAuthorName) ? 'Редакционная коллегия · 102.2 FM' : 'Редактор · Los Santos News');
     const authorBio = matchedAuthor?.bio || 'Журналист и обозреватель Los Santos News. Оперативные репортажи и аналитика из всех районов штата Сан-Андреас.';
 
-    if (authorNameEl) authorNameEl.textContent = author || 'Редакция LSN';
-    if (authorBioEl) authorBioEl.textContent = `${authorRole}. ${authorBio}`;
-    if (authorAvatarEl) authorAvatarEl.src = authorPhoto;
-    if (authorHeaderAvatarEl) authorHeaderAvatarEl.src = authorPhoto;
+    if (authorNameEl) authorNameEl.textContent = displayAuthorName;
+    if (authorRoleEl) authorRoleEl.textContent = authorRole;
+    if (authorBioEl) authorBioEl.textContent = authorBio;
     if (authorDeptEl) authorDeptEl.textContent = authorRole;
 
+    bindAvatarWithFallback(authorHeaderAvatarEl, authorHeaderFallbackEl, authorHeaderWrapEl, authorPhoto, authorInitials);
+    bindAvatarWithFallback(authorAvatarEl, authorAvatarFallbackEl, authorAvatarWrapEl, authorPhoto, authorInitials);
     if (journalistBar) {
       journalistBar.hidden = !isUserAuthorizedJournalist(currentUser);
     }
