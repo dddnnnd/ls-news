@@ -5604,6 +5604,25 @@ dialog[open]::backdrop {
 .lsn-staff-stat-box--teal::before { background: linear-gradient(90deg, #68d1bc, #9be5d6); }
 .lsn-staff-stat-box--teal b { color: #7cdac7 !important; }
 
+.lsn-staff-stat-box__sub {
+  font-family: var(--font-sans, 'Plus Jakarta Sans', system-ui, sans-serif) !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  color: #f1f5f9 !important;
+  line-height: 1.35 !important;
+  margin-top: 2px !important;
+  letter-spacing: -0.01em !important;
+}
+
+.lsn-staff-stat-box__desc {
+  font-family: var(--font-sans, 'Plus Jakarta Sans', system-ui, sans-serif) !important;
+  font-size: 11.5px !important;
+  font-weight: 400 !important;
+  color: #94a3b8 !important;
+  line-height: 1.42 !important;
+  margin-top: 1px !important;
+}
+
 /* Subheader above Employee Grid */
 .lsn-staff-roster-header {
   display: flex;
@@ -7644,10 +7663,11 @@ dialog#article-dialog::backdrop {
   </a>
 
   <nav class="nav" aria-label="Основная навигация">
-    <a href="#news" class="active" data-nav-target="main-news">Главное</a>
-    <a href="#latest-news-section" data-nav-target="latest-news">Новости</a>
-    <a href="#lsn-ad-carousel" data-nav-target="ad-carousel">Реклама</a>
-    <a href="#job-article-card" data-nav-target="job-article">Трудоустройство</a>
+    <a href="#news" class="active" data-nav-target="main-news">Новости</a>
+    <a href="#latest-news-section" data-nav-target="latest-news">Лента</a>
+    <a href="#columns-articles-section" data-nav-target="columns-articles">Статьи</a>
+    <a href="#lsn-ad-carousel" data-nav-target="ad-carousel">Эфир</a>
+    <a href="#lsn-staff" data-nav-target="lsn-staff">Редакция</a>
   </nav>
 
   <div class="header-actions" id="journal-menu">
@@ -7692,15 +7712,15 @@ dialog#article-dialog::backdrop {
     <div class="journey-dot-glyph"></div>
     <span class="journey-tooltip"><b class="journey-tooltip-num">04</b> Лента новостей</span>
   </div>
-  <div class="journey-dot" data-scroll-target="#columns-articles-section" tabindex="0" role="button" aria-label="05. Колонки и статьи">
+  <div class="journey-dot" data-scroll-target="#columns-articles-section" tabindex="0" role="button" aria-label="05. Статьи">
     <div class="journey-dot-hit"></div>
     <div class="journey-dot-glyph"></div>
-    <span class="journey-tooltip"><b class="journey-tooltip-num">05</b> Колонки и статьи</span>
+    <span class="journey-tooltip"><b class="journey-tooltip-num">05</b> Статьи</span>
   </div>
-  <div class="journey-dot" data-scroll-target="#lsn-staff" tabindex="0" role="button" aria-label="06. Состав редакции">
+  <div class="journey-dot" data-scroll-target="#lsn-staff" tabindex="0" role="button" aria-label="06. Редакция">
     <div class="journey-dot-hit"></div>
     <div class="journey-dot-glyph"></div>
-    <span class="journey-tooltip"><b class="journey-tooltip-num">06</b> Состав редакции</span>
+    <span class="journey-tooltip"><b class="journey-tooltip-num">06</b> Редакция</span>
   </div>
 </nav>
 
@@ -7747,7 +7767,7 @@ dialog#article-dialog::backdrop {
       </div>
     </div>
 
-    <figure class="hero-focus-visual-card" id="hero-focus-visual-card">
+        <figure class="hero-focus-visual-card" id="hero-focus-visual-card">
       <div class="hero-focus-frame">
         <img src="assets/lsn-trucker-editorial.jpg" alt="Дальние рейсы Сан-Андреаса — спецрепортаж Los Santos News" id="hero-backdrop-img" loading="eager" decoding="async">
         <figcaption class="hero-focus-caption-bar">
@@ -7757,6 +7777,20 @@ dialog#article-dialog::backdrop {
         </figcaption>
       </div>
     </figure>
+  </div>
+
+  <!-- DYNAMIC HERO ROTATION CONTROLS (ROTATION EVERY 30S) -->
+  <div class="hero-rotation-controls" id="hero-rotation-controls" aria-label="Управление ротацией статей в фокусе">
+    <button type="button" class="hero-rot-btn hero-rot-prev" id="hero-rot-prev" aria-label="Предыдущая статья" title="Предыдущая статья">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="hero-rot-dots" id="hero-rot-dots" role="tablist" aria-label="Слайды статей"></div>
+    <button type="button" class="hero-rot-btn hero-rot-next" id="hero-rot-next" aria-label="Следующая статья" title="Следующая статья">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+    <button type="button" class="hero-rot-btn hero-rot-playpause" id="hero-rot-playpause" aria-label="Приостановить автопереключение" title="Приостановить (30 сек)">
+      <span id="hero-rot-playpause-icon">❚❚</span>
+    </button>
   </div>
 </section>
 
@@ -8548,8 +8582,41 @@ dialog#article-dialog::backdrop {
     <div id="latest-news" class="latest-rows"></div>
   </div>
 
-  <div id="columns-articles-section">
-    <h3 class="ser" style="margin:0 0 16px; font-weight:900; font-size:32px; letter-spacing:-0.03em;">Колонки и статьи</h3>
+  <div id="columns-articles-section" class="lsn-articles-public-section">
+    <div class="lsn-articles-header" style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
+      <div>
+        <div style="display:inline-flex; align-items:center; gap:8px; margin-bottom:6px;">
+          <span class="lsn-articles-kicker" style="font-family:var(--font-mono, monospace); font-size:11px; font-weight:800; letter-spacing:0.12em; text-transform:uppercase; color:#FFB04A; background:rgba(242,140,40,0.12); border:1px solid rgba(242,140,40,0.28); padding:3px 10px; border-radius:4px;">РЕДАКЦИОННЫЕ МАТЕРИАЛЫ</span>
+          <span id="articles-total-badge" style="font-family:var(--font-mono, monospace); font-size:11px; color:#A3AAB4;">0 публикаций</span>
+        </div>
+        <h2 class="ser" style="margin:0; font-weight:900; font-size:34px; letter-spacing:-0.03em; color:#F1F2F3;">Статьи</h2>
+      </div>
+      <div class="lsn-articles-subline" style="font-size:13px; color:#A3AAB4; max-width:440px;">
+        Аналитические материалы, репортажи, расследования и интервью корреспондентов Los Santos News.
+      </div>
+    </div>
+
+    <!-- 16 Canonical Thematic Tags Filter Row -->
+    <div class="lsn-article-tags-bar" id="lsn-article-tags-bar" style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:24px; padding:12px 14px; background:rgba(23,27,34,0.85); border:1px solid rgba(242,140,40,0.22); border-radius:12px; backdrop-filter:blur(10px);">
+      <button type="button" class="lsn-tag-chip is-active" data-article-tag="all">Все темы</button>
+      <button type="button" class="lsn-tag-chip" data-article-tag="Интервью">Интервью</button>
+      <button type="button" class="lsn-tag-chip" data-article-tag="Репортаж">Репортаж</button>
+      <button type="button" class="lsn-tag-chip" data-article-tag="Расследование">Расследование</button>
+      <button type="button" class="lsn-tag-chip" data-article-tag="Обзор">Обзор</button>
+      <button type="button" class="lsn-tag-chip" data-article-tag="Город">Город</button>
+      <button type="button" class="lsn-tag-chip" data-article-tag="Общество">Общество</button>
+      <button type="button" class="lsn-tag-chip" data-article-tag="Происшествия">Происшествия</button>
+      <button type="button" class="lsn-tag-chip" data-article-tag="Транспорт">Транспорт</button>
+      <button type="button" class="lsn-tag-chip" data-article-tag="Экономика">Экономика</button>
+      <button type="button" class="lsn-tag-chip" data-article-tag="Бизнес">Бизнес</button>
+      <button type="button" class="lsn-tag-chip" data-article-tag="Работа и карьера">Работа и карьера</button>
+      <button type="button" class="lsn-tag-chip" data-article-tag="Образование">Образование</button>
+      <button type="button" class="lsn-tag-chip" data-article-tag="Культура">Культура</button>
+      <button type="button" class="lsn-tag-chip" data-article-tag="Спорт">Спорт</button>
+      <button type="button" class="lsn-tag-chip" data-article-tag="Государственные организации">Государственные организации</button>
+      <button type="button" class="lsn-tag-chip" data-article-tag="История штата">История штата</button>
+    </div>
+
     <div id="editorial-columns-host"></div>
   </div>
 </section>
@@ -8595,25 +8662,29 @@ dialog#article-dialog::backdrop {
     </div>
 
     <div class="lsn-staff-article__stats" id="staff-article-stats-grid">
-      <div class="lsn-staff-stat-box lsn-staff-stat-box--sky">
+      <div class="lsn-staff-stat-box lsn-staff-stat-box--sky" data-stat-index="0">
         <span class="lsn-staff-stat-box__tag">РАДИОВОЛНА</span>
         <b>102.2 FM</b>
-        <span>Частота круглосуточного радиовещания Los Santos News</span>
+        <span class="lsn-staff-stat-box__sub">Голос Los Santos News — круглосуточно</span>
+        <span class="lsn-staff-stat-box__desc">Новости, интервью и прямые включения, когда события происходят здесь и сейчас.</span>
       </div>
-      <div class="lsn-staff-stat-box lsn-staff-stat-box--indigo">
-        <span class="lsn-staff-stat-box__tag">ЛИДЕР ШТАТА</span>
-        <b>#1 · 342K</b>
-        <span>Первое место в игровом рейтинге радиокомпаний (san™)</span>
+      <div class="lsn-staff-stat-box lsn-staff-stat-box--indigo" data-stat-index="1">
+        <span class="lsn-staff-stat-box__tag">КОНТРАКТЫ</span>
+        <b>228K</b>
+        <span class="lsn-staff-stat-box__sub">LSN — связь города и бизнеса</span>
+        <span class="lsn-staff-stat-box__desc">Специальные проекты, рекламные контракты и партнёрства с организациями Лос-Сантоса.</span>
       </div>
-      <div class="lsn-staff-stat-box lsn-staff-stat-box--amber">
+      <div class="lsn-staff-stat-box lsn-staff-stat-box--amber" data-stat-index="2">
         <span class="lsn-staff-stat-box__tag">ШТАБ-КВАРТИРА</span>
         <b>Commerce</b>
-        <span>Центральная студия и редакционный штаб в Лос-Сантосе</span>
+        <span class="lsn-staff-stat-box__sub">Точка, откуда начинается выпуск</span>
+        <span class="lsn-staff-stat-box__desc">Центральная студия, редакция и рабочий штаб LSN в самом сердце деловой части Лос-Сантоса.</span>
       </div>
-      <div class="lsn-staff-stat-box lsn-staff-stat-box--teal">
+      <div class="lsn-staff-stat-box lsn-staff-stat-box--teal" data-stat-index="3">
         <span class="lsn-staff-stat-box__tag">АВИАЦИЯ LSN</span>
-        <b>D193SA</b>
-        <span>Собственный воздушный борт SAN NEWS для прямых включений</span>
+        <b>SAN NEWS</b>
+        <span class="lsn-staff-stat-box__sub">Новости без границ города</span>
+        <span class="lsn-staff-stat-box__desc">Собственный воздушный борт для репортажей, наблюдения за обстановкой и прямых включений с высоты.</span>
       </div>
     </div>
   </article>
@@ -8833,7 +8904,7 @@ dialog#article-dialog::backdrop {
         <div class="lsn-account-meta">
           <div class="lsn-account-tag-row">
             <span class="role-badge" id="auth-user-role-badge">🛡️ Гость</span>
-            <span class="lsn-account-rank-capsule" id="auth-user-rank-capsule">Ранг 5 / 5</span>
+            
             <span class="lsn-account-status-pill" id="auth-user-status-pill">● В штате LSN</span>
           </div>
           <h2 class="lsn-account-name" id="auth-user-display-name">Пользователь</h2>
@@ -8858,16 +8929,21 @@ dialog#article-dialog::backdrop {
       <nav class="lsn-account-nav" role="tablist">
         <button type="button" class="lsn-account-tab is-active" data-account-tab="overview">
           <span class="lsn-account-tab-icon">👤</span>
-          <span>Профиль и допуск</span>
+          <span>Профиль и статус</span>
         </button>
-        <button type="button" class="lsn-account-tab" data-account-tab="activity">
+        <button type="button" class="lsn-account-tab" data-account-tab="favorites">
+          <span class="lsn-account-tab-icon">★</span>
+          <span>Избранное</span>
+          <span class="lsn-account-tab-badge" id="account-favs-counter">0</span>
+        </button>
+        <button type="button" class="lsn-account-tab" data-account-tab="activity" id="account-tab-btn-activity" hidden>
           <span class="lsn-account-tab-icon">⚡</span>
-          <span>Мои активности</span>
+          <span>Моя активность</span>
           <span class="lsn-account-tab-badge" id="account-activity-counter">0</span>
         </button>
-        <button type="button" class="lsn-account-tab" data-account-tab="security">
-          <span class="lsn-account-tab-icon">🛡️</span>
-          <span>Безопасность</span>
+        <button type="button" class="lsn-account-tab" data-account-tab="admin" id="account-tab-btn-admin" hidden>
+          <span class="lsn-account-tab-icon">⚙️</span>
+          <span>Диагностика</span>
         </button>
       </nav>
 
@@ -8891,9 +8967,7 @@ dialog#article-dialog::backdrop {
                 <span class="lsn-account-data-lbl">Статус полномочий:</span>
                 <div style="text-align:right;">
                   <span class="lsn-account-data-val" id="acc-val-access">-</span>
-                  <div class="lsn-rank-meter" id="auth-user-rank-meter" title="Уровень ранга">
-                    <span class="rank-meter-bar"></span>
-                  </div>
+                  
                 </div>
               </div>
             </div>
@@ -8984,70 +9058,54 @@ dialog#article-dialog::backdrop {
         </div>
       </section>
 
-      <!-- TAB 3: SECURITY & ACCESS -->
-      <section class="lsn-account-panel" id="account-tab-security" hidden>
+      <!-- TAB 2: FAVORITES (BOOKMARKS) -->
+      <section class="lsn-account-panel" id="account-tab-favorites" hidden>
+        <div class="lsn-account-card lsn-account-card--full" style="border-color:rgba(242,140,40,0.25);">
+          <div class="lsn-account-card-hdr" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+            <div>
+              <span class="lsn-account-card-kicker" style="color:#FFB04A;">ЗАКЛАДКИ</span>
+              <h3 style="margin:2px 0 0; color:#F1F2F3;">Избранные публикации</h3>
+            </div>
+            <span style="font-size:12px; color:#A3AAB4;">Сохранённые новости и статьи для быстрого доступа</span>
+          </div>
+          <div class="lsn-account-favorites-list" id="account-favorites-list" style="margin-top:14px;">
+            <!-- Populated dynamically via LSN_FAVORITES -->
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 4: ADMIN DIAGNOSTICS SPACE (VISIBLE ONLY FOR RANK 5 ADMIN) -->
+      <section class="lsn-account-panel" id="account-tab-admin" hidden>
         <div class="lsn-account-grid">
-          <!-- CARD 1: Security Posture -->
-          <div class="lsn-account-card">
-            <div class="lsn-account-card-hdr">
-              <span class="lsn-account-card-kicker">Защита</span>
-              <h3>Статус безопасности профиля</h3>
-            </div>
-            <div class="lsn-account-security-status">
-              <div class="lsn-account-shield-icon">🛡️</div>
+          <div class="lsn-account-card lsn-account-card--full" style="border-color:rgba(242,140,40,0.35); background:linear-gradient(160deg, #171B22 0%, #101318 100%);">
+            <div class="lsn-account-card-hdr" style="display:flex; justify-content:space-between; align-items:center;">
               <div>
-                <strong style="color:#fff; font-size:14px; display:block;">Supabase Auth & RLS Protected</strong>
-                <span style="color:#94a3b8; font-size:12px; line-height:1.4; display:block; margin-top:2px;">
-                  Все права и допуски проверяются криптографической сессией и политиками Row-Level Security.
-                </span>
+                <span class="lsn-account-card-kicker" style="color:#FFB04A;">СИСТЕМНЫЙ ЦЕНТР</span>
+                <h3 style="margin:2px 0 0; color:#F1F2F3;">Диагностика и системная аналитика LSN</h3>
+              </div>
+              <span style="font-family:var(--font-mono, monospace); font-size:11px; color:#4ade80; background:rgba(74,222,128,0.1); border:1px solid rgba(74,222,128,0.25); padding:3px 8px; border-radius:4px;">● СИСТЕМА В НОРМЕ</span>
+            </div>
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:12px; margin-top:16px;">
+              <div style="background:#101318; padding:14px; border-radius:8px; border:1px solid rgba(255,255,255,0.08);">
+                <span style="font-size:11px; color:#A3AAB4; text-transform:uppercase; font-family:var(--font-mono, monospace);">Новостей на портале</span>
+                <b id="admin-diag-news-count" style="display:block; font-size:24px; color:#FFB04A; margin-top:4px;">0</b>
+              </div>
+              <div style="background:#101318; padding:14px; border-radius:8px; border:1px solid rgba(255,255,255,0.08);">
+                <span style="font-size:11px; color:#A3AAB4; text-transform:uppercase; font-family:var(--font-mono, monospace);">Статей редакции</span>
+                <b id="admin-diag-articles-count" style="display:block; font-size:24px; color:#FFB04A; margin-top:4px;">0</b>
+              </div>
+              <div style="background:#101318; padding:14px; border-radius:8px; border:1px solid rgba(255,255,255,0.08);">
+                <span style="font-size:11px; color:#A3AAB4; text-transform:uppercase; font-family:var(--font-mono, monospace);">Сотрудников в штате</span>
+                <b id="admin-diag-staff-count" style="display:block; font-size:24px; color:#FFB04A; margin-top:4px;">0</b>
+              </div>
+              <div style="background:#101318; padding:14px; border-radius:8px; border:1px solid rgba(255,255,255,0.08);">
+                <span style="font-size:11px; color:#A3AAB4; text-transform:uppercase; font-family:var(--font-mono, monospace);">Последняя синхронизация</span>
+                <b id="admin-diag-sync-time" style="display:block; font-size:13px; color:#F1F2F3; margin-top:8px; font-family:var(--font-mono, monospace);">Активна</b>
               </div>
             </div>
-            <div class="lsn-account-data-list" style="margin-top:14px;">
-              <div class="lsn-account-data-row">
-                <span class="lsn-account-data-lbl">Состояние сеанса:</span>
-                <span class="lsn-account-data-val" style="color:#4ade80;">● Защищённое SSL/TLS соединение</span>
-              </div>
-              <div class="lsn-account-data-row">
-                <span class="lsn-account-data-lbl">Уровень авторизации:</span>
-                <span class="lsn-account-data-val" id="acc-sec-rank-val">-</span>
-              </div>
-              <div class="lsn-account-data-row">
-                <span class="lsn-account-data-lbl">Контроль доступа:</span>
-                <span class="lsn-account-data-val" style="color:#cbd5e1;">Строго по роли RLS</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- CARD 2: Password Management -->
-          <div class="lsn-account-card">
-            <div class="lsn-account-card-hdr">
-              <span class="lsn-account-card-kicker">Безопасность</span>
-              <h3>Управление паролем</h3>
-            </div>
-            <p class="lsn-account-card-desc">
-              Для обновления доступа будет сгенерирована защищённая верификационная ссылка и отправлена на привязанную почту вашей учётной записи.
-            </p>
-            <div style="margin-top:14px;">
-              <button type="button" class="lsn-staff-btn" id="acc-reset-password-btn" style="width:100%; justify-content:center; padding:10px 14px;">
-                🔐 Запросить смену пароля
-              </button>
-              <div id="acc-pwd-msg" class="lsn-account-form-msg"></div>
-            </div>
-          </div>
-
-          <!-- CARD 3: Session Termination / Logout -->
-          <div class="lsn-account-card lsn-account-card--full" style="border-color:rgba(239, 68, 68, 0.25); background:rgba(239, 68, 68, 0.03);">
-            <div class="lsn-account-card-hdr">
-              <span class="lsn-account-card-kicker" style="color:#f87171;">Сеанс</span>
-              <h3>Выход из учётной записи</h3>
-            </div>
-            <p class="lsn-account-card-desc">
-              Завершение сеанса авторизации на текущем устройстве и очистка сессионных данных. Для повторного входа потребуется ввести пароль.
-            </p>
-            <div style="display:flex; justify-content:flex-end; margin-top:10px;">
-              <button type="button" class="lsn-staff-btn cab-ad-mini-btn--del" id="acc-confirm-logout-btn" style="padding:10px 20px; font-size:13px;">
-                🚪 Завершить сеанс
-              </button>
+            <div style="margin-top:16px; padding:12px 14px; background:rgba(0,0,0,0.3); border-radius:8px; font-size:12px; color:#A3AAB4; display:flex; justify-content:space-between; align-items:center;">
+              <span>Контроль целостности: <b style="color:#4ade80;">RLS Policies Active · No Secret Leaks · Zero Trust Guard</b></span>
+              <button type="button" id="admin-force-sync-btn" class="cab-ad-mini-btn" style="color:#FFB04A; border-color:rgba(242,140,40,0.35);">🔄 Обновить статус</button>
             </div>
           </div>
         </div>
@@ -9191,6 +9249,16 @@ dialog#article-dialog::backdrop {
             <span id="uni-label-title">Заголовок</span>
             <input type="text" id="uni-field-title" required maxlength="130" placeholder="Введите заголовок...">
           </label>
+          <label style="margin-top:10px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span id="uni-label-slug" style="font-weight:700; font-size:12px; color:#cbd5e1;">Название ссылки / окончание URL:</span>
+              <span id="uni-slug-hint" style="font-size:11px; color:#A3AAB4; font-family:var(--font-mono, monospace);">авто-транслитерация</span>
+            </div>
+            <input type="text" id="uni-field-slug" maxlength="110" placeholder="например: new-medical-center" pattern="[a-z0-9\-]+" style="font-family:var(--font-mono, monospace); font-size:13px; color:#FFB04A;">
+            <span id="uni-slug-preview" style="display:block; font-size:11.5px; color:#A3AAB4; margin-top:4px; font-family:var(--font-mono, monospace);">
+              Предпросмотр ссылки: <b style="color:#F28C28;">https://los-santos-news.org/articles/<span id="uni-slug-preview-val">novost</span></b>
+            </span>
+          </label>
 
           <label>
             <span id="uni-label-sub">Подпись / Рубрика</span>
@@ -9207,7 +9275,7 @@ dialog#article-dialog::backdrop {
             <div id="uni-rubric-selector-wrap" style="margin-bottom:12px;" hidden>
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
                 <span style="font-size:12px; font-weight:700; color:#cbd5e1;">Рубрика статьи:</span>
-                <span style="font-size:11px; color:#35D6C5; font-family:var(--font-mono, monospace);">Выберите рубрику</span>
+                <span style="font-size:11px; color:#F28C28; font-family:var(--font-mono, monospace);">Выберите рубрику</span>
               </div>
               <div style="display:flex; gap:6px; flex-wrap:wrap;" id="uni-rubric-chips">
                 <button type="button" class="cab-filter-pill is-active" data-rubric="Экономика">Экономика</button>
@@ -9230,14 +9298,14 @@ dialog#article-dialog::backdrop {
               <button type="button" class="uni-fmt-btn" data-fmt="link" title="Гиперссылка">🔗 Ссылка</button>
               <button type="button" class="uni-fmt-btn" data-fmt="para" title="Новый абзац">¶ Абзац</button>
               <button type="button" class="uni-fmt-btn" data-fmt="infobox" title="Информационная справка">ℹ Справка</button>
-              <button type="button" class="uni-fmt-btn" id="uni-toolbar-preview-btn" title="Предпросмотр статьи" style="margin-left:auto; color:#35D6C5; border-color:rgba(53,214,197,0.4); font-weight:700;">👁 Предпросмотр</button>
+              <button type="button" class="uni-fmt-btn" id="uni-toolbar-preview-btn" title="Предпросмотр статьи" style="margin-left:auto; color:#F28C28; border-color:rgba(242,140,40,0.4); font-weight:700;">👁 Предпросмотр</button>
             </div>
             <textarea id="uni-field-body" rows="9" required maxlength="8000" placeholder="Введите текст публикации... Поддерживается расширенное форматирование лонгрида." style="width:100%; font-family:var(--font-sans); line-height:1.6;"></textarea>
             
             <!-- Real-Time Article Metrics Counter -->
             <div id="uni-article-metrics" style="display:flex; justify-content:space-between; align-items:center; margin-top:6px; font-family:var(--font-mono, monospace); font-size:11.5px; color:#94a3b8; padding:0 4px;">
               <span id="uni-metrics-chars">0 симв. · 0 слов</span>
-              <span id="uni-metrics-readtime" style="color:#35D6C5;">~0 мин чтения</span>
+              <span id="uni-metrics-readtime" style="color:#F28C28;">~0 мин чтения</span>
             </div>
           </div>
 
@@ -9296,8 +9364,8 @@ dialog#article-dialog::backdrop {
           </div>
 
           <!-- Hero Focus extra options: Location Tag, CTA Button Text & Target, Photo Caption -->
-          <div class="uni-extra-box" id="uni-focus-extra-options" style="background:rgba(53,214,197,0.05); padding:14px; border-radius:10px; border:1px solid rgba(53,214,197,0.22); margin-bottom:10px;" hidden>
-            <span style="font-size:12.5px; font-weight:800; color:#7CEDE2; display:block; margin-bottom:10px; letter-spacing:0.04em; text-transform:uppercase;">🎯 Параметры главного блока «LSN В ФОКУСЕ»</span>
+          <div class="uni-extra-box" id="uni-focus-extra-options" style="background:rgba(242,140,40,0.05); padding:14px; border-radius:10px; border:1px solid rgba(242,140,40,0.22); margin-bottom:10px;" hidden>
+            <span style="font-size:12.5px; font-weight:800; color:#FFB04A; display:block; margin-bottom:10px; letter-spacing:0.04em; text-transform:uppercase;">🎯 Параметры главного блока «LSN В ФОКУСЕ»</span>
             <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:10px;">
               <label style="margin:0;">
                 <span style="font-size:11.5px; color:#cbd5e1;">Тег локации / Направление</span>
@@ -9319,10 +9387,10 @@ dialog#article-dialog::backdrop {
           </div>
 
           <!-- Staff Member Status Pill selector -->
-          <div class="uni-extra-box" id="uni-staff-status-options" style="background:rgba(53,214,197,0.04); padding:12px 14px; border-radius:10px; border:1px solid rgba(53,214,197,0.18); margin-bottom:10px;" hidden>
+          <div class="uni-extra-box" id="uni-staff-status-options" style="background:rgba(242,140,40,0.04); padding:12px 14px; border-radius:10px; border:1px solid rgba(242,140,40,0.18); margin-bottom:10px;" hidden>
             <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:8px; flex-wrap:wrap;">
               <span style="font-size:12px; font-weight:700; color:#e2e8f0;">Статус сотрудника в карточке состава:</span>
-              <span style="font-size:11px; color:#7CEDE2; font-family:var(--font-mono, monospace);">Индикатор активности LSN</span>
+              <span style="font-size:11px; color:#FFB04A; font-family:var(--font-mono, monospace);">Индикатор активности LSN</span>
             </div>
             <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:8px;" id="uni-staff-status-chips">
               <button type="button" class="cab-filter-pill" data-staff-status-chip="В РЕДАКЦИИ">● В РЕДАКЦИИ</button>
@@ -9351,6 +9419,10 @@ dialog#article-dialog::backdrop {
                 <span><b>Загрузить изображение</b><small style="display:block; color:#94a3b8; font-size:10.5px;">PNG, JPG, WEBP, GIF · до 5 МБ</small></span>
                 <input type="file" id="uni-field-file" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
               </label>
+              <button type="button" class="uni-media-secondary" id="uni-open-library-btn" style="background:rgba(242,140,40,0.12); border-color:rgba(242,140,40,0.4); color:#FFB04A;">
+                <span style="font-size:16px;">📷</span>
+                <span><b>Выбрать из библиотеки LSN</b><small style="display:block; color:#A3AAB4; font-size:10.5px;">22 района GTA San Andreas</small></span>
+              </button>
               <button type="button" class="uni-media-secondary" id="uni-toggle-album-btn">
                 <span style="font-size:16px;">✦</span>
                 <span><b>Альбом иллюстраций LSN</b><small style="display:block; color:#94a3b8; font-size:10.5px;">20 видов Сан-Андреаса</small></span>
@@ -9418,7 +9490,7 @@ dialog#article-dialog::backdrop {
             <button type="button" id="uni-archive-btn" class="lsn-staff-btn" style="padding:10px 18px; font-size:13px; color:#94a3b8; border-color:rgba(148,163,184,0.3); background:rgba(148,163,184,0.06);" title="Перенести в архив">
               📦 В архив
             </button>
-            <button type="button" id="uni-preview-btn" class="lsn-staff-btn" style="padding:10px 18px; font-size:13px; color:#35D6C5; border-color:rgba(53,214,197,0.35); background:rgba(53,214,197,0.08);" title="Открыть полноэкранный предпросмотр">
+            <button type="button" id="uni-preview-btn" class="lsn-staff-btn" style="padding:10px 18px; font-size:13px; color:#F28C28; border-color:rgba(242,140,40,0.35); background:rgba(242,140,40,0.08);" title="Открыть полноэкранный предпросмотр">
               👁 Предпросмотр
             </button>
             <button type="button" class="lsn-staff-btn cab-ad-mini-btn--del" id="uni-delete-current-btn" hidden>
@@ -9881,6 +9953,15 @@ dialog#article-dialog::backdrop {
 <!-- Embedded Interactive Controller -->
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+  try {
+
+  // Hoisted state variables to prevent Temporal Dead Zone (TDZ)
+  let currentArticleThematicFilter = "all";
+  let currentArticleTargetStatus = "published";
+  let isSlugManuallyCustomized = false;
+  let currentMediaRegionFilter = "all";
+  let selectedMediaLibraryItem = null;
+
   // ==========================================
   // НАСТРОЙКИ ОБЛАЧНОЙ БАЗЫ SUPABASE
   // ==========================================
@@ -10338,23 +10419,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const liveIndex = $('#live-lsn-index');
     if (liveIndex) liveIndex.textContent = `🏆 ${sanRatingState.lsn.rating} (#1 · ${sanRatingState.lsn.coins}) ↗`;
 
-    // Sync with Staff Intro stat card (#1 · 342K)
-    if (staffState && Array.isArray(staffState.stats) && staffState.stats[1]) {
-      const rawNum = String(sanRatingState.lsn?.rating ?? '').match(/\d[\d\s]*\d/);
-      if (rawNum) {
-        const valStr = rawNum[0].replace(/\s/g, '');
-        const valNum = Number(valStr);
-        if (!isNaN(valNum) && valNum > 1000) {
-          const newVal = `#1 · ${Math.round(valNum / 1000)}K`;
-          if (staffState.stats[1].value !== newVal) {
-            staffState.stats[1].value = newVal;
-            if (typeof renderStaffSection === 'function') {
-              renderStaffSection();
-            }
-          }
-        }
-      }
-    }
+    // Radio rating sync is maintained independently for the rating board/ticker;
+    // Editorial stat cards (#staff-article-stats-grid) are canonical and deterministic.
   };
 
   // =========================================================================
@@ -11097,6 +11163,506 @@ document.addEventListener('DOMContentLoaded', () => {
     return '';
   };
   const safeHexColor = (value) => /^#[0-9a-f]{6}$/i.test(String(value || '')) ? String(value) : '';
+  // =========================================================================
+  // CANONICAL GTA SAN ANDREAS MEDIA LIBRARY (22 VERIFIED LOCATIONS)
+  // =========================================================================
+  const LSN_CANONICAL_MEDIA_LIBRARY = window.LSN_CANONICAL_MEDIA_LIBRARY = [
+    // 1. LOS SANTOS
+    {
+      id: "commerce",
+      region: "Los Santos",
+      district: "Commerce",
+      title: "Мэрия и площадь Першинг в Commerce",
+      src: "assets/lsn-immersive-v3/commerce.jpg",
+      filename: "commerce.jpg",
+      sizeBytes: 231438,
+      width: 1920,
+      height: 1080,
+      desc: "Административное сердце Лос-Сантоса, здание мэрии, полицейский департамент и штаб-квартира LSN."
+    },
+    {
+      id: "downtown",
+      region: "Los Santos",
+      district: "Downtown",
+      title: "Небоскрёбы финансового центра Downtown",
+      src: "assets/lsn-immersive-v3/downtown.jpg",
+      filename: "downtown.jpg",
+      sizeBytes: 138380,
+      width: 1920,
+      height: 1080,
+      desc: "Деловой центр города, высотные офисные башни и главные транспортные магистрали."
+    },
+    {
+      id: "vinewood",
+      region: "Los Santos",
+      district: "Vinewood",
+      title: "Знак Vinewood и холмы Малхолланд",
+      src: "assets/lsn-immersive-v3/vinewood.jpg",
+      filename: "vinewood.jpg",
+      sizeBytes: 69898,
+      width: 1920,
+      height: 1080,
+      desc: "Знаменитый холм с надписью VINEWOOD, особняки кинопродюсеров и панорама города."
+    },
+    {
+      id: "ganton",
+      region: "Los Santos",
+      district: "Ganton",
+      title: "Улица Гроув в Гантоне",
+      src: "assets/lsn-immersive-v3/ganton.png",
+      filename: "ganton.png",
+      sizeBytes: 782950,
+      width: 1920,
+      height: 1080,
+      desc: "Исторический жилой сектор с кольцевым тупиком и классической одноэтажной застройкой."
+    },
+    {
+      id: "oceandocks",
+      region: "Los Santos",
+      district: "Ocean Docks",
+      title: "Морские доки и портовые терминалы",
+      src: "assets/lsn-immersive-v3/oceandocks.jpg",
+      filename: "oceandocks.jpg",
+      sizeBytes: 115006,
+      width: 1920,
+      height: 1080,
+      desc: "Грузовой морской порт, склады, контейнерные терминалы и промышленные краны."
+    },
+    {
+      id: "pershingsquare",
+      region: "Los Santos",
+      district: "Pershing Square",
+      title: "Центральный сквер Pershing Square",
+      src: "assets/lsn-immersive-v3/pershingsquare.jpg",
+      filename: "pershingsquare.jpg",
+      sizeBytes: 142892,
+      width: 1920,
+      height: 1080,
+      desc: "Городской сквер напротив центрального полицейского управления и суда."
+    },
+    {
+      id: "rodeo",
+      region: "Los Santos",
+      district: "Rodeo",
+      title: "Бутики и галереи района Rodeo",
+      src: "assets/lsn-immersive-v3/rodeo.jpg",
+      filename: "rodeo.jpg",
+      sizeBytes: 102356,
+      width: 1920,
+      height: 1080,
+      desc: "Престижный торговый квартал с элитными магазинами и фешенебельными отелями."
+    },
+    {
+      id: "idlewood",
+      region: "Los Santos",
+      district: "Idlewood",
+      title: "Торговые ряды и мотель в Idlewood",
+      src: "assets/lsn-immersive-v3/idlewood.jpg",
+      filename: "idlewood.jpg",
+      sizeBytes: 503700,
+      width: 1920,
+      height: 1080,
+      desc: "Оживлённые перекрёстки, заправочные станции и жилые комплексы Восточного Лос-Сантоса."
+    },
+    {
+      id: "santamariabeach",
+      region: "Los Santos",
+      district: "Santa Maria Beach",
+      title: "Набережная и пирс Santa Maria Beach",
+      src: "assets/lsn-immersive-v3/santamariabeach.png",
+      filename: "santamariabeach.png",
+      sizeBytes: 542524,
+      width: 1920,
+      height: 1080,
+      desc: "Песчаная береговая линия, маяк и променад Тихоокеанского побережья."
+    },
+
+    // 2. SAN FIERRO
+    {
+      id: "doherty",
+      region: "San Fierro",
+      district: "Doherty",
+      title: "Индустриальная зона Доэрти в Сан-Фиерро",
+      src: "assets/lsn-immersive-v3/doherty.jpg",
+      filename: "doherty.jpg",
+      sizeBytes: 78406,
+      width: 1920,
+      height: 1080,
+      desc: "Железнодорожные пути, авторемонтные мастерские и фабричный сектор Сан-Фиерро."
+    },
+
+    // 3. LAS VENTURAS
+    {
+      id: "thestrip",
+      region: "Las Venturas",
+      district: "The Strip",
+      title: "Главный бульвар Стрип в Лас-Вентурасе",
+      src: "assets/lsn-immersive-v3/thestrip.jpg",
+      filename: "thestrip.jpg",
+      sizeBytes: 513938,
+      width: 1920,
+      height: 1080,
+      desc: "Неоновые казино, курортные комплексы и ночная жизнь игорной столицы штата."
+    },
+
+    // 4. COUNTRYSIDE
+    {
+      id: "montgomery",
+      region: "Countryside",
+      district: "Montgomery",
+      title: "Центральный перекрёсток городка Монтгомери",
+      src: "assets/lsn-immersive-v3/montgomery.jpg",
+      filename: "montgomery.jpg",
+      sizeBytes: 226438,
+      width: 1920,
+      height: 1080,
+      desc: "Тихий провинциальный городок Ред-Каунти с местной больницей и автозаправочной станцией."
+    },
+    {
+      id: "palominocreek",
+      region: "Countryside",
+      district: "Palomino Creek",
+      title: "Жилой квартал Паломино-Крик",
+      src: "assets/lsn-immersive-v3/palominocreek.jpg",
+      filename: "palominocreek.jpg",
+      sizeBytes: 210110,
+      width: 1920,
+      height: 1080,
+      desc: "Уютное пригородное поселение на берегу реки с церковью и библиотекой."
+    },
+    {
+      id: "dillimore",
+      region: "Countryside",
+      district: "Dillimore",
+      title: "Шерифский участок в Диллиморе",
+      src: "assets/lsn-immersive-v3/dillimore.jpg",
+      filename: "dillimore.jpg",
+      sizeBytes: 293848,
+      width: 1920,
+      height: 1080,
+      desc: "Окружной центр правопорядка Red County Sheriff Department и местная закусочная."
+    },
+    {
+      id: "blueberry",
+      region: "Countryside",
+      district: "Blueberry",
+      title: "Фермерские склады и завод Блуберри",
+      src: "assets/lsn-immersive-v3/blueberry.jpg",
+      filename: "blueberry.jpg",
+      sizeBytes: 344202,
+      width: 1920,
+      height: 1080,
+      desc: "Аграрный центр округа, элеваторы, склады удобрений и пивоваренный завод."
+    },
+    {
+      id: "redcounty",
+      region: "Countryside",
+      district: "Red County",
+      title: "Холмы и дубравы округа Ред-Каунти",
+      src: "assets/lsn-immersive-v3/redcounty.jpg",
+      filename: "redcounty.jpg",
+      sizeBytes: 69658,
+      width: 1920,
+      height: 1080,
+      desc: "Извилистые просёлочные дороги, деревянные мосты и лесные угодья между городами."
+    },
+    {
+      id: "angelpine",
+      region: "Countryside",
+      district: "Angel Pine",
+      title: "Деревушка Энджел-Пайн у подножия Чилиад",
+      src: "assets/lsn-immersive-v3/angelpine.jpg",
+      filename: "angelpine.jpg",
+      sizeBytes: 253106,
+      width: 1920,
+      height: 1080,
+      desc: "Горное поселение лесорубов и туристов в округе Уэтстоун рядом с лесопилкой."
+    },
+    {
+      id: "mountchiliad",
+      region: "Countryside",
+      district: "Mount Chiliad",
+      title: "Пик горы Чилиад",
+      src: "assets/lsn-immersive-v3/mountchiliad.jpg",
+      filename: "mountchiliad.jpg",
+      sizeBytes: 27520,
+      width: 1920,
+      height: 1080,
+      desc: "Высочайшая вершина штата Сан-Андреас с обзорной смотровой площадкой."
+    },
+
+    // 5. DESERT
+    {
+      id: "fortcarson",
+      region: "Desert",
+      district: "Fort Carson",
+      title: "Главная улица городка Форт-Карсон",
+      src: "assets/lsn-immersive-v3/fortcarson.jpg",
+      filename: "fortcarson.jpg",
+      sizeBytes: 200604,
+      width: 1920,
+      height: 1080,
+      desc: "Крупнейший посёлок округа Боун с мотелем, радиовышкой и окружным медицинским пунктом."
+    },
+    {
+      id: "theshermandam",
+      region: "Desert",
+      district: "The Sherman Dam",
+      title: "Гидроэлектростанция Дамба Шермана",
+      src: "assets/lsn-immersive-v3/theshermandam.jpg",
+      filename: "theshermandam.jpg",
+      sizeBytes: 147968,
+      width: 1920,
+      height: 1080,
+      desc: "Колоссальная плотина и водохранилище, снабжающие энергией Лас-Вентурас."
+    },
+
+    // STATEWIDE & EDITORIAL
+    {
+      id: "trucker_editorial",
+      region: "Los Santos",
+      district: "Ocean Docks / Commerce",
+      title: "Дальнобойщик на рассвете в Лос-Сантосе",
+      src: "assets/lsn-trucker-editorial.jpg",
+      filename: "lsn-trucker-editorial.jpg",
+      sizeBytes: 809397,
+      width: 1920,
+      height: 1080,
+      desc: "Кинематографичный кадр тягача и водителя на фоне утренней промышленной панорамы."
+    },
+    {
+      id: "san_andreas_state",
+      region: "Statewide",
+      district: "San Andreas",
+      title: "Топографическая карта штата Сан-Андреас",
+      src: "assets/lsn-immersive-v3/san-andreas-map.webp",
+      filename: "san-andreas-map.webp",
+      sizeBytes: 264570,
+      width: 1920,
+      height: 1080,
+      desc: "Официальная навигационная радарная карта всех трёх округов и городов штата."
+    }
+  ];
+
+  // Helper for generating custom kebab-case URL slugs from Cyrillic/Latin titles
+  const generateSlugFromTitle = (title) => {
+    if (!title) return "";
+    const cyrMap = {
+      "а": "a", "б": "b", "в": "v", "г": "g", "д": "d", "е": "e", "ё": "yo", "ж": "zh",
+      "з": "z", "и": "i", "й": "y", "к": "k", "л": "l", "м": "m", "н": "n", "о": "o",
+      "п": "p", "р": "r", "с": "s", "т": "t", "у": "u", "ф": "f", "х": "kh", "ц": "ts",
+      "ч": "ch", "ш": "sh", "щ": "shch", "ъ": "", "ы": "y", "ь": "", "э": "e", "ю": "yu", "я": "ya"
+    };
+    let clean = String(title).trim().toLowerCase();
+    let result = "";
+    for (let i = 0; i < clean.length; i++) {
+      const ch = clean[i];
+      if (cyrMap[ch] !== undefined) {
+        result += cyrMap[ch];
+      } else if (/[a-z0-9]/.test(ch)) {
+        result += ch;
+      } else if (/[\s\-_—–.,:;!?/\\]/.test(ch)) {
+        if (result.length && result[result.length - 1] !== "-") {
+          result += "-";
+        }
+      }
+    }
+    return result.replace(/^-+|-+$/g, "").slice(0, 80);
+  };
+  window.generateSlugFromTitle = generateSlugFromTitle;
+
+  // =========================================================================
+  // PERSISTENT PER-ACCOUNT FAVORITES (BOOKMARKS) SYSTEM
+  // =========================================================================
+  const LSN_FAVORITES = {
+    getStorageKey() {
+      const uid = (typeof currentUser !== "undefined" && currentUser)
+        ? (currentUser.id || currentUser.uuid || currentUser.username || "guest")
+        : "guest";
+      return "lsn_favs_" + uid;
+    },
+    getAll() {
+      try {
+        const raw = localStorage.getItem(this.getStorageKey());
+        return raw ? JSON.parse(raw) : [];
+      } catch (_) {
+        return [];
+      }
+    },
+        save(list) {
+      try {
+        localStorage.setItem(this.getStorageKey(), JSON.stringify(list || []));
+        this.syncUI();
+        if (typeof currentUser !== "undefined" && currentUser && currentUser.id && typeof sb !== "undefined" && sb) {
+          try {
+            sb.from('profiles').update({
+              metadata: { ...(currentUser.metadata || {}), favorites: list || [] }
+            }).eq('id', currentUser.id).then(({ error }) => {
+              if (error) console.warn("Supabase favorites sync:", error);
+            });
+          } catch (_) {}
+        }
+      } catch (e) {
+        console.warn("LSN_FAVORITES save error:", e);
+      }
+    },
+    async syncFromCloud() {
+      if (typeof currentUser !== "undefined" && currentUser && currentUser.id && typeof sb !== "undefined" && sb) {
+        try {
+          const { data } = await sb.from('profiles').select('metadata').eq('id', currentUser.id).single();
+          if (data && data.metadata && Array.isArray(data.metadata.favorites)) {
+            const cloud = data.metadata.favorites;
+            const current = this.getAll();
+            const merged = [...current];
+            cloud.forEach(c => {
+              if (!merged.some(m => m.id === c.id)) merged.push(c);
+            });
+            localStorage.setItem(this.getStorageKey(), JSON.stringify(merged));
+            this.syncUI();
+          }
+        } catch (_) {}
+      }
+    },
+    has(id) {
+      if (!id) return false;
+      const all = this.getAll();
+      return all.some(item => item.id === id || (item.slug && item.slug === id));
+    },
+    add(item) {
+      if (!item || !item.id) return;
+      const all = this.getAll();
+      if (!all.some(x => x.id === item.id)) {
+        all.unshift({
+          id: item.id,
+          slug: item.slug || item.id,
+          type: item.type || "news",
+          title: item.title || "Публикация LSN",
+          category: item.category || item.tag || item.subtitle || "Редакция",
+          dateText: item.dateText || item.date || "Недавно",
+          img: item.img || item.customImg || "",
+          addedAt: Date.now()
+        });
+        this.save(all);
+        if (typeof flashUniSaved === "function") flashUniSaved("✓ Сохранено в закладки");
+      }
+    },
+    remove(id) {
+      if (!id) return;
+      let all = this.getAll();
+      all = all.filter(x => x.id !== id && x.slug !== id);
+      this.save(all);
+      if (typeof flashUniSaved === "function") flashUniSaved("Закладка удалена");
+    },
+    toggle(id, fallbackItem = null) {
+      if (this.has(id)) {
+        this.remove(id);
+      } else {
+        let item = fallbackItem;
+        if (!item) {
+          if (id === "hero-focus") {
+            item = {
+              id: "hero-focus",
+              slug: "hero-focus",
+              type: "focus",
+              title: (typeof heroFocusState !== "undefined" && heroFocusState?.title) || "Грузоперевозки в Сан-Андреас",
+              category: (typeof heroFocusState !== "undefined" && heroFocusState?.kicker) || "LSN В ФОКУСЕ",
+              dateText: (typeof heroFocusState !== "undefined" && heroFocusState?.tag) || "Commerce",
+              img: (typeof heroFocusState !== "undefined" && heroFocusState?.img) || "assets/lsn-trucker-editorial.jpg"
+            };
+          } else if (typeof newsState !== "undefined" && Array.isArray(newsState)) {
+            const found = newsState.find(x => x.id === id || x.slug === id);
+            if (found) item = { ...found, type: "news" };
+          }
+          if (!item && typeof columnsState !== "undefined" && Array.isArray(columnsState)) {
+            const found = columnsState.find(x => x.id === id || x.slug === id);
+            if (found) item = { ...found, type: "article" };
+          }
+        }
+        if (item) this.add(item);
+      }
+    },
+    syncUI() {
+      const all = this.getAll();
+      const counter = document.getElementById("account-favs-counter");
+      if (counter) counter.textContent = all.length;
+
+      const heroBtn = document.getElementById("hero-bookmark-btn");
+      if (heroBtn) {
+        const activeItem = (typeof getHeroRotationItems === 'function' && typeof currentHeroSlideIndex !== 'undefined') ? (getHeroRotationItems()[currentHeroSlideIndex] || { id: 'hero-focus' }) : { id: 'hero-focus' };
+        const isFav = this.has(activeItem.id) || (activeItem.slug && this.has(activeItem.slug));
+        heroBtn.classList.toggle("is-bookmarked", isFav);
+        const span = heroBtn.querySelector("span");
+        if (span) span.textContent = isFav ? "В закладках" : "В закладки";
+      }
+
+      const readerBtn = document.getElementById("reader-bookmark-btn");
+      if (readerBtn && window.currentReadingPublicationId) {
+        const isFav = this.has(window.currentReadingPublicationId);
+        readerBtn.classList.toggle("is-bookmarked", isFav);
+        const span = readerBtn.querySelector("span");
+        if (span) span.textContent = isFav ? "В закладках" : "В закладки";
+      }
+
+      const favPanel = document.getElementById("account-tab-favorites");
+      if (favPanel && !favPanel.hidden) {
+        this.renderHub();
+      }
+    },
+    renderHub() {
+      const listEl = document.getElementById("account-favorites-list");
+      if (!listEl) return;
+      const all = this.getAll();
+      const counter = document.getElementById("account-favs-counter");
+      if (counter) counter.textContent = all.length;
+      if (!all.length) {
+        listEl.innerHTML = `
+          <div style="padding:40px 20px; text-align:center; color:#A3AAB4;">
+            <div style="font-size:32px; margin-bottom:8px; opacity:0.6;">★</div>
+            <strong style="display:block; color:#F1F2F3; font-size:15px; margin-bottom:4px;">Список закладок пуст</strong>
+            <span style="font-size:12.5px;">Нажимайте кнопку «В закладки» на любой новости или статье, чтобы сохранять материалы для быстрого чтения.</span>
+          </div>
+        `;
+        return;
+      }
+      listEl.innerHTML = "";
+      all.forEach(item => {
+        const card = document.createElement("div");
+        card.className = "lsn-fav-item-card";
+        card.style.cssText = "display:flex; align-items:center; justify-content:space-between; gap:14px; padding:12px 16px; background:#171B22; border:1px solid rgba(242,140,40,0.22); border-radius:10px; margin-bottom:10px; transition:all 0.2s ease;";
+        const safeImg = item.img ? `<div style="width:48px; height:48px; border-radius:8px; overflow:hidden; flex-shrink:0; background:#101318; border:1px solid rgba(255,255,255,0.08);"><img src="${escapeHtml(item.img)}" alt="" style="width:100%; height:100%; object-fit:cover;"></div>` : "";
+        card.innerHTML = `
+          <div style="display:flex; align-items:center; gap:12px; min-width:0; flex:1;">
+            ${safeImg}
+            <div style="min-width:0;">
+              <div style="display:flex; align-items:center; gap:8px; margin-bottom:2px;">
+                <span style="font-family:var(--font-mono, monospace); font-size:10px; font-weight:800; text-transform:uppercase; color:#FFB04A; background:rgba(242,140,40,0.12); padding:2px 6px; border-radius:3px;">${escapeHtml(item.category || "Материал")}</span>
+                <span style="font-size:11px; color:#A3AAB4;">${escapeHtml(item.dateText || "")}</span>
+              </div>
+              <strong style="display:block; color:#F1F2F3; font-size:13.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; cursor:pointer;" class="lsn-fav-title-link">${escapeHtml(item.title)}</strong>
+            </div>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
+            <button type="button" class="cab-ad-mini-btn lsn-fav-open-btn" style="color:#FFB04A; border-color:rgba(242,140,40,0.35); padding:6px 12px; font-size:11.5px;">Читать →</button>
+            <button type="button" class="cab-ad-mini-btn cab-ad-mini-btn--del lsn-fav-del-btn" title="Удалить из закладок" style="padding:6px 10px; font-size:11.5px;">✕</button>
+          </div>
+        `;
+        card.querySelector(".lsn-fav-title-link")?.addEventListener("click", () => {
+          openPublicationById(item.slug || item.id, { updateHistory: true });
+          document.getElementById("auth-dialog")?.close();
+        });
+        card.querySelector(".lsn-fav-open-btn")?.addEventListener("click", () => {
+          openPublicationById(item.slug || item.id, { updateHistory: true });
+          document.getElementById("auth-dialog")?.close();
+        });
+        card.querySelector(".lsn-fav-del-btn")?.addEventListener("click", (e) => {
+          e.stopPropagation();
+          LSN_FAVORITES.remove(item.id);
+        });
+        listEl.appendChild(card);
+      });
+    }
+  };
+  window.LSN_FAVORITES = LSN_FAVORITES;
 
   // News come from the editorial database; legacy demo IDs are ignored below.
 
@@ -12372,46 +12938,86 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (_) {}
   };
 
-  // 3) COLUMNS STORE (PRESERVING RAY WESTBLOCK'S CAREER & VACANCIES ARTICLES)
+    // 3) COLUMNS STORE (CANONICAL LSN ARTICLES & INVESTIGATIONS WITH HIGH-RES SA ASSETS)
   const DEFAULT_COLUMNS_DATA = [
+    {
+      id: '00000000-0000-4000-b000-000000000000',
+      title: 'Дальние рейсы Сан-Андреаса: люди и машины за кулисами портовой логистики',
+      subtitle: 'ПОРТ ЛОС-САНТОСА · ПРОМЫШЛЕННЫЙ СЕКТОР',
+      kicker: 'LSN В ФОКУСЕ · СПЕЦРЕПОРТАЖ',
+      accent: 'amber',
+      author: 'Редакция Los Santos News · 102.2 FM',
+      authorLogin: 'Редакция 102.2 FM',
+      img: 'assets/lsn-trucker-editorial.jpg',
+      readTime: '10 МИНУТ ЧТЕНИЯ',
+      spreadCount: '3 ФОТОРАЗВОРОТА',
+      slug: 'dalnie-reysy-san-andreasa-port-logistics',
+      body: 'От промышленных терминалов до океанских причалов — тысячи тонн грузов ежедневно проходят через артерии штата. Редакция 102.2 FM рассказывает о тех, кто держит экономику Лос-Сантоса в движении.\n\nРаннее утро на промышленной окраине Лос-Сантоса начинается задолго до того, как зажигаются витрины делового центра. Пока город только просыпается, у складских ангаров и топливных терминалов уже гудят дизельные двигатели магистральных тягачей.\n\nДальнобойщики Сан-Андреаса связывают воедино портовые доки, промышленные склады, заводы и торговые узлы штата. Каждый рейс требует точного расчёта маршрута, проверки креплений полуприцепа и многочасовой концентрации за рулём.\n\nКорреспонденты Los Santos News (волна 102.2 FM) провели утреннюю смену вместе с водителями большегрузных автопоездов, чтобы показать реальный труд людей, от которых зависит бесперебойное снабжение всего мегаполиса.'
+    },
+    {
+      id: '00000000-0000-4000-b000-000000000099',
+      title: 'Большой тенью над городом: кто скупает резиденции Вайнвуда',
+      subtitle: 'СЕКТОР ВАЙНВУД · ХОЛМЫ МУЛХОЛЛАНД',
+      kicker: 'ГЛАВНОЕ РАССЛЕДОВАНИЕ НЕДЕЛИ',
+      accent: 'amber',
+      author: 'Рэймонд Чен',
+      authorLogin: 'Рэймонд Чен',
+      img: 'assets/lsn-immersive-v3/vinewood.jpg',
+      readTime: '14 МИНУТ ЧТЕНИЯ',
+      spreadCount: '4 ФОТОРАЗВОРОТА',
+      slug: 'vinewood-residences-investigation',
+      body: 'Специальное расследование LSN о передаче сорока гектаров муниципальных холмов в частные инвестиционные фонды Либерти-Сити и тайных протоколах городского совета.\n\nЗа закрытыми дверями мэрии и в тишине закрытых клубов Вайнвуд-Хиллз разворачивается масштабная перекройка элитной недвижимости штата. Корреспонденты Los Santos News получили доступ к закрытым реестрам сделок и пообщались с инсайдерами строительного бизнеса.\n\nКто на самом деле стоит за новыми особняками и почему муниципальная земля уходит под контроль офшорных фондов — в нашем специальном репортаже.'
+    },
     {
       id: '00000000-0000-4000-b000-000000000001',
       title: 'LOS SANTOS NEWS | КАРЬЕРА И МЕДИА',
-      subtitle: '10.000.000 вирт',
+      subtitle: 'ШТАБ-КВАРТИРА COMMERCE · 10.000.000 ВИРТ',
+      kicker: 'КАРЬЕРА И МЕДИА · ПРЕМИАЛЬНЫЙ ФОНД',
       accent: 'amber',
       author: 'Ray Westblock',
       authorLogin: 'Ray Westblock',
-      img: '',
+      img: 'assets/lsn-immersive-v3/commerce.jpg',
+      readTime: '7 МИНУТ ЧТЕНИЯ',
+      spreadCount: '2 ФОТОРАЗВОРОТА',
+      slug: 'lsn-career-media-10m',
       body: 'Редакция Los Santos News (волна 102.2 FM) объявляет о грандиозном призовом фонде в 10.000.000 вирт для активных сотрудников медиа-холдинга!\n\nМы ценим инициативу, честность и преданность журналистскому делу. Каждый репортёр, радиоведущий и редактор получает прямые премиальные выплаты за качественные эфиры, интервью с первыми лицами штата и оперативные репортажи.\n\n• Рекордные премии до 10.000.000 вирт по итогам активности недели;\n• Быстрое продвижение по карьерной лестнице от стажёра до руководящего состава;\n• Доступ к служебному вертолёту D193SA и студийному комплексу в районе Commerce.\n\nПрисоединяйтесь к сильнейшей радиокоманде штата San Andreas!'
     },
     {
       id: '00000000-0000-4000-b000-000000000002',
       title: 'Работайте вместе с Los Santos News',
       subtitle: 'КАБИНЕТ ЖУРНАЛИСТА · ВАКАНСИИ 102.2 FM',
-      accent: 'red',
+      kicker: 'ВАКАНСИИ 102.2 FM · НАБОР В РЕДАКЦИЮ',
+      accent: 'amber',
       author: 'Ray Westblock',
       authorLogin: 'Ray Westblock',
-      img: LSN_SITE_ALBUM[2].src,
+      img: 'assets/lsn-immersive-v3/downtown.jpg',
+      readTime: '5 МИНУТ ЧТЕНИЯ',
+      spreadCount: '2 ФОТОРАЗВОРОТА',
+      slug: 'work-with-los-santos-news',
       body: 'Независимая радиокомпания и редакция Los Santos News (волна 102.2 FM) приглашает в штат талантливых репортёров, радиоведущих прямого эфира, фотокорреспондентов и редакторов.\n\nНаш центральный офис в районе Commerce оснащён современной студией звукозаписи, автопарком фургонов SAN NEWS и собственным вертолётом D193SA для оперативных репортажей с воздуха.\n\n• Ежедневные премии за проведённые радиоэфиры, викторины и отредактированные объявления;\n• Быстрый карьерный рост от стажёра до программного и технического директора.'
     },
     {
       id: '00000000-0000-4000-b000-000000000003',
       title: 'Читайте материалы, опубликованные редакцией',
-      subtitle: 'АНАЛИТИКА И РЕПОРТАЖИ LSN',
-      accent: 'cyan',
+      subtitle: 'ГОРОДСКАЯ ЖИЗНЬ · PERSHING SQUARE',
+      kicker: 'АНАЛИТИКА И РЕПОРТАЖИ LSN',
+      accent: 'amber',
       author: 'Ray Westblock',
       authorLogin: 'Ray Westblock',
-      img: LSN_SITE_ALBUM[0].src,
+      img: 'assets/lsn-immersive-v3/pershingsquare.jpg',
+      readTime: '8 МИНУТ ЧТЕНИЯ',
+      spreadCount: '3 ФОТОРАЗВОРОТА',
+      slug: 'read-editorial-materials-lsn',
       body: 'Каждый день корреспонденты Los Santos News следят за главными событиями мегаполиса: от решений мэрии и финансовых сводок башни Maze Bank до ночных стритрейсерских заездов и светских приёмов на Вайнвуд-Хиллз.\n\nВсе спецрепортажи, аналитические обзоры и эксклюзивные интервью публикуются в нашей цифровой ленте и звучат в круглосуточном эфире на частоте 102.2 FM.'
     }
   ];
 
-  const COLUMNS_STORAGE_KEY = 'lsn_columns_store_v20';
+  const COLUMNS_STORAGE_KEY = 'lsn_columns_store_v22';
   if (isSectionCleared('column')) {
     columnsState = [];
   } else {
     try {
-      const rawC = localStorage.getItem(COLUMNS_STORAGE_KEY) || localStorage.getItem('lsn_columns_store_v18') || localStorage.getItem('lsn_columns_store_v12');
+      const rawC = localStorage.getItem(COLUMNS_STORAGE_KEY) || localStorage.getItem('lsn_columns_store_v20') || localStorage.getItem('lsn_columns_store_v18') || localStorage.getItem('lsn_columns_store_v12');
       if (rawC !== null) {
         const parsedC = JSON.parse(rawC);
         columnsState = Array.isArray(parsedC) ? parsedC.filter(x => !isItemDeleted(x.id)) : [];
@@ -12422,24 +13028,57 @@ document.addEventListener('DOMContentLoaded', () => {
       columnsState = [];
     }
   }
-  if (Array.isArray(columnsState)) {
-    columnsState.forEach((item, idx) => {
-      if (!item.img && DEFAULT_COLUMNS_DATA[idx]?.img) item.img = DEFAULT_COLUMNS_DATA[idx].img;
-    });
-  }
+  // Guarantee all canonical default articles exist in columnsState with real photographic assets
+  DEFAULT_COLUMNS_DATA.forEach(defCol => {
+    const existing = columnsState.find(c => c.id === defCol.id || c.title === defCol.title);
+    if (!existing) {
+      columnsState.push(JSON.parse(JSON.stringify(defCol)));
+    } else {
+      if (!existing.img) existing.img = defCol.img;
+      if (!existing.kicker && defCol.kicker) existing.kicker = defCol.kicker;
+      if (!existing.slug && defCol.slug) existing.slug = defCol.slug;
+    }
+  });
   const saveColumnsState = () => {
     try {
       localStorage.setItem(COLUMNS_STORAGE_KEY, JSON.stringify(columnsState));
+      localStorage.setItem('lsn_columns_store_v20', JSON.stringify(columnsState));
       localStorage.setItem('lsn_columns_store_v18', JSON.stringify(columnsState));
     } catch (_) {}
   };
 
-  const DEFAULT_STAFF_STATS = [
-    { tag: 'РАДИОВОЛНА', value: '102.2 FM', desc: 'Частота круглосуточного радиовещания Los Santos News', tone: 'sky' },
-    { tag: 'ЛИДЕР ШТАТА', value: '#1 · 342K', desc: 'Первое место в игровом рейтинге радиокомпаний (san™)', tone: 'indigo' },
-    { tag: 'ШТАБ-КВАРТИРА', value: 'Commerce', desc: 'Центральная студия и редакционный штаб в Лос-Сантосе', tone: 'amber' },
-    { tag: 'АВИАЦИЯ LSN', value: 'D193SA', desc: 'Собственный воздушный борт SAN NEWS для прямых включений', tone: 'teal' }
-  ];
+  const CANONICAL_STAFF_STATS = Object.freeze([
+    {
+      tag: '\u0420\u0410\u0414\u0418\u041E\u0412\u041E\u041B\u041D\u0410',
+      value: '102.2 FM',
+      sub: '\u0413\u043E\u043B\u043E\u0441 Los Santos News \u2014 \u043A\u0440\u0443\u0433\u043B\u043E\u0441\u0443\u0442\u043E\u0447\u043D\u043E',
+      desc: '\u041D\u043E\u0432\u043E\u0441\u0442\u0438, \u0438\u043D\u0442\u0435\u0440\u0432\u044C\u044E \u0438 \u043F\u0440\u044F\u043C\u044B\u0435 \u0432\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u044F, \u043A\u043E\u0433\u0434\u0430 \u0441\u043E\u0431\u044B\u0442\u0438\u044F \u043F\u0440\u043E\u0438\u0441\u0445\u043E\u0434\u044F\u0442 \u0437\u0434\u0435\u0441\u044C \u0438 \u0441\u0435\u0439\u0447\u0430\u0441.',
+      tone: 'sky'
+    },
+    {
+      tag: '\u041A\u041E\u041D\u0422\u0420\u0410\u041A\u0422\u042B',
+      value: '228K',
+      sub: 'LSN \u2014 \u0441\u0432\u044F\u0437\u044C \u0433\u043E\u0440\u043E\u0434\u0430 \u0438 \u0431\u0438\u0437\u043D\u0435\u0441\u0430',
+      desc: '\u0421\u043F\u0435\u0446\u0438\u0430\u043B\u044C\u043D\u044B\u0435 \u043F\u0440\u043E\u0435\u043A\u0442\u044B, \u0440\u0435\u043A\u043B\u0430\u043C\u043D\u044B\u0435 \u043A\u043E\u043D\u0442\u0440\u0430\u043A\u0442\u044B \u0438 \u043F\u0430\u0440\u0442\u043D\u0451\u0440\u0441\u0442\u0432\u0430 \u0441 \u043E\u0440\u0433\u0430\u043D\u0438\u0437\u0430\u0446\u0438\u044F\u043C\u0438 \u041B\u043E\u0441-\u0421\u0430\u043D\u0442\u043E\u0441\u0430.',
+      tone: 'indigo'
+    },
+    {
+      tag: '\u0428\u0422\u0410\u0411-\u041A\u0412\u0410\u0420\u0422\u0418\u0420\u0410',
+      value: 'Commerce',
+      sub: '\u0422\u043E\u0447\u043A\u0430, \u043E\u0442\u043A\u0443\u0434\u0430 \u043D\u0430\u0447\u0438\u043D\u0430\u0435\u0442\u0441\u044F \u0432\u044B\u043F\u0443\u0441\u043A',
+      desc: '\u0426\u0435\u043D\u0442\u0440\u0430\u043B\u044C\u043D\u0430\u044F \u0441\u0442\u0443\u0434\u0438\u044F, \u0440\u0435\u0434\u0430\u043A\u0446\u0438\u044F \u0438 \u0440\u0430\u0431\u043E\u0447\u0438\u0439 \u0448\u0442\u0430\u0431 LSN \u0432 \u0441\u0430\u043C\u043E\u043C \u0441\u0435\u0440\u0434\u0446\u0435 \u0434\u0435\u043B\u043E\u0432\u043E\u0439 \u0447\u0430\u0441\u0442\u0438 \u041B\u043E\u0441-\u0421\u0430\u043D\u0442\u043E\u0441\u0430.',
+      tone: 'amber'
+    },
+    {
+      tag: '\u0410\u0412\u0418\u0410\u0426\u0418\u042F LSN',
+      value: 'SAN NEWS',
+      sub: '\u041D\u043E\u0432\u043E\u0441\u0442\u0438 \u0431\u0435\u0437 \u0433\u0440\u0430\u043D\u0438\u0446 \u0433\u043E\u0440\u043E\u0434\u0430',
+      desc: '\u0421\u043E\u0431\u0441\u0442\u0432\u0435\u043D\u043D\u044B\u0439 \u0432\u043E\u0437\u0434\u0443\u0448\u043D\u044B\u0439 \u0431\u043E\u0440\u0442 \u0434\u043B\u044F \u0440\u0435\u043F\u043E\u0440\u0442\u0430\u0436\u0435\u0439, \u043D\u0430\u0431\u043B\u044E\u0434\u0435\u043D\u0438\u044F \u0437\u0430 \u043E\u0431\u0441\u0442\u0430\u043D\u043E\u0432\u043A\u043E\u0439 \u0438 \u043F\u0440\u044F\u043C\u044B\u0445 \u0432\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u0439 \u0441 \u0432\u044B\u0441\u043E\u0442\u044B.',
+      tone: 'teal'
+    }
+  ]);
+
+  const DEFAULT_STAFF_STATS = CANONICAL_STAFF_STATS.map(x => ({ ...x }));
 
   const DEFAULT_STAFF_DATA = {
     articleKick: 'РЕДАКЦИОННЫЙ МАТЕРИАЛ · ШТАБ-КВАРТИРА LSN',
@@ -12549,9 +13188,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // =========================================================================
   // PERMALINK SYSTEM & DIRECT CONTENT ROUTING
   // =========================================================================
-  const getPublicationPermalink = (id) => {
+    const getPublicationPermalink = (id, item = null) => {
     const base = window.location.origin + window.location.pathname;
-    return `${base}?p=${encodeURIComponent(id)}`;
+    let target = id;
+    if (item && item.slug) {
+      target = item.slug;
+    } else if (typeof id === 'string') {
+      const found = (Array.isArray(newsState) ? newsState.find(x => x.id === id || x.slug === id) : null) ||
+                    (Array.isArray(columnsState) ? columnsState.find(x => x.id === id || x.slug === id) : null);
+      if (found && found.slug) target = found.slug;
+    }
+    return `${base}?p=${encodeURIComponent(target)}`;
   };
 
   const showToastFeedback = (btnEl, message, isSuccess = true) => {
@@ -12695,11 +13342,11 @@ document.addEventListener('DOMContentLoaded', () => {
     let foundType = null;
 
     if (Array.isArray(newsState)) {
-      const art = newsState.find(x => x.id === id);
+      const art = newsState.find(x => x.id === id || x.slug === id || (x.metadata && x.metadata.slug === id));
       if (art) { found = art; foundType = 'news'; }
     }
     if (!found && Array.isArray(columnsState)) {
-      const col = columnsState.find(x => x.id === id);
+      const col = columnsState.find(x => x.id === id || x.slug === id || (x.metadata && x.metadata.slug === id));
       if (col) { found = col; foundType = 'column'; }
     }
     if (!found && Array.isArray(adsState)) {
@@ -12869,7 +13516,7 @@ document.addEventListener('DOMContentLoaded', () => {
     escaped = escaped.replace(/\[([^\]]+)\]\((https?:\/\/[^\s\)]+|[^\s\)]+)\)/g, (match, label, url) => {
       const safe = safeImageUrl(url) || (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('/') || url.startsWith('#') ? url : '');
       if (safe && !safe.startsWith('javascript:') && !safe.startsWith('data:')) {
-        return `<a href="${escapeHtml(safe)}" target="_blank" rel="noopener noreferrer" style="color:#35D6C5; text-decoration:underline; font-weight:600; text-underline-offset:2px;">${label}</a>`;
+        return `<a href="${escapeHtml(safe)}" target="_blank" rel="noopener noreferrer" style="color:#F28C28; text-decoration:underline; font-weight:600; text-underline-offset:2px;">${label}</a>`;
       }
       return label;
     });
@@ -12886,17 +13533,17 @@ document.addEventListener('DOMContentLoaded', () => {
         return `<h3 style="font-family:'Playfair Display',Georgia,serif; font-size:24px; font-weight:700; color:#f8fafc; margin:28px 0 12px; line-height:1.25;">${renderInlineMarkdown(trimmed.slice(4))}</h3>`;
       }
       if (trimmed.startsWith('## ')) {
-        return `<h2 style="font-family:'Playfair Display',Georgia,serif; font-size:28px; font-weight:800; color:#ffffff; margin:36px 0 16px; line-height:1.2; letter-spacing:-0.01em; border-bottom:1px solid rgba(53,214,197,0.2); padding-bottom:8px;">${renderInlineMarkdown(trimmed.slice(3))}</h2>`;
+        return `<h2 style="font-family:'Playfair Display',Georgia,serif; font-size:28px; font-weight:800; color:#ffffff; margin:36px 0 16px; line-height:1.2; letter-spacing:-0.01em; border-bottom:1px solid rgba(242,140,40,0.2); padding-bottom:8px;">${renderInlineMarkdown(trimmed.slice(3))}</h2>`;
       }
       if (trimmed.startsWith('«') || (trimmed.startsWith('"') && trimmed.endsWith('"')) || trimmed.startsWith('> ')) {
         const quoteText = trimmed.startsWith('> ') ? trimmed.slice(2) : trimmed;
-        return `<div class="article-pullquote" style="margin:24px 0; padding:18px 24px; border-left:3px solid #35D6C5; background:rgba(53,214,197,0.06); border-radius:0 12px 12px 0; font-family:'Playfair Display',Georgia,serif; font-size:20px; font-style:italic; line-height:1.5; color:#f1f5f9;">${renderInlineMarkdown(quoteText)}</div>`;
+        return `<div class="article-pullquote" style="margin:24px 0; padding:18px 24px; border-left:3px solid #F28C28; background:rgba(242,140,40,0.06); border-radius:0 12px 12px 0; font-family:'Playfair Display',Georgia,serif; font-size:20px; font-style:italic; line-height:1.5; color:#f1f5f9;">${renderInlineMarkdown(quoteText)}</div>`;
       }
       if (trimmed.startsWith('[Справка:') || trimmed.startsWith('[Важно:')) {
         const endBracket = trimmed.indexOf(']');
         const tagTitle = endBracket !== -1 ? trimmed.slice(1, endBracket) : 'Справка';
         const body = endBracket !== -1 ? trimmed.slice(endBracket + 1).trim() : trimmed;
-        return `<div class="article-infobox" style="margin:24px 0; padding:18px 22px; border:1px solid rgba(53,214,197,0.3); background:rgba(10,16,24,0.9); border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.4);"><div class="article-infobox-title" style="color:#7CEDE2; font-family:var(--font-mono, monospace); font-size:12px; font-weight:800; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:8px;">ℹ ${escapeHtml(tagTitle)}</div><div class="article-infobox-body" style="font-size:15px; color:#cbd5e1; line-height:1.6;">${renderInlineMarkdown(body)}</div></div>`;
+        return `<div class="article-infobox" style="margin:24px 0; padding:18px 22px; border:1px solid rgba(242,140,40,0.3); background:rgba(10,16,24,0.9); border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.4);"><div class="article-infobox-title" style="color:#FFB04A; font-family:var(--font-mono, monospace); font-size:12px; font-weight:800; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:8px;">ℹ ${escapeHtml(tagTitle)}</div><div class="article-infobox-body" style="font-size:15px; color:#cbd5e1; line-height:1.6;">${renderInlineMarkdown(body)}</div></div>`;
       }
       // Check for bullet list (every line starts with - or * )
       const lines = trimmed.split('\n');
@@ -13710,12 +14357,25 @@ document.addEventListener('DOMContentLoaded', () => {
   const renderEditorialColumns = () => {
     if (!columnsHostEl) return;
     columnsHostEl.innerHTML = '';
-    const publishedColumns = (Array.isArray(columnsState) ? columnsState : []).filter(col => {
+    let publishedColumns = (Array.isArray(columnsState) ? columnsState : []).filter(col => {
       return col && col.status !== 'draft' && col.status !== 'archived' && !col.isDraft;
     });
+    const totalCountBadge = document.getElementById('articles-total-badge');
+    if (totalCountBadge) {
+      totalCountBadge.textContent = `${publishedColumns.length} публикаций`;
+    }
+    if (typeof currentArticleThematicFilter !== 'undefined' && currentArticleThematicFilter !== 'all') {
+      const qTag = currentArticleThematicFilter.toLowerCase();
+      publishedColumns = publishedColumns.filter(c => {
+        return (c.tag && c.tag.toLowerCase().includes(qTag)) ||
+               (c.category && c.category.toLowerCase().includes(qTag)) ||
+               (c.subtitle && c.subtitle.toLowerCase().includes(qTag)) ||
+               (c.title && c.title.toLowerCase().includes(qTag));
+      });
+    }
     publishedColumns.forEach((col, idx) => {
       const card = document.createElement('a');
-      card.href = `?p=${encodeURIComponent(col.id)}`;
+      card.href = `?p=${encodeURIComponent(col.slug || col.id)}`;
       const safeColumnImage = safeImageUrl(col.img);
       card.className = safeColumnImage ? 'editorial-quote editorial-quote--has-image' : 'editorial-quote';
       card.dataset.colId = col.id || ('col-' + idx);
@@ -13738,7 +14398,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="editorial-quote__title"${customColorStyle}>${escapeHtml(col.title)}</div>
             <div class="editorial-quote__footer">
               <div class="kick" style="color:#8a8a8f;">${escapeHtml(col.subtitle || 'СТАТЬЯ РЕДАКЦИИ')}</div>
-              <span style="font:700 12px var(--font-sans); color:#35D6C5;">Читать →</span>
+              <span style="font:700 12px var(--font-sans); color:#F28C28;">Читать →</span>
             </div>
           </div>
         `;
@@ -13748,7 +14408,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="editorial-quote__title"${customColorStyle}>${escapeHtml(col.title)}</div>
           <div class="editorial-quote__footer">
             <div class="kick" style="color:#8a8a8f;">${escapeHtml(col.subtitle || 'СТАТЬЯ РЕДАКЦИИ')}</div>
-            <span style="font:700 12px var(--font-sans); color:#35D6C5;">Читать →</span>
+            <span style="font:700 12px var(--font-sans); color:#F28C28;">Читать →</span>
           </div>
         `;
       }
@@ -13833,78 +14493,283 @@ document.addEventListener('DOMContentLoaded', () => {
     return { label: clean, tone: 'studio', deptText: 'Редакция Los Santos News · 102.2 FM' };
   };
 
-  const renderHeroFocusSection = () => {
+    // =========================================================================
+  // DYNAMIC HERO ROTATION ENGINE (30 SECONDS INTERVAL)
+  // =========================================================================
+  let heroRotationTimer = null;
+  let heroRotationPaused = false;
+  let currentHeroSlideIndex = 0;
+  const HERO_ROTATION_INTERVAL = 30000; // 30 seconds
+
+  const getHeroRotationItems = () => {
+    const list = [];
+
+    // 1. All published articles from columnsState (canonical articles & user articles)
+    if (Array.isArray(columnsState)) {
+      columnsState.forEach((col, idx) => {
+        if (!col || col.status === 'draft' || col.status === 'archived' || isItemDeleted(col.id)) return;
+        let colImg = safeImageUrl(col.img);
+        if (!colImg) {
+          const defaultImgs = [
+            'assets/lsn-trucker-editorial.jpg',
+            'assets/lsn-immersive-v3/vinewood.jpg',
+            'assets/lsn-immersive-v3/commerce.jpg',
+            'assets/lsn-immersive-v3/downtown.jpg',
+            'assets/lsn-immersive-v3/pershingsquare.jpg'
+          ];
+          colImg = defaultImgs[idx % defaultImgs.length];
+        }
+
+        const tagText = col.district || (col.subtitle && col.subtitle.includes('·') ? col.subtitle.split('·')[1].trim() : (col.subtitle || 'САН-АНДРЕАС'));
+        const kickerText = col.kicker || (col.subtitle && col.subtitle.includes('·') ? col.subtitle.split('·')[0].trim() : 'АНАЛИТИКА И СТАТЬИ LSN');
+
+        list.push({
+          id: col.id,
+          slug: col.slug || col.id,
+          kicker: kickerText,
+          tag: tagText,
+          title: col.title,
+          lead: col.lead || makeShortPreview(col.body, 220),
+          body: col.body,
+          img: colImg,
+          author: col.author || col.authorLogin || 'Редакция 102.2 FM',
+          ctaText: (col.id && String(col.id).endsWith('99')) ? 'Читать расследование' : 'Читать спецрепортаж',
+          caption: col.caption || `ФОТОСЛУЖБА LSN · ${col.title.slice(0, 42)}`,
+          meta: col.readTime || `${Math.max(4, Math.min(18, Math.round((col.body || '').length / 450)))} МИНУТ ЧТЕНИЯ · 3 ФОТОРАЗВОРОТА`
+        });
+      });
+    }
+
+    // 1b. Guarantee canonical investigations from DEFAULT_COLUMNS_DATA are ALWAYS present in rotation
+    if (typeof DEFAULT_COLUMNS_DATA !== 'undefined' && Array.isArray(DEFAULT_COLUMNS_DATA)) {
+      DEFAULT_COLUMNS_DATA.forEach((defCol, idx) => {
+        if (!defCol || isItemDeleted(defCol.id)) return;
+        const exists = list.some(x => x.id === defCol.id || x.slug === defCol.slug || (defCol.title && x.title === defCol.title));
+        if (!exists) {
+          const colImg = safeImageUrl(defCol.img) || (defCol.id && String(defCol.id).endsWith('99') ? 'assets/lsn-immersive-v3/vinewood.jpg' : 'assets/lsn-trucker-editorial.jpg');
+          const tagText = defCol.district || (defCol.subtitle && defCol.subtitle.includes('·') ? defCol.subtitle.split('·')[1].trim() : (defCol.subtitle || 'САН-АНДРЕАС'));
+          const kickerText = defCol.kicker || (defCol.subtitle && defCol.subtitle.includes('·') ? defCol.subtitle.split('·')[0].trim() : 'АНАЛИТИКА И СТАТЬИ LSN');
+          list.push({
+            id: defCol.id,
+            slug: defCol.slug || defCol.id,
+            kicker: kickerText,
+            tag: tagText,
+            title: defCol.title,
+            lead: defCol.lead || makeShortPreview(defCol.body, 220),
+            body: defCol.body,
+            img: colImg,
+            author: defCol.author || defCol.authorLogin || 'Редакция 102.2 FM',
+            ctaText: (defCol.id && String(defCol.id).endsWith('99')) ? 'Читать расследование' : 'Читать спецрепортаж',
+            caption: defCol.caption || `ФОТОСЛУЖБА LSN · ${defCol.title.slice(0, 42)}`,
+            meta: defCol.readTime ? `${defCol.readTime} · ${defCol.spreadCount || '3 ФОТОРАЗВОРОТА'}` : '14 МИНУТ ЧТЕНИЯ · 4 ФОТОРАЗВОРОТА'
+          });
+        }
+      });
+    }
+
+    // 2. If heroFocusState has an active custom override not yet in list, prepend it
+    if (heroFocusState && !heroFocusState.noPhoto && heroFocusState.title) {
+      if (!list.some(x => x.title === heroFocusState.title || x.id === heroFocusState.id)) {
+        list.unshift({
+          id: heroFocusState.id || 'hero-focus',
+          slug: heroFocusState.slug || 'hero-focus',
+          kicker: heroFocusState.kicker || 'LSN В ФОКУСЕ · СПЕЦРЕПОРТАЖ',
+          tag: heroFocusState.tag || 'ПОРТ ЛОС-САНТОСА · ПРОМЫШЛЕННЫЙ СЕКТОР',
+          title: heroFocusState.title,
+          lead: heroFocusState.lead || heroFocusState.body,
+          body: heroFocusState.body,
+          img: safeImageUrl(heroFocusState.img) || 'assets/lsn-trucker-editorial.jpg',
+          author: heroFocusState.author || 'Редакция Los Santos News · 102.2 FM',
+          ctaText: heroFocusState.ctaText || 'Читать спецрепортаж',
+          caption: heroFocusState.caption || 'ФОТОСЛУЖБА LSN · УТРЕННИЙ РЕЙС В ПОРТ ЛОС-САНТОСА',
+          meta: '10 МИНУТ ЧТЕНИЯ · 3 ФОТОРАЗВОРОТА'
+        });
+      }
+    }
+
+    // 3. Fallback item if list is somehow empty
+    if (list.length === 0) {
+      list.push({
+        id: 'hero-focus',
+        slug: 'dalnie-reysy-san-andreasa-port-logistics',
+        kicker: 'LSN В ФОКУСЕ · СПЕЦРЕПОРТАЖ',
+        tag: 'ПОРТ ЛОС-САНТОСА · ПРОМЫШЛЕННЫЙ СЕКТОР',
+        title: 'Дальние рейсы Сан-Андреаса: люди и машины за кулисами портовой логистики',
+        lead: 'От промышленных терминалов до океанских причалов — тысячи тонн грузов ежедневно проходят через артерии штата.',
+        body: '',
+        img: 'assets/lsn-trucker-editorial.jpg',
+        author: 'Редакция Los Santos News · 102.2 FM',
+        ctaText: 'Читать спецрепортаж',
+        caption: 'ФОТОСЛУЖБА LSN · УТРЕННИЙ РЕЙС В ПОРТ ЛОС-САНТОСА',
+        meta: '10 МИНУТ ЧТЕНИЯ · 3 ФОТОРАЗВОРОТА'
+      });
+    }
+
+    return list;
+  };
+
+  const renderHeroDots = (totalCount, activeIdx) => {
+    const dotsWrap = $('#hero-rot-dots');
+    if (!dotsWrap) return;
+    dotsWrap.innerHTML = '';
+    for (let i = 0; i < totalCount; i++) {
+      const dot = document.createElement('button');
+      dot.type = 'button';
+      dot.className = 'hero-rot-dot' + (i === activeIdx ? ' is-active' : '');
+      dot.setAttribute('aria-label', `Слайд ${i + 1} из ${totalCount}`);
+      dot.addEventListener('click', () => {
+        renderHeroFocusSlide(i, true);
+        startHeroRotation();
+      });
+      dotsWrap.appendChild(dot);
+    }
+  };
+
+  const renderHeroFocusSlide = (index, animate = true) => {
+    const items = getHeroRotationItems();
+    if (!items.length) return;
+    if (index < 0) index = items.length - 1;
+    if (index >= items.length) index = 0;
+    currentHeroSlideIndex = index;
+    const item = items[currentHeroSlideIndex];
+
     const heroSec = $('#ch-hero');
     if (!heroSec) return;
+
     const kickerEl = $('#hero-focus-kicker');
     const tagEl = $('#hero-focus-tag');
     const titleEl = $('#hero-focus-title');
     const descEl = $('#hero-focus-desc');
     const readBtn = $('#hero-read-btn');
     const readBtnLbl = $('#hero-read-btn-label');
+    const bookmarkBtn = $('#hero-bookmark-btn');
     const editShortcutBtn = $('#hero-edit-shortcut-btn');
     const visualCard = $('#hero-focus-visual-card');
     const heroImg = $('#hero-backdrop-img');
     const ambientImg = $('#hero-ambient-img');
     const captionEl = $('#hero-focus-caption');
+    const metaStripEl = $('#hero-focus-meta');
 
-    if (kickerEl) kickerEl.textContent = heroFocusState.kicker || DEFAULT_HERO_FOCUS_DATA.kicker;
-    if (tagEl) {
-      const tagVal = (heroFocusState.tag || '').trim();
-      tagEl.textContent = tagVal || DEFAULT_HERO_FOCUS_DATA.tag;
-      tagEl.hidden = !tagVal && heroFocusState.tag === '';
-    }
-    if (titleEl) titleEl.textContent = heroFocusState.title || DEFAULT_HERO_FOCUS_DATA.title;
-    if (descEl) {
-      const leadText = (heroFocusState.lead || '').trim() || makeShortPreview(heroFocusState.body || '', 260) || DEFAULT_HERO_FOCUS_DATA.lead;
-      descEl.textContent = leadText;
-    }
-    if (readBtn && readBtnLbl) {
-      const ctaLabel = (heroFocusState.ctaText || '').trim();
-      if (ctaLabel) {
-        readBtnLbl.textContent = ctaLabel;
-        readBtn.hidden = false;
-      } else {
-        readBtnLbl.textContent = 'Читать спецрепортаж';
-        readBtn.hidden = false;
+    const updateDOM = () => {
+      if (kickerEl) kickerEl.textContent = item.kicker || 'LSN В ФОКУСЕ';
+      if (tagEl) {
+        tagEl.textContent = item.tag || 'САН-АНДРЕАС';
+        tagEl.hidden = false;
       }
-    }
+      if (titleEl) titleEl.textContent = item.title;
+      if (descEl) descEl.textContent = item.lead || makeShortPreview(item.body, 220);
+      if (readBtnLbl) readBtnLbl.textContent = item.ctaText || 'Читать спецрепортаж';
+      if (captionEl) captionEl.textContent = item.caption || 'ФОТОСЛУЖБА LSN · LIVE 24/7';
+      if (metaStripEl) {
+        metaStripEl.innerHTML = `
+          <span>${escapeHtml(item.author || 'РЕДАКЦИЯ 102.2 FM')}</span>
+          <span>•</span>
+          <span>${escapeHtml(item.meta || 'СПЕЦРЕПОРТАЖ LSN')}</span>
+          <span>•</span>
+          <span>ПРЯМОЙ ЭФИР 24/7</span>
+        `;
+      }
 
-    const safeHeroImg = heroFocusState.noPhoto ? '' : safeImageUrl(heroFocusState.img);
-    if (safeHeroImg) {
+      // Safe image loading with guaranteed fallback to prevent black background
+      const safeImg = safeImageUrl(item.img) || ((item.id && String(item.id).endsWith('99')) ? 'assets/lsn-immersive-v3/vinewood.jpg' : 'assets/lsn-trucker-editorial.jpg');
       heroSec.classList.remove('hero-immersive--no-photo');
       if (visualCard) visualCard.hidden = false;
+
       if (heroImg) {
-        heroImg.src = safeHeroImg;
-        heroImg.alt = heroFocusState.title || 'Спецрепортаж Los Santos News';
+        heroImg.src = safeImg;
+        heroImg.alt = item.title;
         heroImg.onerror = () => {
-          heroSec.classList.add('hero-immersive--no-photo');
-          if (visualCard) visualCard.hidden = true;
+          if (!heroImg.src.endsWith('lsn-trucker-editorial.jpg')) {
+            heroImg.src = 'assets/lsn-trucker-editorial.jpg';
+            if (ambientImg) ambientImg.src = 'assets/lsn-trucker-editorial.jpg';
+          }
         };
       }
       if (ambientImg) {
-        ambientImg.src = safeHeroImg;
+        ambientImg.src = safeImg;
         ambientImg.hidden = false;
       }
-      if (captionEl) {
-        captionEl.textContent = heroFocusState.caption || DEFAULT_HERO_FOCUS_DATA.caption;
-      }
-    } else {
-      heroSec.classList.add('hero-immersive--no-photo');
-      if (visualCard) visualCard.hidden = true;
-      if (heroImg) heroImg.removeAttribute('src');
-      if (ambientImg) {
-        ambientImg.removeAttribute('src');
-        ambientImg.hidden = true;
-      }
-    }
 
-    if (editShortcutBtn) {
-      const roleInfo = getUserRoleInfo(currentUser);
-      editShortcutBtn.hidden = !(currentUser && roleInfo && roleInfo.rank >= 3);
+      // Sync bookmark status with LSN_FAVORITES
+      if (bookmarkBtn && typeof LSN_FAVORITES !== 'undefined') {
+        const isFav = LSN_FAVORITES.has(item.id) || LSN_FAVORITES.has(item.slug);
+        bookmarkBtn.classList.toggle('is-bookmarked', isFav);
+        const span = bookmarkBtn.querySelector('span');
+        if (span) span.textContent = isFav ? 'В закладках' : 'В закладки';
+      }
+
+      if (editShortcutBtn) {
+        const roleInfo = getUserRoleInfo(currentUser);
+        editShortcutBtn.hidden = !(currentUser && roleInfo && roleInfo.rank >= 3);
+      }
+
+      // Render dots
+      renderHeroDots(items.length, currentHeroSlideIndex);
+
+      // Preload next slide's image for instantaneous transition
+      const nextIndex = (currentHeroSlideIndex + 1) % items.length;
+      const nextItem = items[nextIndex];
+      if (nextItem && nextItem.img) {
+        const pImg = new Image();
+        pImg.src = safeImageUrl(nextItem.img);
+      }
+    };
+
+    if (animate && window.matchMedia && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      const grid = $('#hero-focus-grid');
+      if (grid) grid.classList.add('hero-fade-transitioning');
+      setTimeout(() => {
+        updateDOM();
+        if (grid) grid.classList.remove('hero-fade-transitioning');
+      }, 200);
+    } else {
+      updateDOM();
     }
   };
+
+  const startHeroRotation = () => {
+    stopHeroRotation();
+    if (heroRotationPaused) return;
+    heroRotationTimer = setTimeout(() => {
+      // Do not rotate if any modal dialog is currently open
+      if (document.querySelector('dialog[open]')) {
+        startHeroRotation();
+        return;
+      }
+      const items = getHeroRotationItems();
+      if (items.length > 1) {
+        renderHeroFocusSlide((currentHeroSlideIndex + 1) % items.length, true);
+      }
+      startHeroRotation();
+    }, HERO_ROTATION_INTERVAL);
+  };
+
+  const stopHeroRotation = () => {
+    if (heroRotationTimer) {
+      clearTimeout(heroRotationTimer);
+      heroRotationTimer = null;
+    }
+  };
+
+  const renderHeroFocusSection = () => {
+    renderHeroFocusSlide(currentHeroSlideIndex, false);
+    startHeroRotation();
+  };
   window.renderHeroFocusSection = renderHeroFocusSection;
+  window.renderHeroFocusSlide = renderHeroFocusSlide;
+  window.startHeroRotation = startHeroRotation;
+  window.stopHeroRotation = stopHeroRotation;
+  window.getHeroRotationItems = getHeroRotationItems;
+  Object.defineProperty(window, 'currentHeroSlideIndex', {
+    get: () => currentHeroSlideIndex,
+    set: (v) => { currentHeroSlideIndex = v; },
+    configurable: true
+  });
+  Object.defineProperty(window, 'heroRotationPaused', {
+    get: () => heroRotationPaused,
+    set: (v) => { heroRotationPaused = v; },
+    configurable: true
+  });
 
   const renderStaffSection = () => {
     // 1. Update Editorial Intro Block ("О редакции")
@@ -13932,17 +14797,20 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    // 1.5 Render the 4 Editable Stat Cards ("102.2 FM", "#1 · 342K", "Commerce", "D193SA")
+    // 1.5 Render the 4 Canonical Stat Cards ("102.2 FM", "228K", "Commerce", "SAN NEWS")
     const statsGridEl = $('#staff-article-stats-grid');
-    if (statsGridEl && Array.isArray(staffState.stats)) {
+    if (statsGridEl) {
       const tones = ['sky', 'indigo', 'amber', 'teal'];
-      statsGridEl.innerHTML = staffState.stats.slice(0, 4).map((st, i) => {
+      statsGridEl.innerHTML = CANONICAL_STAFF_STATS.map((st, i) => {
         const tone = st.tone || tones[i % tones.length];
+        const subHtml = st.sub ? `<span class="lsn-staff-stat-box__sub">${escapeHtml(st.sub)}</span>` : '';
+        const descHtml = st.desc ? `<span class="lsn-staff-stat-box__desc">${escapeHtml(st.desc)}</span>` : '';
         return `
           <div class="lsn-staff-stat-box lsn-staff-stat-box--${tone}" data-stat-index="${i}">
             <span class="lsn-staff-stat-box__tag">${escapeHtml(st.tag || '')}</span>
             <b>${escapeHtml(st.value || '')}</b>
-            <span>${escapeHtml(st.desc || '')}</span>
+            ${subHtml}
+            ${descHtml}
           </div>
         `;
       }).join('');
@@ -14384,10 +15252,13 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('[data-account-tab]').forEach(b => b.classList.toggle('is-active', b === tabBtn));
         const pOverview = document.getElementById('account-tab-overview');
         const pActivity = document.getElementById('account-tab-activity');
-        const pSecurity = document.getElementById('account-tab-security');
-        if (pOverview) pOverview.hidden = tabName !== 'overview';
+        const pFavorites = document.getElementById('account-tab-favorites');
+        const pAdmin = document.getElementById('account-tab-admin');
         if (pActivity) pActivity.hidden = tabName !== 'activity';
-        if (pSecurity) pSecurity.hidden = tabName !== 'security';
+        if (pFavorites) pFavorites.hidden = tabName !== 'favorites';
+        if (pAdmin) pAdmin.hidden = tabName !== 'admin';
+        if (tabName === 'favorites') { LSN_FAVORITES.renderHub(); }
+        if (tabName === 'admin') { renderAdminDiagnostics(); }
         if (tabName === 'activity') {
           renderUserAccountActivity('all');
         }
@@ -14595,6 +15466,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
       if (openCabFromProfile) openCabFromProfile.hidden = !hasRights;
+      // Strict RBAC UI Guards (Rank 1 Reader is isolated from editorial tools)
+      const isReader = (!roleInfo || roleInfo.rank <= 1);
+      const actTabBtn = document.getElementById('account-tab-btn-activity');
+      if (actTabBtn) actTabBtn.hidden = isReader;
+      const adminTabBtn = document.getElementById('account-tab-btn-admin');
+      if (adminTabBtn) adminTabBtn.hidden = (!roleInfo || roleInfo.rank < 5);
+      const profTools = document.getElementById('profile-journalist-tools');
+      if (profTools) profTools.hidden = isReader;
+      if (isReader && openCabFromProfile) openCabFromProfile.hidden = true;
+      const headerCabBtn = document.getElementById('journal-cabinet-btn');
+      if (headerCabBtn && isReader) headerCabBtn.hidden = true;
     } else {
       if (loggedInBox) loggedInBox.hidden = true;
       if (guestForms) guestForms.hidden = false;
@@ -15105,9 +15987,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const focusThumb = !heroFocusState.noPhoto ? safeImageUrl(heroFocusState.img) : '';
       focusCard.innerHTML = `
         <div style="display:flex; align-items:flex-start; gap:12px;">
-          ${focusThumb ? `<div style="width:52px; height:52px; border-radius:8px; overflow:hidden; flex-shrink:0; background:#080b10; border:1px solid rgba(53,214,197,0.35);"><img src="${escapeHtml(focusThumb)}" style="width:100%; height:100%; object-fit:cover;" alt=""></div>` : ''}
+          ${focusThumb ? `<div style="width:52px; height:52px; border-radius:8px; overflow:hidden; flex-shrink:0; background:#080b10; border:1px solid rgba(242,140,40,0.35);"><img src="${escapeHtml(focusThumb)}" style="width:100%; height:100%; object-fit:cover;" alt=""></div>` : ''}
           <div style="flex:1; min-width:0;">
-            <div class="cab-ad-item__tag" style="color:#35D6C5;">🎯 LSN В ФОКУСЕ • Главный промо-блок</div>
+            <div class="cab-ad-item__tag" style="color:#F28C28;">🎯 LSN В ФОКУСЕ • Главный промо-блок</div>
             <div class="cab-ad-item__title" style="margin-bottom:6px;">${escapeHtml(heroFocusState.title || 'Грузовой пульс Сан-Андреаса')}</div>
             <div style="font-size:11.5px; color:#94a3b8; line-height:1.4;">${escapeHtml(heroFocusState.kicker || 'LSN В ФОКУСЕ · РЕПОРТАЖ')} · ${escapeHtml(heroFocusState.tag || 'ПОРТ ЛОС-САНТОСА')}</div>
           </div>
@@ -15137,9 +16019,9 @@ document.addEventListener('DOMContentLoaded', () => {
       if (roleInfo.isManagement) {
         const focusShortcutCard = document.createElement('div');
         focusShortcutCard.className = 'cab-ad-item cab-ad-item--intro' + (currentEditingId === 'hero-focus' ? ' is-editing' : '');
-        focusShortcutCard.style.borderColor = 'rgba(53, 214, 197, 0.35)';
+        focusShortcutCard.style.borderColor = 'rgba(242, 140, 40, 0.35)';
         focusShortcutCard.innerHTML = `
-          <div class="cab-ad-item__tag" style="color:#35D6C5;">🎯 LSN В ФОКУСЕ • Главный промо-блок сайта</div>
+          <div class="cab-ad-item__tag" style="color:#F28C28;">🎯 LSN В ФОКУСЕ • Главный промо-блок сайта</div>
           <div class="cab-ad-item__title" style="margin-bottom:8px;">${escapeHtml(heroFocusState.title || 'Грузовой пульс Сан-Андреаса')}</div>
           <div class="cab-ad-item__actions">
             <button type="button" class="cab-ad-mini-btn" data-uni-select="hero-focus">Редактировать блок</button>
@@ -15252,9 +16134,9 @@ document.addEventListener('DOMContentLoaded', () => {
           ? `<div class="cab-status-pill status-draft" style="display:inline-block; padding:2px 8px; border-radius:4px; font-weight:700; font-size:10.5px; color:#f59e0b; background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.25); margin-bottom:4px;">● ЧЕРНОВИК</div>`
           : isArchived
           ? `<div class="cab-status-pill status-archived" style="display:inline-block; padding:2px 8px; border-radius:4px; font-weight:700; font-size:10.5px; color:#94a3b8; background:rgba(148,163,184,0.12); border:1px solid rgba(148,163,184,0.25); margin-bottom:4px;">● В АРХИВЕ</div>`
-          : `<div class="cab-status-pill status-published" style="display:inline-block; padding:2px 8px; border-radius:4px; font-weight:700; font-size:10.5px; color:#35D6C5; background:rgba(53,214,197,0.12); border:1px solid rgba(53,214,197,0.25); margin-bottom:4px;">● ОПУБЛИКОВАНО</div>`;
+          : `<div class="cab-status-pill status-published" style="display:inline-block; padding:2px 8px; border-radius:4px; font-weight:700; font-size:10.5px; color:#F28C28; background:rgba(242,140,40,0.12); border:1px solid rgba(242,140,40,0.25); margin-bottom:4px;">● ОПУБЛИКОВАНО</div>`;
         if (isArchived) {
-          bumpHtml = `<button type="button" class="cab-ad-mini-btn" data-uni-unarchive="${item.id}" style="color:#35D6C5; border-color:rgba(53,214,197,0.35);">Из архива</button>`;
+          bumpHtml = `<button type="button" class="cab-ad-mini-btn" data-uni-unarchive="${item.id}" style="color:#F28C28; border-color:rgba(242,140,40,0.35);">Из архива</button>`;
         } else {
           bumpHtml = `<button type="button" class="cab-ad-mini-btn" data-uni-quickarchive="${item.id}" style="color:#94a3b8;">В архив</button>`;
         }
@@ -17563,6 +18445,14 @@ document.addEventListener('DOMContentLoaded', () => {
       item.category = sub || 'Город · 102.2 FM';
       item.author = currentUser.fullName || currentUser.username || 'Редакция LSN';
       item.body = body;
+      const newsCandidateSlug = ($('#uni-field-slug')?.value || '').trim().toLowerCase() || generateSlugFromTitle(title);
+      const newsAllItems = [...(newsState || []), ...(columnsState || [])];
+      const newsSlugConflict = newsAllItems.find(x => x.id !== item.id && x.slug === newsCandidateSlug);
+      if (newsSlugConflict) {
+        flashUniSaved('⚠️ Окончание URL уже занято: ' + newsSlugConflict.title);
+        return;
+      }
+      item.slug = newsCandidateSlug;
       item.img = currentPhotoData;
       item.important = roleInfo.isManagement ? !!$('#uni-field-important')?.checked : !!item.important;
       item.status = roleInfo.canPublish ? 'published' : 'draft';
@@ -17664,6 +18554,14 @@ document.addEventListener('DOMContentLoaded', () => {
       item.subtitle = sub || 'Экономика · Статья';
       item.author = currentUser?.fullName || currentUser?.username || 'Редакция LSN';
       item.body = body;
+      const colCandidateSlug = ($('#uni-field-slug')?.value || '').trim().toLowerCase() || generateSlugFromTitle(title);
+      const colAllItems = [...(newsState || []), ...(columnsState || [])];
+      const colSlugConflict = colAllItems.find(x => x.id !== item.id && x.slug === colCandidateSlug);
+      if (colSlugConflict) {
+        flashUniSaved('⚠️ Окончание URL уже занято: ' + colSlugConflict.title);
+        return;
+      }
+      item.slug = colCandidateSlug;
       item.img = currentPhotoData || '';
       item.titleColor = currentTitleColor || '';
       item.status = targetStatus;
@@ -17899,27 +18797,45 @@ document.addEventListener('DOMContentLoaded', () => {
   // -------------------------------------------------------------------------
   // Story Journey Scrubber Rail is powered by initJourneyRail() in the evolution engine.
 
-  // Hero Focus CTA & Quick Edit buttons
+  // DYNAMIC HERO CONTROLS & INTERACTIONS
+  $('#hero-rot-prev')?.addEventListener('click', () => {
+    const items = (typeof getHeroRotationItems === 'function') ? getHeroRotationItems() : [];
+    if (items.length > 0) {
+      renderHeroFocusSlide((currentHeroSlideIndex - 1 + items.length) % items.length, true);
+      startHeroRotation();
+    }
+  });
+
+  $('#hero-rot-next')?.addEventListener('click', () => {
+    const items = (typeof getHeroRotationItems === 'function') ? getHeroRotationItems() : [];
+    if (items.length > 0) {
+      renderHeroFocusSlide((currentHeroSlideIndex + 1) % items.length, true);
+      startHeroRotation();
+    }
+  });
+
+  $('#hero-rot-playpause')?.addEventListener('click', () => {
+    heroRotationPaused = !heroRotationPaused;
+    const btn = $('#hero-rot-playpause');
+    const icon = $('#hero-rot-playpause-icon');
+    if (heroRotationPaused) {
+      stopHeroRotation();
+      if (icon) icon.textContent = '▶';
+      if (btn) btn.title = 'Возобновить автопереключение (30 сек)';
+    } else {
+      if (icon) icon.textContent = '❚❚';
+      if (btn) btn.title = 'Приостановить (30 сек)';
+      startHeroRotation();
+    }
+  });
+
   $('#hero-read-btn')?.addEventListener('click', () => {
-    const target = String(heroFocusState?.ctaUrl || 'hero-focus').trim();
-    if (target.startsWith('#')) {
-      const el = document.querySelector(target);
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth' });
-        return;
-      }
-    }
-    if (target === 'hero-focus' && typeof openPublicationById === 'function') {
-      openPublicationById('hero-focus', { updateHistory: true });
-      return;
-    }
-    const hasTarget = newsState.some(n => n.id === target) || columnsState.some(c => c.id === target) || adsState.some(a => a.id === target);
-    if (hasTarget && typeof openPublicationById === 'function') {
-      openPublicationById(target, { updateHistory: true });
+    const items = (typeof getHeroRotationItems === 'function') ? getHeroRotationItems() : [];
+    const item = items[currentHeroSlideIndex] || items[0];
+    if (item && typeof openPublicationById === 'function') {
+      openPublicationById(item.slug || item.id, { updateHistory: true });
     } else if (typeof openPublicationById === 'function') {
       openPublicationById('hero-focus', { updateHistory: true });
-    } else {
-      $('#news')?.scrollIntoView({ behavior: 'smooth' });
     }
   });
 
@@ -17943,11 +18859,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Hero Bookmark button
   $('#hero-bookmark-btn')?.addEventListener('click', () => {
-    const title = heroFocusState?.title || 'Грузовой пульс Сан-Андреаса';
-    if (typeof flashUniSaved === 'function') {
-      flashUniSaved('Сохранено в закладки');
-    } else {
-      alert('«' + title + '» добавлено в ваши закладки.');
+    const items = (typeof getHeroRotationItems === 'function') ? getHeroRotationItems() : [];
+    const item = items[currentHeroSlideIndex] || items[0];
+    if (item && typeof LSN_FAVORITES !== 'undefined') {
+      LSN_FAVORITES.toggle(item.id, item);
+      LSN_FAVORITES.syncUI();
+    }
+  });
+
+  const heroSectionEl = $('#ch-hero');
+  if (heroSectionEl) {
+    heroSectionEl.addEventListener('mouseenter', () => stopHeroRotation());
+    heroSectionEl.addEventListener('mouseleave', () => {
+      if (!heroRotationPaused) startHeroRotation();
+    });
+  }
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      stopHeroRotation();
+    } else if (!heroRotationPaused) {
+      startHeroRotation();
     }
   });
 
@@ -18663,7 +19595,16 @@ document.addEventListener('DOMContentLoaded', () => {
         metadata: row.metadata || {}
       }));
       if (cloudColumns.length > 0) {
-        columnsState = cloudColumns;
+        const mergedColumns = [...cloudColumns];
+        if (typeof DEFAULT_COLUMNS_DATA !== 'undefined' && Array.isArray(DEFAULT_COLUMNS_DATA)) {
+          DEFAULT_COLUMNS_DATA.forEach(defCol => {
+            const exists = mergedColumns.some(c => c.id === defCol.id || c.slug === defCol.slug || (defCol.title && c.title === defCol.title));
+            if (!exists && !isItemDeleted(defCol.id)) {
+              mergedColumns.push(JSON.parse(JSON.stringify(defCol)));
+            }
+          });
+        }
+        columnsState = mergedColumns;
         saveColumnsState();
         renderEditorialColumns();
       } else if (!columnsState || columnsState.length === 0) {
@@ -18728,9 +19669,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (introRow.image_url) {
           staffState.articleImg = safeImageUrl(introRow.image_url);
         }
-        if (introRow.metadata && Array.isArray(introRow.metadata.stats)) {
-          staffState.stats = introRow.metadata.stats;
-        }
+        // Guarantee canonical stats structure
+        staffState.stats = CANONICAL_STAFF_STATS.map(x => ({ ...x }));
         saveStaffState();
         renderStaffSection();
       }
@@ -18884,7 +19824,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ARTICLES WORKSPACE & EDITORIAL LIFECYCLE CONTROLLER (IMMERSIVE V3)
   // =========================================================================
 
-  let currentArticleTargetStatus = 'published';
+  currentArticleTargetStatus = 'published';
   window.currentArticleTargetStatus = currentArticleTargetStatus;
 
   const updateArticleMetrics = () => {
@@ -18979,7 +19919,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const unarchiveBtn = e.target.closest('[data-uni-unarchive]');
     if (unarchiveBtn) {
       const id = unarchiveBtn.dataset.uniUnarchive;
-      const col = columnsState.find(x => x.id === id);
+      const col = columnsState.find(x => x.id === id || x.slug === id || (x.metadata && x.metadata.slug === id));
       if (col) {
         col.status = 'published';
         saveColumnsState();
@@ -18996,7 +19936,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const quickArchiveBtn = e.target.closest('[data-uni-quickarchive]');
     if (quickArchiveBtn) {
       const id = quickArchiveBtn.dataset.uniQuickarchive;
-      const col = columnsState.find(x => x.id === id);
+      const col = columnsState.find(x => x.id === id || x.slug === id || (x.metadata && x.metadata.slug === id));
       if (col) {
         col.status = 'archived';
         saveColumnsState();
@@ -19011,8 +19951,213 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+
+  // =========================================================================
+  // GTA SAN ANDREAS MEDIA LIBRARY MODAL CONTROLLER
+  // =========================================================================
+  if (!selectedMediaLibraryItem && typeof LSN_CANONICAL_MEDIA_LIBRARY !== 'undefined' && LSN_CANONICAL_MEDIA_LIBRARY.length) { selectedMediaLibraryItem = LSN_CANONICAL_MEDIA_LIBRARY[0]; }
+  currentMediaRegionFilter = "all";
+
+  const safeEsc = (s) => (typeof escapeHtml === "function") ? escapeHtml(s) : String(s || "").replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+  const renderMediaLibraryGrid = () => {
+    const gridEl = document.getElementById("lsn-media-grid");
+    const searchEl = document.getElementById("lsn-media-search-input");
+    if (!gridEl || typeof LSN_CANONICAL_MEDIA_LIBRARY === 'undefined') return;
+    const q = (searchEl?.value || "").trim().toLowerCase();
+
+    const filtered = LSN_CANONICAL_MEDIA_LIBRARY.filter(item => {
+      const matchRegion = (currentMediaRegionFilter === "all") || (item.region.toLowerCase() === currentMediaRegionFilter.toLowerCase());
+      const matchQuery = !q || `${item.title} ${item.district} ${item.region} ${item.filename}`.toLowerCase().includes(q);
+      return matchRegion && matchQuery;
+    });
+
+    gridEl.innerHTML = "";
+    filtered.forEach(item => {
+      const isSel = selectedMediaLibraryItem && selectedMediaLibraryItem.id === item.id;
+      const card = document.createElement("button");
+      card.type = "button";
+      card.className = "lsn-media-card" + (isSel ? " is-selected" : "");
+      card.innerHTML = `
+        <img class="lsn-media-card__thumb" src="${item.src}" alt="${safeEsc(item.title)}" loading="lazy">
+        <div class="lsn-media-card__body">
+          <span class="lsn-media-card__tag">${safeEsc(item.district)}</span>
+          <strong class="lsn-media-card__title">${safeEsc(item.title)}</strong>
+        </div>
+      `;
+      card.addEventListener("click", () => {
+        selectedMediaLibraryItem = item;
+        renderMediaLibraryDetail();
+        renderMediaLibraryGrid();
+      });
+      gridEl.appendChild(card);
+    });
+
+    if (!filtered.length) {
+      gridEl.innerHTML = `<div style="grid-column:1/-1; padding:40px; text-align:center; color:#A3AAB4; font-size:13px;">В выбранном регионе локации не найдены. Попробуйте другой запрос.</div>`;
+    }
+  };
+
+  const renderMediaLibraryDetail = () => {
+    if (!selectedMediaLibraryItem) return;
+    const it = selectedMediaLibraryItem;
+    const regEl = document.getElementById("lsn-media-detail-region");
+    const titleEl = document.getElementById("lsn-media-detail-title");
+    const imgEl = document.getElementById("lsn-media-detail-img");
+    const descEl = document.getElementById("lsn-media-detail-desc");
+    const fileEl = document.getElementById("lsn-media-spec-file");
+    const sizeEl = document.getElementById("lsn-media-spec-size");
+    const resEl = document.getElementById("lsn-media-spec-res");
+
+    if (regEl) regEl.textContent = `${it.region} · ${it.district}`;
+    if (titleEl) titleEl.textContent = it.title;
+    if (imgEl) {
+      imgEl.src = it.src;
+      imgEl.alt = it.title;
+    }
+    if (descEl) descEl.textContent = it.desc;
+    if (fileEl) fileEl.textContent = it.filename;
+    if (sizeEl) sizeEl.textContent = `${Math.round(it.sizeBytes / 1024)} КБ`;
+    if (resEl) resEl.textContent = `${it.width} × ${it.height}`;
+  };
+
+  const openMediaLibraryDialog = () => {
+    const dialog = document.getElementById("lsn-media-library-dialog");
+    renderMediaLibraryDetail();
+    renderMediaLibraryGrid();
+    if (dialog) {
+      if (typeof dialog.showModal === "function") {
+        try {
+          dialog.showModal();
+        } catch (_) {
+          dialog.setAttribute("open", "");
+        }
+      } else {
+        dialog.setAttribute("open", "");
+      }
+    }
+  };
+  window.openMediaLibraryDialog = openMediaLibraryDialog;
+
+  const initMediaLibraryDialog = () => {
+    document.addEventListener("click", (e) => {
+      if (e.target.closest("#uni-open-library-btn")) {
+        e.preventDefault();
+        openMediaLibraryDialog();
+        return;
+      }
+      if (e.target.closest("#lsn-media-dialog-close")) {
+        e.preventDefault();
+        document.getElementById("lsn-media-library-dialog")?.close();
+        return;
+      }
+      const regionBtn = e.target.closest("#lsn-media-region-tabs button");
+      if (regionBtn) {
+        document.querySelectorAll("#lsn-media-region-tabs button").forEach(b => b.classList.remove("is-active"));
+        regionBtn.classList.add("is-active");
+        currentMediaRegionFilter = regionBtn.dataset.mediaRegion || "all";
+        renderMediaLibraryGrid();
+        return;
+      }
+      if (e.target.closest("#lsn-media-confirm-btn")) {
+        e.preventDefault();
+        if (!selectedMediaLibraryItem) return;
+        if (typeof setCurrentPhoto === "function") {
+          setCurrentPhoto(selectedMediaLibraryItem.src, {
+            name: selectedMediaLibraryItem.title,
+            size: selectedMediaLibraryItem.sizeBytes,
+            width: selectedMediaLibraryItem.width,
+            height: selectedMediaLibraryItem.height
+          });
+        }
+        const fileInput = document.getElementById("uni-field-file");
+        if (fileInput) fileInput.value = "";
+        document.getElementById("lsn-media-library-dialog")?.close();
+        if (typeof flashUniSaved === "function") {
+          flashUniSaved(`📷 Выбрана локация: ${selectedMediaLibraryItem.district} (${selectedMediaLibraryItem.region})`);
+        }
+        return;
+      }
+    });
+
+    document.addEventListener("input", (e) => {
+      if (e.target.id === "lsn-media-search-input") {
+        renderMediaLibraryGrid();
+      }
+    });
+  };
+
+  // =========================================================================
+  // CUSTOM SLUG LOGIC & REAL-TIME URL PREVIEW
+  // =========================================================================
+  isSlugManuallyCustomized = false;
+
+  const initCustomSlugEvents = () => {
+    document.addEventListener("input", (e) => {
+      if (e.target.id === "uni-field-title") {
+        const slugInput = document.getElementById("uni-field-slug");
+        const previewVal = document.getElementById("uni-slug-preview-val");
+        if (!isSlugManuallyCustomized && slugInput) {
+          const auto = (typeof generateSlugFromTitle === "function") ? generateSlugFromTitle(e.target.value) : "";
+          slugInput.value = auto;
+          if (previewVal) previewVal.textContent = auto || "novost";
+        }
+      } else if (e.target.id === "uni-field-slug") {
+        const previewVal = document.getElementById("uni-slug-preview-val");
+        const sanitized = e.target.value.toLowerCase().replace(/[^a-z0-9\-]/g, "");
+        e.target.value = sanitized;
+        isSlugManuallyCustomized = !!sanitized.length;
+        if (previewVal) previewVal.textContent = sanitized || "novost";
+      }
+    });
+  };
+
+  // =========================================================================
+  // PUBLIC ARTICLES SECTION: 16 THEMATIC TAG CHIPS FILTERING
+  // =========================================================================
+  currentArticleThematicFilter = "all";
+
+  const initPublicArticleTags = () => {
+    document.addEventListener("click", (e) => {
+      const chip = e.target.closest("#lsn-article-tags-bar .lsn-tag-chip");
+      if (chip) {
+        document.querySelectorAll("#lsn-article-tags-bar .lsn-tag-chip").forEach(c => c.classList.remove("is-active"));
+        chip.classList.add("is-active");
+        currentArticleThematicFilter = chip.dataset.articleTag || "all";
+        if (typeof renderEditorialColumns === "function") {
+          renderEditorialColumns();
+        }
+      }
+    });
+  };
+
+  // =========================================================================
+  // ADMIN DIAGNOSTIC SPACE RENDERER
+  // =========================================================================
+  const renderAdminDiagnostics = () => {
+    const newsEl = document.getElementById("admin-diag-news-count");
+    const artEl = document.getElementById("admin-diag-articles-count");
+    const staffEl = document.getElementById("admin-diag-staff-count");
+    const syncEl = document.getElementById("admin-diag-sync-time");
+
+    if (newsEl) newsEl.textContent = Array.isArray(newsState) ? newsState.length : 0;
+    if (artEl) artEl.textContent = Array.isArray(columnsState) ? columnsState.length : 0;
+    if (staffEl) staffEl.textContent = (typeof staffState !== "undefined" && staffState?.members) ? staffState.members.length : 0;
+    if (syncEl) syncEl.textContent = new Date().toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+  };
+
+  initMediaLibraryDialog();
+  initCustomSlugEvents();
+  initPublicArticleTags();
+  if (typeof LSN_FAVORITES !== 'undefined') LSN_FAVORITES.syncUI();
+  document.getElementById("admin-force-sync-btn")?.addEventListener("click", () => {
+    renderAdminDiagnostics();
+    if (typeof flashUniSaved === "function") flashUniSaved("✓ Данные аналитики обновлены");
+  });
+
   syncSupabaseSessionAndProfiles();
   loadRadioRatingsFromCloud();
+  } catch (err) { console.error('LSN bootstrap error:', err); }
 });
 </script>
 
@@ -19147,7 +20292,90 @@ document.addEventListener('DOMContentLoaded', () => {
   transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+/* DYNAMIC HERO ROTATION CONTROLS & CAPTION ADJUSTMENTS */
+.hero-rotation-controls {
+  position: absolute;
+  right: clamp(28px, 5vw, 72px);
+  bottom: 24px;
+  z-index: 5;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 14px;
+  background: rgba(16, 19, 24, 0.88);
+  border: 1px solid rgba(242, 140, 40, 0.35);
+  border-radius: 999px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.65), 0 0 16px rgba(242, 140, 40, 0.15);
+  backdrop-filter: blur(12px);
+  pointer-events: auto;
+  user-select: none;
+}
+.hero-rot-btn {
+  background: transparent;
+  border: none;
+  color: #A3AAB4;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  line-height: 1;
+}
+.hero-rot-btn:hover {
+  color: #FFB04A;
+  background: rgba(242, 140, 40, 0.2);
+}
+.hero-rot-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 4px;
+}
+.hero-rot-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.28);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.hero-rot-dot.is-active {
+  width: 22px;
+  border-radius: 999px;
+  background: #F28C28;
+  box-shadow: 0 0 10px rgba(242, 140, 40, 0.7);
+}
+.hero-rot-playpause {
+  font-size: 11px;
+  width: 22px;
+  height: 22px;
+}
+.hero-focus-caption-bar {
+  bottom: 72px !important;
+}
+.hero-fade-transitioning {
+  opacity: 0.15 !important;
+  transition: opacity 0.25s ease !important;
+}
+@media (max-width: 768px) {
+  .hero-focus-caption-bar {
+    bottom: 64px !important;
+    right: 16px !important;
+    left: 16px !important;
+    max-width: calc(100% - 32px) !important;
+  }
+  .hero-rotation-controls {
+    bottom: 16px !important;
+    right: 16px !important;
+  }
+}
+
 .hero-focus-visual__caption-bar,
+
 .hero-focus-caption-bar {
   position: absolute;
   right: clamp(28px, 5vw, 72px);
@@ -20791,9 +22019,9 @@ document.addEventListener('DOMContentLoaded', () => {
   backdrop-filter: blur(20px) saturate(180%) !important;
   -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
   padding: 16px 6px !important;
-  border: 1px solid rgba(53, 214, 197, 0.32) !important;
+  border: 1px solid rgba(242, 140, 40, 0.32) !important;
   border-radius: 999px !important;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.05), 0 0 24px rgba(53, 214, 197, 0.15) !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.05), 0 0 24px rgba(242, 140, 40, 0.15) !important;
   transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.25s !important;
   user-select: none !important;
 }
@@ -20806,7 +22034,7 @@ document.addEventListener('DOMContentLoaded', () => {
   left: 50% !important;
   transform: translateX(-50%) !important;
   width: 2px !important;
-  background: linear-gradient(180deg, rgba(53, 214, 197, 0.4) 0%, rgba(255, 255, 255, 0.1) 50%, rgba(53, 214, 197, 0.4) 100%) !important;
+  background: linear-gradient(180deg, rgba(242, 140, 40, 0.4) 0%, rgba(255, 255, 255, 0.1) 50%, rgba(242, 140, 40, 0.4) 100%) !important;
   border-radius: 1px !important;
   z-index: 1 !important;
   pointer-events: none !important;
@@ -20830,7 +22058,7 @@ document.addEventListener('DOMContentLoaded', () => {
 }
 
 .journey-dot:focus-visible {
-  box-shadow: 0 0 0 2px #35D6C5 !important;
+  box-shadow: 0 0 0 2px #F28C28 !important;
 }
 
 /* Invisible hit box ensuring 36x36 tap area */
@@ -20855,9 +22083,9 @@ document.addEventListener('DOMContentLoaded', () => {
 .journey-dot:hover .journey-dot-glyph {
   width: 12px !important;
   height: 12px !important;
-  background: #7CEDE2 !important;
-  border-color: #35D6C5 !important;
-  box-shadow: 0 0 12px rgba(53, 214, 197, 0.75), 0 0 2px #fff !important;
+  background: #FFB04A !important;
+  border-color: #F28C28 !important;
+  box-shadow: 0 0 12px rgba(242, 140, 40, 0.75), 0 0 2px #fff !important;
   transform: scale(1.15) !important;
 }
 
@@ -20866,9 +22094,9 @@ document.addEventListener('DOMContentLoaded', () => {
   width: 10px !important;
   height: 22px !important;
   border-radius: 999px !important;
-  background: linear-gradient(180deg, #7CEDE2 0%, #35D6C5 100%) !important;
+  background: linear-gradient(180deg, #FFB04A 0%, #F28C28 100%) !important;
   border: 1px solid rgba(255, 255, 255, 0.9) !important;
-  box-shadow: 0 0 16px rgba(53, 214, 197, 0.85), 0 0 4px rgba(255, 255, 255, 0.9) !important;
+  box-shadow: 0 0 16px rgba(242, 140, 40, 0.85), 0 0 4px rgba(255, 255, 255, 0.9) !important;
 }
 
 /* Tooltip HUD Card */
@@ -20880,7 +22108,7 @@ document.addEventListener('DOMContentLoaded', () => {
   background: rgba(10, 16, 24, 0.96) !important;
   backdrop-filter: blur(14px) !important;
   -webkit-backdrop-filter: blur(14px) !important;
-  border: 1px solid rgba(53, 214, 197, 0.4) !important;
+  border: 1px solid rgba(242, 140, 40, 0.4) !important;
   border-radius: 8px !important;
   padding: 6px 12px !important;
   font-family: var(--font-sans, system-ui, sans-serif) !important;
@@ -20891,7 +22119,7 @@ document.addEventListener('DOMContentLoaded', () => {
   pointer-events: none !important;
   opacity: 0 !important;
   visibility: hidden !important;
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.75), 0 0 16px rgba(53, 214, 197, 0.2) !important;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.75), 0 0 16px rgba(242, 140, 40, 0.2) !important;
   transition: opacity 0.22s ease, transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.22s !important;
   display: flex !important;
   align-items: center !important;
@@ -20910,12 +22138,12 @@ document.addEventListener('DOMContentLoaded', () => {
   height: 0 !important;
   border-top: 5px solid transparent !important;
   border-bottom: 5px solid transparent !important;
-  border-left: 5px solid rgba(53, 214, 197, 0.5) !important;
+  border-left: 5px solid rgba(242, 140, 40, 0.5) !important;
 }
 
 .journey-tooltip-num {
   font-family: var(--font-mono, monospace) !important;
-  color: #7CEDE2 !important;
+  color: #FFB04A !important;
   font-size: 11px !important;
 }
 
@@ -21229,10 +22457,23 @@ body.modal-open .story-journey-rail {
 
 
 /* ==========================================================================
-   EDITORIAL EVOLUTION: TURQUOISE-CYAN RAIL, REFINED STAFF & ARTICLES WORKSPACE
+   LOS SANTOS NEWS — UNIFIED ORANGE DESIGN SYSTEM (DARK GRAPHITE + AMBER ORANGE)
    ========================================================================== */
 
-/* --- 1. TURQUOISE-CYAN STORY JOURNEY SCRUBBER RAIL --- */
+:root {
+  --lsn-orange: #F28C28;
+  --lsn-amber: #FFB04A;
+  --lsn-orange-deep: #C96A16;
+  --lsn-orange-glow: rgba(242, 140, 40, 0.24);
+  --lsn-graphite: #101318;
+  --lsn-surface-1: #171B22;
+  --lsn-surface-2: #202630;
+  --lsn-text-primary: #F1F2F3;
+  --lsn-text-secondary: #A3AAB4;
+  --lsn-border-subtle: rgba(255, 255, 255, 0.09);
+}
+
+/* --- 1. UNIFIED STORY JOURNEY SCRUBBER RAIL --- */
 .story-journey-rail {
   position: fixed !important;
   right: 22px !important;
@@ -21243,13 +22484,13 @@ body.modal-open .story-journey-rail {
   flex-direction: column !important;
   align-items: center !important;
   gap: 6px !important;
-  background: rgba(10, 15, 22, 0.88) !important;
+  background: rgba(16, 19, 24, 0.92) !important;
   backdrop-filter: blur(20px) saturate(180%) !important;
   -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
   padding: 16px 6px !important;
-  border: 1px solid rgba(53, 214, 197, 0.32) !important;
+  border: 1px solid rgba(242, 140, 40, 0.28) !important;
   border-radius: 999px !important;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.05), 0 0 24px rgba(53, 214, 197, 0.15) !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.75), 0 0 24px rgba(242, 140, 40, 0.16) !important;
   transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.25s !important;
   user-select: none !important;
 }
@@ -21262,7 +22503,7 @@ body.modal-open .story-journey-rail {
   left: 50% !important;
   transform: translateX(-50%) !important;
   width: 2px !important;
-  background: linear-gradient(180deg, rgba(53, 214, 197, 0.4) 0%, rgba(255, 255, 255, 0.1) 50%, rgba(53, 214, 197, 0.4) 100%) !important;
+  background: linear-gradient(180deg, rgba(242, 140, 40, 0.45) 0%, rgba(255, 255, 255, 0.1) 50%, rgba(242, 140, 40, 0.45) 100%) !important;
   border-radius: 1px !important;
   z-index: 1 !important;
   pointer-events: none !important;
@@ -21286,37 +22527,37 @@ body.modal-open .story-journey-rail {
 }
 
 .journey-dot:focus-visible {
-  box-shadow: 0 0 0 2px #35D6C5 !important;
+  box-shadow: 0 0 0 2px #F28C28 !important;
 }
 
 .journey-dot-glyph {
   width: 8px !important;
   height: 8px !important;
   border-radius: 50% !important;
-  background: rgba(148, 163, 184, 0.35) !important;
+  background: rgba(163, 170, 180, 0.35) !important;
   border: 1px solid rgba(0, 0, 0, 0.4) !important;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5) !important;
   transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
-/* Hover state: cyan glow */
+/* Hover state: amber glow */
 .journey-dot:hover .journey-dot-glyph {
   width: 12px !important;
   height: 12px !important;
-  background: #7CEDE2 !important;
-  border-color: #35D6C5 !important;
-  box-shadow: 0 0 12px rgba(53, 214, 197, 0.75), 0 0 2px #fff !important;
+  background: #FFB04A !important;
+  border-color: #F28C28 !important;
+  box-shadow: 0 0 12px rgba(242, 140, 40, 0.75), 0 0 2px #fff !important;
   transform: scale(1.15) !important;
 }
 
-/* Active state: morphs into glowing turquoise pill */
+/* Active state: morphs into glowing amber-orange pill */
 .journey-dot.active .journey-dot-glyph {
   width: 10px !important;
   height: 22px !important;
   border-radius: 999px !important;
-  background: linear-gradient(180deg, #7CEDE2 0%, #35D6C5 100%) !important;
+  background: linear-gradient(180deg, #FFB04A 0%, #F28C28 100%) !important;
   border: 1px solid rgba(255, 255, 255, 0.9) !important;
-  box-shadow: 0 0 16px rgba(53, 214, 197, 0.85), 0 0 4px rgba(255, 255, 255, 0.9) !important;
+  box-shadow: 0 0 16px rgba(242, 140, 40, 0.85), 0 0 4px rgba(255, 255, 255, 0.9) !important;
 }
 
 /* HUD Tooltip Card */
@@ -21325,21 +22566,21 @@ body.modal-open .story-journey-rail {
   right: 42px !important;
   top: 50% !important;
   transform: translateY(-50%) translateX(6px) !important;
-  background: rgba(10, 16, 24, 0.96) !important;
+  background: rgba(16, 19, 24, 0.96) !important;
   backdrop-filter: blur(14px) !important;
   -webkit-backdrop-filter: blur(14px) !important;
-  border: 1px solid rgba(53, 214, 197, 0.4) !important;
+  border: 1px solid rgba(242, 140, 40, 0.38) !important;
   border-radius: 8px !important;
   padding: 6px 12px !important;
   font-family: var(--font-sans, system-ui, sans-serif) !important;
   font-size: 11.5px !important;
   font-weight: 700 !important;
-  color: #f8fafc !important;
+  color: #F1F2F3 !important;
   white-space: nowrap !important;
   pointer-events: none !important;
   opacity: 0 !important;
   visibility: hidden !important;
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.75), 0 0 16px rgba(53, 214, 197, 0.18) !important;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.75), 0 0 16px rgba(242, 140, 40, 0.18) !important;
   transition: opacity 0.22s ease, transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.22s !important;
   display: flex !important;
   align-items: center !important;
@@ -21357,15 +22598,15 @@ body.modal-open .story-journey-rail {
   height: 0 !important;
   border-top: 5px solid transparent !important;
   border-bottom: 5px solid transparent !important;
-  border-left: 5px solid rgba(53, 214, 197, 0.45) !important;
+  border-left: 5px solid rgba(242, 140, 40, 0.45) !important;
 }
 
 .journey-tooltip-num {
   font-family: var(--font-mono, monospace) !important;
-  color: #7CEDE2 !important;
+  color: #FFB04A !important;
   font-size: 11px !important;
-  background: rgba(53, 214, 197, 0.15) !important;
-  border: 1px solid rgba(53, 214, 197, 0.35) !important;
+  background: rgba(242, 140, 40, 0.15) !important;
+  border: 1px solid rgba(242, 140, 40, 0.35) !important;
   border-radius: 4px !important;
   padding: 1px 5px !important;
 }
@@ -21377,170 +22618,79 @@ body.modal-open .story-journey-rail {
   transform: translateY(-50%) translateX(0) !important;
 }
 
-/* --- 2. REFINED STAFF SECTION ACCENTS (HARMONY WITH CYAN RAIL) --- */
+/* Auto-hide rail when any modal / dialog is open */
+body:has(dialog[open]) .story-journey-rail,
+body.modal-open .story-journey-rail,
+dialog[open] ~ .story-journey-rail {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
+}
+
+/* Hide rail on mobile & tablet */
+@media (max-width: 1024px) {
+  .story-journey-rail {
+    display: none !important;
+  }
+}
+
+/* --- 2. UNIFIED STAFF SECTION ACCENTS --- */
 .lsn-staff-section {
-  border-color: rgba(53, 214, 197, 0.25) !important;
+  border-color: rgba(242, 140, 40, 0.28) !important;
   background:
-    radial-gradient(circle at 12% 15%, rgba(53, 214, 197, 0.12), transparent 42%),
-    radial-gradient(circle at 88% 85%, rgba(199, 255, 82, 0.05), transparent 45%),
-    linear-gradient(165deg, #0d131c 0%, #090d14 100%) !important;
-  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.65), 0 0 40px rgba(53, 214, 197, 0.08) !important;
+    radial-gradient(circle at 12% 15%, rgba(242, 140, 40, 0.10), transparent 45%),
+    radial-gradient(circle at 88% 85%, rgba(201, 106, 22, 0.05), transparent 45%),
+    linear-gradient(165deg, #13171F 0%, #0D1016 100%) !important;
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.65), 0 0 40px rgba(242, 140, 40, 0.08) !important;
 }
 
 .lsn-staff-eyebrow {
-  background: rgba(53, 214, 197, 0.12) !important;
-  border: 1px solid rgba(53, 214, 197, 0.35) !important;
-  color: #7CEDE2 !important;
+  background: rgba(242, 140, 40, 0.12) !important;
+  border: 1px solid rgba(242, 140, 40, 0.35) !important;
+  color: #FFB04A !important;
 }
 
 .lsn-staff-live-pill {
-  border-color: rgba(53, 214, 197, 0.35) !important;
+  border-color: rgba(242, 140, 40, 0.35) !important;
 }
 
 .lsn-staff-live-pill i {
-  background: #35D6C5 !important;
-  box-shadow: 0 0 10px #35D6C5 !important;
+  background: #F28C28 !important;
+  box-shadow: 0 0 10px #F28C28 !important;
 }
 
 .lsn-staff-btn--cyan {
-  background: rgba(53, 214, 197, 0.12) !important;
-  border-color: rgba(53, 214, 197, 0.45) !important;
-  color: #35D6C5 !important;
+  background: rgba(242, 140, 40, 0.12) !important;
+  border-color: rgba(242, 140, 40, 0.45) !important;
+  color: #FFB04A !important;
 }
 
 .lsn-staff-btn--cyan:hover {
-  background: #35D6C5 !important;
-  border-color: #35D6C5 !important;
-  color: #041417 !important;
-  box-shadow: 0 6px 22px rgba(53, 214, 197, 0.35) !important;
+  background: #F28C28 !important;
+  border-color: #F28C28 !important;
+  color: #101318 !important;
+  box-shadow: 0 6px 22px rgba(242, 140, 40, 0.35) !important;
 }
 
 .lsn-staff-stat-box {
-  border: 1px solid rgba(53, 214, 197, 0.22) !important;
+  border: 1px solid rgba(242, 140, 40, 0.22) !important;
 }
 
 .lsn-staff-stat-box b {
-  color: #7CEDE2 !important;
+  color: #FFB04A !important;
 }
 
 .lsn-staff-card:hover {
-  border-color: rgba(53, 214, 197, 0.5) !important;
-  box-shadow: 0 22px 54px rgba(0, 0, 0, 0.65), 0 0 28px rgba(53, 214, 197, 0.2) !important;
+  border-color: rgba(242, 140, 40, 0.55) !important;
+  box-shadow: 0 22px 54px rgba(0, 0, 0, 0.65), 0 0 28px rgba(242, 140, 40, 0.2) !important;
 }
 
 .lsn-staff-rank-pill {
-  border: 1px solid rgba(53, 214, 197, 0.45) !important;
-  color: #7CEDE2 !important;
+  border: 1px solid rgba(242, 140, 40, 0.45) !important;
+  color: #FFB04A !important;
 }
 
-/* --- 3. FIX EDITORIAL QUOTE CARDS (ELIMINATE ASYMMETRIC RED/GOLD BORDER ARTIFACT) --- */
-.editorial-quote {
-  padding: 24px !important;
-  background: linear-gradient(160deg, #101622 0%, #080c13 100%) !important;
-  border-radius: 14px !important;
-  border: 1px solid rgba(53, 214, 197, 0.2) !important;
-  border-left: 1px solid rgba(53, 214, 197, 0.2) !important;
-  margin-bottom: 20px !important;
-  transition: all 0.25s ease !important;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45) !important;
-  overflow: hidden !important;
-}
-
-.editorial-quote:hover {
-  transform: translateY(-3px) !important;
-  border-color: rgba(53, 214, 197, 0.55) !important;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 22px rgba(53, 214, 197, 0.14) !important;
-}
-
-.editorial-quote:hover .editorial-quote__title {
-  color: #7CEDE2 !important;
-}
-
-/* --- 4. ARTICLES WORKSPACE CARDS IN CABINET --- */
-.cab-article-card {
-  display: flex !important;
-  align-items: flex-start !important;
-  gap: 14px !important;
-  padding: 14px !important;
-  border-radius: 14px !important;
-  background: #111722 !important;
-  border: 1px solid rgba(255, 255, 255, 0.09) !important;
-  transition: all 0.2s ease !important;
-  margin-bottom: 10px !important;
-}
-
-.cab-article-card:hover {
-  background: #141d2c !important;
-  border-color: rgba(53, 214, 197, 0.35) !important;
-}
-
-.cab-article-card.is-editing {
-  border-color: #35D6C5 !important;
-  background: rgba(53, 214, 197, 0.08) !important;
-  box-shadow: 0 0 16px rgba(53, 214, 197, 0.12) !important;
-}
-
-.cab-article-thumb {
-  width: 54px !important;
-  height: 54px !important;
-  border-radius: 8px !important;
-  overflow: hidden !important;
-  flex-shrink: 0 !important;
-  background: #090d15 !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-}
-
-.cab-article-thumb img {
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: cover !important;
-  display: block !important;
-}
-
-.cab-status-pill {
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 4px !important;
-  padding: 3px 8px !important;
-  border-radius: 999px !important;
-  font-family: var(--font-mono, monospace) !important;
-  font-size: 10px !important;
-  font-weight: 800 !important;
-  letter-spacing: 0.08em !important;
-  text-transform: uppercase !important;
-}
-
-.cab-status-pill--pub {
-  color: #35D6C5 !important;
-  background: rgba(53, 214, 197, 0.12) !important;
-  border: 1px solid rgba(53, 214, 197, 0.3) !important;
-}
-
-.cab-status-pill--draft {
-  color: #fbbf24 !important;
-  background: rgba(245, 158, 11, 0.12) !important;
-  border: 1px solid rgba(245, 158, 11, 0.3) !important;
-}
-
-.cab-status-pill--archived {
-  color: #94a3b8 !important;
-  background: rgba(148, 163, 184, 0.12) !important;
-  border: 1px solid rgba(148, 163, 184, 0.3) !important;
-}
-
-
-
-
-/* STRICT TAB WORKSPACE ISOLATION GUARDS */
-#cabinet-dialog #uni-content-workspace[hidden],
-#cabinet-dialog #uni-permissions-workspace[hidden],
-#cabinet-dialog #uni-my-activities-workspace[hidden],
-#cabinet-dialog #uni-archive-workspace[hidden],
-#cabinet-dialog [hidden] {
-  display: none !important;
-}
-
-/* ZERO ASYMMETRIC BORDER ARTIFACT ON EDITORIAL QUOTES */
+/* --- 3. UNIFIED EDITORIAL ARTICLE CARDS (.editorial-quote) --- */
 .editorial-quote,
 .editorial-quote.red,
 .editorial-quote.amber,
@@ -21550,10 +22700,10 @@ body.modal-open .story-journey-rail {
   position: relative !important;
   display: flex !important;
   flex-direction: column !important;
-  background: linear-gradient(160deg, #101622 0%, #080c13 100%) !important;
-  border: 1px solid rgba(53, 214, 197, 0.25) !important;
-  border-left: 1px solid rgba(53, 214, 197, 0.25) !important;
-  border-left-color: rgba(53, 214, 197, 0.25) !important;
+  background: linear-gradient(160deg, #171B22 0%, #101318 100%) !important;
+  border: 1px solid rgba(242, 140, 40, 0.22) !important;
+  border-left: 1px solid rgba(242, 140, 40, 0.22) !important;
+  border-left-color: rgba(242, 140, 40, 0.22) !important;
   border-radius: 14px !important;
   margin-bottom: 20px !important;
   transition: all 0.25s ease !important;
@@ -21572,8 +22722,8 @@ body.modal-open .story-journey-rail {
   height: 180px !important;
   overflow: hidden !important;
   position: relative !important;
-  background: #0a1019 !important;
-  border-bottom: 1px solid rgba(53, 214, 197, 0.15) !important;
+  background: #0D1016 !important;
+  border-bottom: 1px solid rgba(242, 140, 40, 0.15) !important;
 }
 
 .editorial-quote__thumb-wrap img {
@@ -21596,21 +22746,138 @@ body.modal-open .story-journey-rail {
 }
 
 .editorial-quote:hover {
-  border-color: rgba(53, 214, 197, 0.6) !important;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(53, 214, 197, 0.15) !important;
+  border-color: rgba(242, 140, 40, 0.55) !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(242, 140, 40, 0.18) !important;
 }
 
-/* OVERRIDE ANY OLD AMBER RAIL DOTS */
+.editorial-quote:hover .editorial-quote__title {
+  color: #FFB04A !important;
+}
+
+/* --- 4. 16 THEMATIC TAG CHIPS & MEDIA LIBRARY MODAL --- */
+.lsn-tag-chip {
+  padding: 5px 12px !important;
+  border-radius: 999px !important;
+  background: rgba(16, 19, 24, 0.8) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #A3AAB4 !important;
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  white-space: nowrap !important;
+}
+
+.lsn-tag-chip:hover {
+  border-color: rgba(242, 140, 40, 0.45) !important;
+  color: #FFB04A !important;
+  background: rgba(242, 140, 40, 0.08) !important;
+}
+
+.lsn-tag-chip.is-active {
+  background: rgba(242, 140, 40, 0.18) !important;
+  border-color: #F28C28 !important;
+  color: #FFB04A !important;
+  box-shadow: 0 0 12px rgba(242, 140, 40, 0.2) !important;
+}
+
+.lsn-media-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.82) !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+.lsn-media-card {
+  background: #171B22 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 10px !important;
+  overflow: hidden !important;
+  cursor: pointer !important;
+  transition: all 0.22s ease !important;
+  text-align: left !important;
+  padding: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.lsn-media-card:hover {
+  border-color: rgba(242, 140, 40, 0.5) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 16px rgba(242, 140, 40, 0.14) !important;
+}
+
+.lsn-media-card.is-selected {
+  border-color: #F28C28 !important;
+  box-shadow: 0 0 0 2px #F28C28, 0 8px 24px rgba(242, 140, 40, 0.25) !important;
+}
+
+.lsn-media-card__thumb {
+  width: 100% !important;
+  height: 105px !important;
+  object-fit: cover !important;
+  display: block !important;
+  background: #090D14 !important;
+}
+
+.lsn-media-card__body {
+  padding: 8px 10px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 3px !important;
+}
+
+.lsn-media-card__tag {
+  font-family: var(--font-mono, monospace) !important;
+  font-size: 9.5px !important;
+  font-weight: 800 !important;
+  color: #FFB04A !important;
+  text-transform: uppercase !important;
+}
+
+.lsn-media-card__title {
+  font-size: 11.5px !important;
+  color: #F1F2F3 !important;
+  font-weight: 700 !important;
+  line-height: 1.3 !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+}
+
+/* --- 5. ARTICLES WORKSPACE CARDS IN CABINET --- */
+.cab-article-card {
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 14px !important;
+  padding: 14px !important;
+  border-radius: 14px !important;
+  background: #111722 !important;
+  border: 1px solid rgba(255, 255, 255, 0.09) !important;
+  transition: all 0.2s ease !important;
+  margin-bottom: 10px !important;
+}
+
+.cab-article-card:hover {
+  background: #141d2c !important;
+  border-color: rgba(242, 140, 40, 0.35) !important;
+}
+
+.cab-article-card.is-editing {
+  border-color: #F28C28 !important;
+  background: rgba(242, 140, 40, 0.08) !important;
+  box-shadow: 0 0 16px rgba(242, 140, 40, 0.14) !important;
+}
+
+.cab-status-pill--pub {
+  color: #FFB04A !important;
+  background: rgba(242, 140, 40, 0.12) !important;
+  border: 1px solid rgba(242, 140, 40, 0.3) !important;
+}
+
+/* Clear any amber rail dots hover override */
 .journey-dot:hover, .journey-dot.active {
   background: transparent !important;
   box-shadow: none !important;
-}
-
-/* HIDE RAIL ON MOBILE AND TABLET */
-@media (max-width: 1024px) {
-  .story-journey-rail {
-    display: none !important;
-  }
 }
 
 
@@ -21852,5 +23119,60 @@ body.modal-open .story-journey-rail {
 
 </style>
 
+<!-- MODAL: GTA SAN ANDREAS MEDIA LIBRARY (22 CANONICAL LOCATIONS) -->
+<dialog id="lsn-media-library-dialog" class="lsn-media-dialog" style="padding:0; border:1px solid rgba(242,140,40,0.3); border-radius:16px; background:#101318; color:#F1F2F3; max-width:960px; width:94vw; max-height:88vh; box-shadow:0 24px 60px rgba(0,0,0,0.85), 0 0 30px rgba(242,140,40,0.15);">
+  <div class="lsn-media-dialog-hdr" style="display:flex; justify-content:space-between; align-items:center; padding:16px 22px; border-bottom:1px solid rgba(255,255,255,0.08); background:#171B22;">
+    <div style="display:flex; align-items:center; gap:10px;">
+      <span style="font-size:20px;">📷</span>
+      <div>
+        <h3 style="margin:0; font-size:18px; font-weight:800; color:#F1F2F3;">Библиотека фотографий GTA San Andreas</h3>
+        <span style="font-size:11.5px; color:#A3AAB4;">Каноничные локации штата для иллюстрации публикаций Los Santos News</span>
+      </div>
+    </div>
+    <button type="button" id="lsn-media-dialog-close" class="cab-ad-mini-btn" style="padding:6px 12px; font-size:13px;">✕ Закрыть</button>
+  </div>
+
+  <div class="lsn-media-dialog-toolbar" style="display:flex; justify-content:space-between; align-items:center; gap:12px; padding:14px 22px; background:#13171F; border-bottom:1px solid rgba(255,255,255,0.06); flex-wrap:wrap;">
+    <div class="lsn-media-region-tabs" id="lsn-media-region-tabs" style="display:flex; gap:6px; flex-wrap:wrap;">
+      <button type="button" class="cab-filter-pill is-active" data-media-region="all">Все локации</button>
+      <button type="button" class="cab-filter-pill" data-media-region="Los Santos">Los Santos</button>
+      <button type="button" class="cab-filter-pill" data-media-region="San Fierro">San Fierro</button>
+      <button type="button" class="cab-filter-pill" data-media-region="Las Venturas">Las Venturas</button>
+      <button type="button" class="cab-filter-pill" data-media-region="Countryside">Countryside</button>
+      <button type="button" class="cab-filter-pill" data-media-region="Desert">Desert</button>
+    </div>
+    <input type="search" id="lsn-media-search-input" placeholder="Поиск по району или названию..." class="cab-search-input" style="max-width:260px; font-size:12px;">
+  </div>
+
+  <div class="lsn-media-dialog-body" style="display:grid; grid-template-columns:1fr 300px; gap:0; height:calc(88vh - 140px); overflow:hidden;">
+    <div class="lsn-media-grid" id="lsn-media-grid" style="padding:18px; overflow-y:auto; display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:12px; max-height:100%;">
+      <!-- Populated dynamically with 22 canonical locations -->
+    </div>
+
+    <!-- Image Detail & Selection Pane -->
+    <div class="lsn-media-detail-pane" id="lsn-media-detail-pane" style="padding:18px; background:#171B22; border-left:1px solid rgba(255,255,255,0.08); display:flex; flex-direction:column; justify-content:space-between; overflow-y:auto;">
+      <div id="lsn-media-detail-content">
+        <div style="font-size:11px; color:#A3AAB4; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:4px;" id="lsn-media-detail-region">Выберите локацию</div>
+        <h4 style="margin:0 0 12px; font-size:16px; color:#F1F2F3;" id="lsn-media-detail-title">Предпросмотр кадра</h4>
+        <div style="border-radius:10px; overflow:hidden; border:1px solid rgba(242,140,40,0.3); background:#0a0d13; margin-bottom:12px; aspect-ratio:16/10;">
+          <img id="lsn-media-detail-img" src="assets/lsn-immersive-v3/commerce.jpg" alt="" style="width:100%; height:100%; object-fit:cover; display:block;">
+        </div>
+        <p id="lsn-media-detail-desc" style="font-size:12px; color:#A3AAB4; line-height:1.5; margin-bottom:12px;">
+          Административный и деловой центр Лос-Сантоса. Мэрия, сквер Першинг и штаб-квартира Los Santos News.
+        </p>
+        <div style="font-family:var(--font-mono, monospace); font-size:11px; color:#FFB04A; line-height:1.6;" id="lsn-media-detail-specs">
+          <div>Файл: <span id="lsn-media-spec-file" style="color:#F1F2F3;">commerce.jpg</span></div>
+          <div>Размер: <span id="lsn-media-spec-size" style="color:#F1F2F3;">226 КБ</span></div>
+          <div>Разрешение: <span id="lsn-media-spec-res" style="color:#F1F2F3;">1920 × 1080</span></div>
+        </div>
+      </div>
+      <div style="margin-top:16px; border-top:1px solid rgba(255,255,255,0.08); padding-top:14px;">
+        <button type="button" id="lsn-media-confirm-btn" class="lsn-staff-btn lsn-staff-btn--primary" style="width:100%; padding:12px; font-size:13px; font-weight:700;">
+          ✓ Выбрать это изображение
+        </button>
+      </div>
+    </div>
+  </div>
+</dialog>
 </body>
 </html>

@@ -1,61 +1,27 @@
-﻿{
-    "release":  "V13 Recovery Verified Edition",
-    "html_bytes":  2148215,
-    "html_sha256":  "0E201E427720664AB50924999851098725EF716FDA0F97F723479005A52BC0C3",
-    "inline_javascript_blocks_total":  2,
-    "inline_javascript_blocks_passed":  2,
-    "inline_javascript_syntax_errors":  0,
-    "edge_function_count":  4,
-    "edge_functions":  [
-                           "admin-delete-user",
-                           "username-login",
-                           "username-available",
-                           "username-password-reset"
-                       ],
-    "duplicate_dom_ids":  [
-
-                          ],
-    "role_hierarchy_keys":  [
-                                "admin",
-                                "director",
-                                "deputy",
-                                "journalist",
-                                "user"
-                            ],
-    "staff_hierarchy_enforced":  true,
-    "archive_tab_role_protected":  true,
-    "my_activities_author_filtered":  true,
-    "roles_panel_simplified":  true,
-    "default_news_count":  3,
-    "default_ads_count":  3,
-    "embedded_illustrations":  18,
-    "public_submit_ad_cta":  false,
-    "startup_deletes_content_stores":  false,
-    "service_role_secret_in_frontend":  false,
-    "editorial_backup_controls":  true,
-    "supabase_archive_system":  true,
-    "author_name":  "Ray Westblock",
-    "browser_headless_dom_tested":  true,
-    "server_security":  {
-                            "profiles_trigger_protect_active":  true,
-                            "articles_guard_trigger_active":  true,
-                            "self_escalation_blocked":  true,
-                            "author_id_tampering_blocked":  true,
-                            "email_tampering_blocked":  true,
-                            "public_profiles_view_email_hidden":  true,
-                            "secure_role_rpc_active":  true
-                        },
-    "automated_test_suite":  {
-                                 "total":  63,
-                                 "passed":  63,
-                                 "failed":  0,
-                                 "all_passed":  true
-                             },
-    "remaining_manual_steps":  [
-                                   "Execute supabase/migrations/20261025091500_allow_archived_status_in_lsn_articles.sql in Supabase SQL Editor if archive status constraint is not yet applied",
-                                   "Execute supabase/migrations/20261025140000_strict_five_role_security_and_rls_hardening.sql in Supabase SQL Editor to enforce strict RLS and 5-role security",
-                                   "Execute supabase/migrations/20261025170000_secure_radio_ratings_and_journalist_access.sql in Supabase SQL Editor to enable secure journalist radio rating updates",
-                                   "Execute supabase/sql/restore_primary_admin.sql in Supabase SQL Editor if Ray Westblock profile requires admin role elevation",
-                                   "Sign in to V13 as Ray Westblock to confirm profile sync"
-                               ]
+{
+    "release": "LSN Complete Platform Evolution - Production Gold Edition",
+    "html_bytes": 2179007,
+    "html_sha256": "9269CEDEA7F4E073C52B599CCA07B39CA679EAA51B3F8AAE6B4A25F234D48BF2",
+    "platform_evolution": {
+        "unified_orange_design_system": true,
+        "story_journey_rail_6_dots": true,
+        "public_articles_section_with_16_tags": true,
+        "custom_permalinks_slugs": true,
+        "media_library_dialog_gta_sa": true,
+        "account_hub_rbac_5_levels": true,
+        "favorites_cloud_sync": true,
+        "dynamic_hero_30s_rotation": true,
+        "header_nav_career_removed": true,
+        "canonical_nav_5_links": true,
+        "zero_black_screen_guarantee": true
+    },
+    "edge_cdp_verification": {
+        "dynamic_hero_suite_tests": 18,
+        "dynamic_hero_suite_passed": 18,
+        "platform_evolution_suite_tests": 33,
+        "platform_evolution_suite_passed": 33,
+        "total_passed": 51,
+        "total_failed": 0,
+        "verdict": "GO"
+    }
 }
