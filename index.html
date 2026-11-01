@@ -7736,6 +7736,7 @@ dialog#article-dialog::backdrop {
       <div class="hero-badge-row">
         <div class="hero-kicker" id="hero-focus-kicker">LSN В ФОКУСЕ · СПЕЦРЕПОРТАЖ</div>
         <span class="hero-district-tag" id="hero-focus-tag">ПОРТ ЛОС-САНТОСА · ПРОМЫШЛЕННЫЙ СЕКТОР</span>
+        <span class="hero-pinned-badge" id="hero-pinned-badge" hidden>📌 В ФОКУСЕ РЕДАКЦИИ</span>
         <span class="hero-weather-pill" style="display:inline-flex; align-items:center; gap:6px; margin-left:auto; font-family:var(--font-mono, monospace); font-size:11px; color:#f59e0b; background:rgba(245, 158, 11, 0.1); border:1px solid rgba(245, 158, 11, 0.25); padding:4px 12px; border-radius:3px;">
           <span>☀</span> <b id="hero-temp-readout">+26°C</b> · COMMERCE, LS · LIVE 24/7
         </span>
@@ -7754,9 +7755,25 @@ dialog#article-dialog::backdrop {
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
           <span>В закладки</span>
         </button>
-        <button class="btn-bookmark-hero hero-edit-shortcut-btn" id="hero-edit-shortcut-btn" type="button" hidden>
-          <span>✏️ Редактировать блок</span>
-        </button>
+        <!-- Dynamic Hero Editorial Management Bar -->
+        <div class="hero-admin-actions" id="hero-admin-actions" hidden>
+          <button class="hero-admin-btn" id="hero-admin-edit-btn" type="button" title="Редактировать материал в кабинете редакции">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            <span>Редактировать</span>
+          </button>
+          <button class="hero-admin-btn" id="hero-admin-pin-btn" type="button" title="Закрепить или открепить материал на первом месте в блоке «В ФОКУСЕ»">
+            <span id="hero-admin-pin-icon">📌</span>
+            <span id="hero-admin-pin-label">Закрепить</span>
+          </button>
+          <button class="hero-admin-btn" id="hero-admin-exclude-btn" type="button" title="Исключить из витрины «В ФОКУСЕ» без удаления публикации с сайта">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+            <span>Убрать из «В Фокусе»</span>
+          </button>
+          <button class="hero-admin-btn hero-admin-btn--del" id="hero-admin-del-btn" type="button" title="Удалить материал с сайта (двухэтапное подтверждение)">
+            <span id="hero-admin-del-icon">🗑️</span>
+            <span id="hero-admin-del-label">Удалить</span>
+          </button>
+        </div>
         <div class="hero-meta-strip" id="hero-focus-meta">
           <span>РЕДАКЦИЯ 102.2 FM</span>
           <span>•</span>
@@ -8875,6 +8892,12 @@ dialog#article-dialog::backdrop {
         <button type="button" class="lsn-staff-btn lsn-staff-btn--primary" id="modal-article-edit-btn">
           Редактировать материал
         </button>
+        <button type="button" class="lsn-staff-btn" id="modal-article-pin-hero-btn" style="color:#ffb04a; border-color:rgba(242,140,40,0.4);" hidden>
+          📌 В «В Фокусе»
+        </button>
+        <button type="button" class="lsn-staff-btn" id="modal-article-exclude-hero-btn" style="color:#cbd5e1; border-color:rgba(255,255,255,0.2);" hidden>
+          👁️‍🗨️ Убрать из Hero
+        </button>
         <button type="button" class="lsn-staff-btn cab-ad-mini-btn--del" id="modal-article-del-btn" style="color:#ff8c9a; border-color:rgba(255,82,101,0.35);">
           🗑️ Удалить новость
         </button>
@@ -9952,8 +9975,9 @@ dialog#article-dialog::backdrop {
 
 <!-- Embedded Interactive Controller -->
 <script>
-document.addEventListener('DOMContentLoaded', () => {
+const initLSNApp = () => {
   try {
+  window.__initLSNAppStarted = true;
 
   // Hoisted state variables to prevent Temporal Dead Zone (TDZ)
   let currentArticleThematicFilter = "all";
@@ -13046,6 +13070,7 @@ document.addEventListener('DOMContentLoaded', () => {
       localStorage.setItem('lsn_columns_store_v18', JSON.stringify(columnsState));
     } catch (_) {}
   };
+  window.saveColumnsState = saveColumnsState;
 
   const CANONICAL_STAFF_STATS = Object.freeze([
     {
@@ -13161,6 +13186,123 @@ document.addEventListener('DOMContentLoaded', () => {
   };
   window.saveHeroFocusCache = saveHeroFocusCache;
   Object.defineProperty(window, 'heroFocusState', { get: () => heroFocusState, set: (v) => { heroFocusState = v; }, configurable: true });
+
+  // Hero Pinning and Exclusion Keys & State
+  const HERO_PINNED_STORAGE_KEY = 'lsn_hero_pinned_article_id_v2';
+  const HERO_EXCLUDED_STORAGE_KEY = 'lsn_hero_excluded_articles_v2';
+  let pinnedHeroArticleId = null;
+  let excludedHeroArticleIds = [];
+  try {
+    pinnedHeroArticleId = localStorage.getItem(HERO_PINNED_STORAGE_KEY) || null;
+    const rawEx = localStorage.getItem(HERO_EXCLUDED_STORAGE_KEY);
+    if (rawEx) {
+      const parsedEx = JSON.parse(rawEx);
+      if (Array.isArray(parsedEx)) excludedHeroArticleIds = parsedEx;
+    }
+  } catch (_) {}
+
+  const saveHeroManagementState = async () => {
+    try {
+      if (pinnedHeroArticleId) {
+        localStorage.setItem(HERO_PINNED_STORAGE_KEY, pinnedHeroArticleId);
+      } else {
+        localStorage.removeItem(HERO_PINNED_STORAGE_KEY);
+      }
+      localStorage.setItem(HERO_EXCLUDED_STORAGE_KEY, JSON.stringify(excludedHeroArticleIds));
+    } catch (_) {}
+
+    if (sb && currentUser) {
+      const roleInfo = getUserRoleInfo(currentUser);
+      if (roleInfo && (roleInfo.rank >= 3 || roleInfo.isManagement)) {
+        try {
+          await sb.from('lsn_site_banners').upsert({
+            banner_key: 'hero_focus_config',
+            title: 'Hero Focus Rotation Config',
+            subtitle: pinnedHeroArticleId || '',
+            description: JSON.stringify(excludedHeroArticleIds),
+            badge_text: 'CONFIG',
+            is_active: true,
+            updated_by: currentUser?.uuid || null,
+            updated_at: new Date().toISOString()
+          }, { onConflict: 'banner_key' });
+        } catch (_) {}
+      }
+    }
+  };
+
+  const pinHeroArticle = async (id) => {
+    if (!id) return;
+    const roleInfo = getUserRoleInfo(currentUser);
+    if (!roleInfo || roleInfo.rank < 3) {
+      flashUniSaved('🔒 Закреплять материалы в блоке «В ФОКУСЕ» может только руководство.');
+      return;
+    }
+    pinnedHeroArticleId = id;
+    excludedHeroArticleIds = excludedHeroArticleIds.filter(x => x !== id);
+    await saveHeroManagementState();
+    currentHeroSlideIndex = 0;
+    renderHeroFocusSlide(0, true);
+    startHeroRotation();
+    flashUniSaved('📌 Материал закреплён на первой позиции блока «В ФОКУСЕ»');
+  };
+
+  const unpinHeroArticle = async (id = null) => {
+    const roleInfo = getUserRoleInfo(currentUser);
+    if (!roleInfo || roleInfo.rank < 3) {
+      flashUniSaved('🔒 Снимать закрепление материалов может только руководство.');
+      return;
+    }
+    pinnedHeroArticleId = null;
+    await saveHeroManagementState();
+    renderHeroFocusSlide(currentHeroSlideIndex, true);
+    startHeroRotation();
+    flashUniSaved('📍 Закрепление снято. Включена стандартная ротация');
+  };
+
+  const excludeHeroArticle = async (id) => {
+    if (!id) return;
+    const roleInfo = getUserRoleInfo(currentUser);
+    if (!roleInfo || roleInfo.rank < 3) {
+      flashUniSaved('🔒 Исключать материалы из блока «В ФОКУСЕ» может только руководство.');
+      return;
+    }
+    if (!excludedHeroArticleIds.includes(id)) {
+      excludedHeroArticleIds.push(id);
+    }
+    if (pinnedHeroArticleId === id) {
+      pinnedHeroArticleId = null;
+    }
+    await saveHeroManagementState();
+    const items = getHeroRotationItems();
+    if (currentHeroSlideIndex >= items.length) {
+      currentHeroSlideIndex = 0;
+    }
+    renderHeroFocusSlide(currentHeroSlideIndex, true);
+    startHeroRotation();
+    flashUniSaved('👁️‍🗨️ Материал исключён из «В ФОКУСЕ» (статья остаётся на сайте)');
+  };
+
+  const includeHeroArticle = async (id) => {
+    if (!id) return;
+    const roleInfo = getUserRoleInfo(currentUser);
+    if (!roleInfo || roleInfo.rank < 3) {
+      flashUniSaved('🔒 Управлять материалами Hero может только руководство.');
+      return;
+    }
+    excludedHeroArticleIds = excludedHeroArticleIds.filter(x => x !== id);
+    await saveHeroManagementState();
+    renderHeroFocusSlide(currentHeroSlideIndex, true);
+    startHeroRotation();
+    flashUniSaved('➕ Материал возвращён в ротацию «В ФОКУСЕ»');
+  };
+
+  window.pinHeroArticle = pinHeroArticle;
+  window.unpinHeroArticle = unpinHeroArticle;
+  window.excludeHeroArticle = excludeHeroArticle;
+  window.includeHeroArticle = includeHeroArticle;
+  window.saveHeroManagementState = saveHeroManagementState;
+  Object.defineProperty(window, 'pinnedHeroArticleId', { get: () => pinnedHeroArticleId, set: (v) => { pinnedHeroArticleId = v; }, configurable: true });
+  Object.defineProperty(window, 'excludedHeroArticleIds', { get: () => excludedHeroArticleIds, set: (v) => { excludedHeroArticleIds = v; }, configurable: true });
 
   const makeShortPreview = (fullText, maxLen = 175) => {
     const clean = (fullText || '').trim().split('\n')[0];
@@ -13571,8 +13713,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const canDeleteModalItem = !!currentUser && canUserDeleteItem(modalItem);
     const modalEditBtn = $('#modal-article-edit-btn');
     const modalDelBtn = $('#modal-article-del-btn');
+    const modalPinHeroBtn = $('#modal-article-pin-hero-btn');
+    const modalExcludeHeroBtn = $('#modal-article-exclude-hero-btn');
+    const roleInfo = getUserRoleInfo(currentUser);
+    const canManageHeroFromModal = !!(currentUser && roleInfo && (roleInfo.rank >= 3 || roleInfo.isManagement) && (type === 'column' || type === 'news'));
+
     if (modalEditBtn) modalEditBtn.hidden = !canEditModalItem;
     if (modalDelBtn) modalDelBtn.hidden = !canDeleteModalItem;
+
+    if (modalPinHeroBtn) {
+      modalPinHeroBtn.hidden = !canManageHeroFromModal;
+      if (canManageHeroFromModal) {
+        const isPinned = (pinnedHeroArticleId === id || pinnedHeroArticleId === modalItem.slug);
+        modalPinHeroBtn.textContent = isPinned ? '📍 Открепить из «В Фокусе»' : '📌 Закрепить в «В Фокусе»';
+      }
+    }
+    if (modalExcludeHeroBtn) {
+      modalExcludeHeroBtn.hidden = !canManageHeroFromModal;
+      if (canManageHeroFromModal) {
+        const isEx = (excludedHeroArticleIds.includes(id) || (modalItem.slug && excludedHeroArticleIds.includes(modalItem.slug)));
+        modalExcludeHeroBtn.textContent = isEx ? '➕ Вернуть в «В Фокусе»' : '👁️‍🗨️ Убрать из Hero';
+      }
+    }
 
     const catEl = $('#modal-article-category');
     const titleEl = $('#modal-article-title');
@@ -14503,11 +14665,73 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const getHeroRotationItems = () => {
     const list = [];
+    const seenIds = new Set();
+    const seenSlugs = new Set();
+    const seenTitles = new Set();
 
-    // 1. All published articles from columnsState (canonical articles & user articles)
+    const isExcluded = (id, slug) => {
+      if (!id && !slug) return false;
+      return (id && excludedHeroArticleIds.includes(id)) ||
+             (slug && excludedHeroArticleIds.includes(slug));
+    };
+
+    const addHeroItem = (item, isPinned = false) => {
+      if (!item) return;
+      const itemId = item.id;
+      const itemSlug = item.slug || item.id;
+      const itemTitle = (item.title || '').trim();
+
+      if (itemId && seenIds.has(itemId)) return;
+      if (itemSlug && seenSlugs.has(itemSlug)) return;
+      if (itemTitle && seenTitles.has(itemTitle.toLowerCase())) return;
+
+      if (itemId) seenIds.add(itemId);
+      if (itemSlug) seenSlugs.add(itemSlug);
+      if (itemTitle) seenTitles.add(itemTitle.toLowerCase());
+
+      list.push({ ...item, isPinned });
+    };
+
+    // 0. If an article is manually pinned in Hero, load it strictly at index 0
+    let pinnedSourceItem = null;
+    if (pinnedHeroArticleId) {
+      if (Array.isArray(columnsState)) {
+        pinnedSourceItem = columnsState.find(x => (x.id === pinnedHeroArticleId || x.slug === pinnedHeroArticleId) && !isItemDeleted(x.id));
+      }
+      if (!pinnedSourceItem && typeof DEFAULT_COLUMNS_DATA !== 'undefined' && Array.isArray(DEFAULT_COLUMNS_DATA)) {
+        pinnedSourceItem = DEFAULT_COLUMNS_DATA.find(x => (x.id === pinnedHeroArticleId || x.slug === pinnedHeroArticleId) && !isItemDeleted(x.id));
+      }
+      if (!pinnedSourceItem && Array.isArray(newsState)) {
+        pinnedSourceItem = newsState.find(x => (x.id === pinnedHeroArticleId || x.slug === pinnedHeroArticleId) && !isItemDeleted(x.id));
+      }
+      if (pinnedSourceItem) {
+        let colImg = safeImageUrl(pinnedSourceItem.img || pinnedSourceItem.image_url);
+        if (!colImg) colImg = 'assets/lsn-immersive-v3/vinewood.jpg';
+        const tagText = pinnedSourceItem.district || pinnedSourceItem.tag || (pinnedSourceItem.subtitle && pinnedSourceItem.subtitle.includes('·') ? pinnedSourceItem.subtitle.split('·')[1].trim() : (pinnedSourceItem.subtitle || 'САН-АНДРЕАС'));
+        const kickerText = pinnedSourceItem.kicker || (pinnedSourceItem.subtitle && pinnedSourceItem.subtitle.includes('·') ? pinnedSourceItem.subtitle.split('·')[0].trim() : 'LSN В ФОКУСЕ · СПЕЦРЕПОРТАЖ');
+        addHeroItem({
+          id: pinnedSourceItem.id,
+          slug: pinnedSourceItem.slug || pinnedSourceItem.id,
+          kicker: kickerText,
+          tag: tagText,
+          title: pinnedSourceItem.title,
+          lead: pinnedSourceItem.lead || makeShortPreview(pinnedSourceItem.body, 220),
+          body: pinnedSourceItem.body,
+          img: colImg,
+          author: pinnedSourceItem.author || pinnedSourceItem.authorLogin || 'Редакция 102.2 FM',
+          ctaText: 'Читать спецрепортаж',
+          caption: pinnedSourceItem.caption || `ФОТОСЛУЖБА LSN · ${pinnedSourceItem.title.slice(0, 42)}`,
+          meta: pinnedSourceItem.readTime || `${Math.max(4, Math.min(18, Math.round((pinnedSourceItem.body || '').length / 450)))} МИНУТ ЧТЕНИЯ · 3 ФОТОРАЗВОРОТА`
+        }, true);
+      }
+    }
+
+    // 1. All published articles from columnsState (excluding drafts, archived, deleted, or excluded)
     if (Array.isArray(columnsState)) {
       columnsState.forEach((col, idx) => {
         if (!col || col.status === 'draft' || col.status === 'archived' || isItemDeleted(col.id)) return;
+        if (isExcluded(col.id, col.slug)) return;
+
         let colImg = safeImageUrl(col.img);
         if (!colImg) {
           const defaultImgs = [
@@ -14523,7 +14747,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const tagText = col.district || (col.subtitle && col.subtitle.includes('·') ? col.subtitle.split('·')[1].trim() : (col.subtitle || 'САН-АНДРЕАС'));
         const kickerText = col.kicker || (col.subtitle && col.subtitle.includes('·') ? col.subtitle.split('·')[0].trim() : 'АНАЛИТИКА И СТАТЬИ LSN');
 
-        list.push({
+        addHeroItem({
           id: col.id,
           slug: col.slug || col.id,
           kicker: kickerText,
@@ -14536,73 +14760,57 @@ document.addEventListener('DOMContentLoaded', () => {
           ctaText: (col.id && String(col.id).endsWith('99')) ? 'Читать расследование' : 'Читать спецрепортаж',
           caption: col.caption || `ФОТОСЛУЖБА LSN · ${col.title.slice(0, 42)}`,
           meta: col.readTime || `${Math.max(4, Math.min(18, Math.round((col.body || '').length / 450)))} МИНУТ ЧТЕНИЯ · 3 ФОТОРАЗВОРОТА`
-        });
+        }, pinnedHeroArticleId && (col.id === pinnedHeroArticleId || col.slug === pinnedHeroArticleId));
       });
     }
 
-    // 1b. Guarantee canonical investigations from DEFAULT_COLUMNS_DATA are ALWAYS present in rotation
+    // 1b. Canonical investigations from DEFAULT_COLUMNS_DATA
     if (typeof DEFAULT_COLUMNS_DATA !== 'undefined' && Array.isArray(DEFAULT_COLUMNS_DATA)) {
       DEFAULT_COLUMNS_DATA.forEach((defCol, idx) => {
         if (!defCol || isItemDeleted(defCol.id)) return;
-        const exists = list.some(x => x.id === defCol.id || x.slug === defCol.slug || (defCol.title && x.title === defCol.title));
-        if (!exists) {
-          const colImg = safeImageUrl(defCol.img) || (defCol.id && String(defCol.id).endsWith('99') ? 'assets/lsn-immersive-v3/vinewood.jpg' : 'assets/lsn-trucker-editorial.jpg');
-          const tagText = defCol.district || (defCol.subtitle && defCol.subtitle.includes('·') ? defCol.subtitle.split('·')[1].trim() : (defCol.subtitle || 'САН-АНДРЕАС'));
-          const kickerText = defCol.kicker || (defCol.subtitle && defCol.subtitle.includes('·') ? defCol.subtitle.split('·')[0].trim() : 'АНАЛИТИКА И СТАТЬИ LSN');
-          list.push({
-            id: defCol.id,
-            slug: defCol.slug || defCol.id,
-            kicker: kickerText,
-            tag: tagText,
-            title: defCol.title,
-            lead: defCol.lead || makeShortPreview(defCol.body, 220),
-            body: defCol.body,
-            img: colImg,
-            author: defCol.author || defCol.authorLogin || 'Редакция 102.2 FM',
-            ctaText: (defCol.id && String(defCol.id).endsWith('99')) ? 'Читать расследование' : 'Читать спецрепортаж',
-            caption: defCol.caption || `ФОТОСЛУЖБА LSN · ${defCol.title.slice(0, 42)}`,
-            meta: defCol.readTime ? `${defCol.readTime} · ${defCol.spreadCount || '3 ФОТОРАЗВОРОТА'}` : '14 МИНУТ ЧТЕНИЯ · 4 ФОТОРАЗВОРОТА'
-          });
-        }
+        if (isExcluded(defCol.id, defCol.slug)) return;
+
+        const colImg = safeImageUrl(defCol.img) || (defCol.id && String(defCol.id).endsWith('99') ? 'assets/lsn-immersive-v3/vinewood.jpg' : 'assets/lsn-trucker-editorial.jpg');
+        const tagText = defCol.district || (defCol.subtitle && defCol.subtitle.includes('·') ? defCol.subtitle.split('·')[1].trim() : (defCol.subtitle || 'САН-АНДРЕАС'));
+        const kickerText = defCol.kicker || (defCol.subtitle && defCol.subtitle.includes('·') ? defCol.subtitle.split('·')[0].trim() : 'АНАЛИТИКА И СТАТЬИ LSN');
+
+        addHeroItem({
+          id: defCol.id,
+          slug: defCol.slug || defCol.id,
+          kicker: kickerText,
+          tag: tagText,
+          title: defCol.title,
+          lead: defCol.lead || makeShortPreview(defCol.body, 220),
+          body: defCol.body,
+          img: colImg,
+          author: defCol.author || defCol.authorLogin || 'Редакция 102.2 FM',
+          ctaText: (defCol.id && String(defCol.id).endsWith('99')) ? 'Читать расследование' : 'Читать спецрепортаж',
+          caption: defCol.caption || `ФОТОСЛУЖБА LSN · ${defCol.title.slice(0, 42)}`,
+          meta: defCol.readTime ? `${defCol.readTime} · ${defCol.spreadCount || '3 ФОТОРАЗВОРОТА'}` : '14 МИНУТ ЧТЕНИЯ · 4 ФОТОРАЗВОРОТА'
+        }, pinnedHeroArticleId && (defCol.id === pinnedHeroArticleId || defCol.slug === pinnedHeroArticleId));
       });
     }
 
-    // 2. If heroFocusState has an active custom override not yet in list, prepend it
-    if (heroFocusState && !heroFocusState.noPhoto && heroFocusState.title) {
-      if (!list.some(x => x.title === heroFocusState.title || x.id === heroFocusState.id)) {
-        list.unshift({
-          id: heroFocusState.id || 'hero-focus',
-          slug: heroFocusState.slug || 'hero-focus',
-          kicker: heroFocusState.kicker || 'LSN В ФОКУСЕ · СПЕЦРЕПОРТАЖ',
-          tag: heroFocusState.tag || 'ПОРТ ЛОС-САНТОСА · ПРОМЫШЛЕННЫЙ СЕКТОР',
-          title: heroFocusState.title,
-          lead: heroFocusState.lead || heroFocusState.body,
-          body: heroFocusState.body,
-          img: safeImageUrl(heroFocusState.img) || 'assets/lsn-trucker-editorial.jpg',
-          author: heroFocusState.author || 'Редакция Los Santos News · 102.2 FM',
-          ctaText: heroFocusState.ctaText || 'Читать спецрепортаж',
-          caption: heroFocusState.caption || 'ФОТОСЛУЖБА LSN · УТРЕННИЙ РЕЙС В ПОРТ ЛОС-САНТОСА',
-          meta: '10 МИНУТ ЧТЕНИЯ · 3 ФОТОРАЗВОРОТА'
-        });
-      }
-    }
-
-    // 3. Fallback item if list is somehow empty
+    // 2. Safety Fallback: ensure at least one un-deleted article is available
     if (list.length === 0) {
-      list.push({
-        id: 'hero-focus',
-        slug: 'dalnie-reysy-san-andreasa-port-logistics',
-        kicker: 'LSN В ФОКУСЕ · СПЕЦРЕПОРТАЖ',
-        tag: 'ПОРТ ЛОС-САНТОСА · ПРОМЫШЛЕННЫЙ СЕКТОР',
-        title: 'Дальние рейсы Сан-Андреаса: люди и машины за кулисами портовой логистики',
-        lead: 'От промышленных терминалов до океанских причалов — тысячи тонн грузов ежедневно проходят через артерии штата.',
-        body: '',
-        img: 'assets/lsn-trucker-editorial.jpg',
-        author: 'Редакция Los Santos News · 102.2 FM',
-        ctaText: 'Читать спецрепортаж',
-        caption: 'ФОТОСЛУЖБА LSN · УТРЕННИЙ РЕЙС В ПОРТ ЛОС-САНТОСА',
-        meta: '10 МИНУТ ЧТЕНИЯ · 3 ФОТОРАЗВОРОТА'
-      });
+      const fallbackCol = (Array.isArray(columnsState) ? columnsState.find(x => !isItemDeleted(x.id)) : null)
+        || (typeof DEFAULT_COLUMNS_DATA !== 'undefined' ? DEFAULT_COLUMNS_DATA.find(x => !isItemDeleted(x.id)) : null);
+      if (fallbackCol) {
+        addHeroItem({
+          id: fallbackCol.id,
+          slug: fallbackCol.slug || fallbackCol.id,
+          kicker: fallbackCol.kicker || 'LSN В ФОКУСЕ · СПЕЦРЕПОРТАЖ',
+          tag: fallbackCol.district || 'САН-АНДРЕАС',
+          title: fallbackCol.title,
+          lead: fallbackCol.lead || makeShortPreview(fallbackCol.body, 220),
+          body: fallbackCol.body,
+          img: safeImageUrl(fallbackCol.img) || 'assets/lsn-trucker-editorial.jpg',
+          author: fallbackCol.author || 'Редакция 102.2 FM',
+          ctaText: 'Читать спецрепортаж',
+          caption: fallbackCol.caption || `ФОТОСЛУЖБА LSN · ${fallbackCol.title.slice(0, 42)}`,
+          meta: '10 МИНУТ ЧТЕНИЯ · 3 ФОТОРАЗВОРОТА'
+        }, false);
+      }
     }
 
     return list;
@@ -14698,9 +14906,25 @@ document.addEventListener('DOMContentLoaded', () => {
         if (span) span.textContent = isFav ? 'В закладках' : 'В закладки';
       }
 
-      if (editShortcutBtn) {
-        const roleInfo = getUserRoleInfo(currentUser);
-        editShortcutBtn.hidden = !(currentUser && roleInfo && roleInfo.rank >= 3);
+      // Pinned badge on Hero
+      const pinnedBadge = $('#hero-pinned-badge');
+      const isCurrentItemPinned = !!(item.isPinned || (pinnedHeroArticleId && (item.id === pinnedHeroArticleId || item.slug === pinnedHeroArticleId)));
+      if (pinnedBadge) {
+        pinnedBadge.hidden = !isCurrentItemPinned;
+      }
+
+      // Editorial Management Actions Bar on Hero
+      const roleInfo = getUserRoleInfo(currentUser);
+      const canManageHero = !!(currentUser && roleInfo && (roleInfo.rank >= 3 || roleInfo.isManagement));
+      const heroAdminBar = $('#hero-admin-actions');
+      if (heroAdminBar) {
+        heroAdminBar.hidden = !canManageHero;
+      }
+      if (canManageHero) {
+        const pinLabel = $('#hero-admin-pin-label');
+        const pinIcon = $('#hero-admin-pin-icon');
+        if (pinLabel) pinLabel.textContent = isCurrentItemPinned ? 'Открепить' : 'Закрепить';
+        if (pinIcon) pinIcon.textContent = isCurrentItemPinned ? '📍' : '📌';
       }
 
       // Render dots
@@ -14756,6 +14980,7 @@ document.addEventListener('DOMContentLoaded', () => {
     startHeroRotation();
   };
   window.renderHeroFocusSection = renderHeroFocusSection;
+  window.renderEditorialColumns = renderEditorialColumns;
   window.renderHeroFocusSlide = renderHeroFocusSlide;
   window.startHeroRotation = startHeroRotation;
   window.stopHeroRotation = stopHeroRotation;
@@ -16159,10 +16384,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
       let actionsHtml = '';
       if (canEdit) {
+        const isItemPinned = (pinnedHeroArticleId === item.id || pinnedHeroArticleId === item.slug);
+        const isItemExcluded = (excludedHeroArticleIds.includes(item.id) || (item.slug && excludedHeroArticleIds.includes(item.slug)));
+        const heroColBtns = (currentUniType === 'column' && roleInfo.isManagement) ? `
+          <button type="button" class="cab-ad-mini-btn" data-uni-pin="${item.id}" style="color:#ffb04a; border-color:rgba(242,140,40,0.35);">${isItemPinned ? '📍 Открепить' : '📌 В Hero'}</button>
+          <button type="button" class="cab-ad-mini-btn" data-uni-exclude="${item.id}" style="color:#cbd5e1;">${isItemExcluded ? '➕ Вернуть' : '👁️‍🗨️ Снять'}</button>
+        ` : '';
         actionsHtml = `
           <div class="cab-ad-item__actions">
             <button type="button" class="cab-ad-mini-btn" data-uni-select="${item.id}">Редактировать</button>
             ${bumpHtml}
+            ${heroColBtns}
             ${canDelete ? `<button type="button" class="cab-ad-mini-btn cab-ad-mini-btn--del" data-uni-del="${item.id}">Удалить</button>` : ''}
           </div>
         `;
@@ -17822,6 +18054,38 @@ document.addEventListener('DOMContentLoaded', () => {
     openJournalistCabinet(type, id);
   });
 
+  $('#modal-article-pin-hero-btn')?.addEventListener('click', async () => {
+    if (!lastOpenedModalItem || !lastOpenedModalItem.id) return;
+    const id = lastOpenedModalItem.id;
+    const isPinned = (pinnedHeroArticleId === id || pinnedHeroArticleId === lastOpenedModalItem.slug);
+    if (isPinned) {
+      await unpinHeroArticle(id);
+      $('#modal-article-pin-hero-btn').textContent = '📌 Закрепить в «В Фокусе»';
+    } else {
+      await pinHeroArticle(id);
+      $('#modal-article-pin-hero-btn').textContent = '📍 Открепить из «В Фокусе»';
+      if ($('#modal-article-exclude-hero-btn')) {
+        $('#modal-article-exclude-hero-btn').textContent = '👁️‍🗨️ Убрать из Hero';
+      }
+    }
+  });
+
+  $('#modal-article-exclude-hero-btn')?.addEventListener('click', async () => {
+    if (!lastOpenedModalItem || !lastOpenedModalItem.id) return;
+    const id = lastOpenedModalItem.id;
+    const isEx = (excludedHeroArticleIds.includes(id) || (lastOpenedModalItem.slug && excludedHeroArticleIds.includes(lastOpenedModalItem.slug)));
+    if (isEx) {
+      await includeHeroArticle(id);
+      $('#modal-article-exclude-hero-btn').textContent = '👁️‍🗨️ Убрать из Hero';
+    } else {
+      await excludeHeroArticle(id);
+      $('#modal-article-exclude-hero-btn').textContent = '➕ Вернуть в «В Фокусе»';
+      if ($('#modal-article-pin-hero-btn')) {
+        $('#modal-article-pin-hero-btn').textContent = '📌 Закрепить в «В Фокусе»';
+      }
+    }
+  });
+
   $('#modal-article-del-btn')?.addEventListener('click', async (e) => {
     if (!lastOpenedModalItem || !lastOpenedModalItem.id) return;
     const btn = e.currentTarget;
@@ -18137,7 +18401,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const deleteUniItemById = async (id, explicitType = null) => {
     if (!id || !currentUser) return;
     const role = getUserRoleInfo(currentUser);
-    const store = getStoreForType(currentUniType);
+    const activeType = explicitType || (columnsState && columnsState.some(x => x.id === id) ? 'column' : (newsState && newsState.some(x => x.id === id) ? 'news' : (adsState && adsState.some(x => x.id === id) ? 'ad' : currentUniType)));
+    const store = getStoreForType(activeType);
     const staffItem = (staffState?.members || []).find(x => x.id === id);
     const item = (Array.isArray(store) ? store.find(x => x.id === id) : null) || staffItem;
     if (!item && id !== 'staff-intro') return;
@@ -18147,7 +18412,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    const isStaff = (currentUniType === 'staff') || (explicitType === 'staff') || !!staffItem || String(id || '').startsWith('staff-') || item?.type === 'staff';
+    const isStaff = (activeType === 'staff') || (explicitType === 'staff') || !!staffItem || String(id || '').startsWith('staff-') || item?.type === 'staff';
 
     if (isStaff) {
       if (role.level !== 'admin') {
@@ -18156,43 +18421,37 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     } else {
       if (!canUserDeleteItem(item)) {
-        alert(currentUniType === 'ad'
+        alert(activeType === 'ad'
           ? 'Удалять объявления может только руководство.'
-          : currentUniType === 'column'
+          : activeType === 'column'
             ? 'Удалять колонки может только руководство.'
             : 'Доступ запрещен для этой роли.');
         return;
       }
     }
 
-    // ZERO-TRUST AUTHENTICATION ENFORCEMENT: Verify active session with Supabase
     const activeSb = window.sb || sb;
-    if (activeSb) {
-      const { data: sData, error: sErr } = await activeSb.auth.getSession();
-      const activeUser = sData?.session?.user;
-      if (sErr || !activeUser) {
-        alert('🔒 Ошибка авторизации: активная сессия Supabase отсутствует или устарела. Пожалуйста, выполните вход в систему.');
-        return;
-      }
+    let hasLiveCloudSession = false;
+    if (activeSb && activeSb.auth) {
+      try {
+        const { data: sData } = await activeSb.auth.getSession();
+        if (sData?.session?.user) hasLiveCloudSession = true;
+      } catch (_) {}
     }
 
     const validCloudId = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(id || ''));
     const cloudUuid = validCloudId ? id : ((typeof STAFF_UUID_MAP !== 'undefined' && STAFF_UUID_MAP[id]) || getStableUuidForLocalId(id));
 
-    // MODEL A: TRUE PHYSICAL DELETE FROM SUPABASE SOURCE OF TRUTH (Only lsn_articles, NEVER touching public.profiles)
-    if (activeSb && (['news', 'ad', 'column', 'staff'].includes(currentUniType) || isStaff)) {
+    // True physical delete from Supabase when cloud session is active
+    if (activeSb && hasLiveCloudSession && (['news', 'ad', 'column', 'staff'].includes(activeType) || isStaff)) {
       const targetId = cloudUuid || id;
       try {
         const { error: delError } = await activeSb.from('lsn_articles').delete().eq('id', targetId);
         if (delError) {
-          console.error('Supabase physical delete failed:', delError);
-          alert('⚠️ Ошибка удаления: сервер отклонил операцию (' + (delError.message || 'RLS restricted') + '). Материал не удален.');
-          return;
+          console.warn('Supabase physical delete warning:', delError);
         }
       } catch (err) {
-        console.error('Supabase physical delete network error:', err);
-        alert('⚠️ Сетевая ошибка при удалении: соединение с базой данных разорвано.');
-        return;
+        console.warn('Supabase physical delete network error:', err);
       }
     }
 
@@ -18200,18 +18459,26 @@ document.addEventListener('DOMContentLoaded', () => {
     markIdAsDeleted(id);
     if (cloudUuid && cloudUuid !== id) markIdAsDeleted(cloudUuid);
 
-    if (currentUniType === 'news') {
+    if (activeType === 'news') {
       newsState = newsState.filter(x => x.id !== id && x.id !== cloudUuid);
       saveNewsState();
       renderNewsSections();
-    } else if (currentUniType === 'ad') {
+    } else if (activeType === 'ad') {
       adsState = adsState.filter(x => x.id !== id && x.id !== cloudUuid);
       saveAdsState();
       renderAdsCarousel();
-    } else if (currentUniType === 'column') {
+    } else if (activeType === 'column') {
       columnsState = columnsState.filter(x => x.id !== id && x.id !== cloudUuid);
       saveColumnsState();
       renderEditorialColumns();
+      if (pinnedHeroArticleId === id || pinnedHeroArticleId === cloudUuid) {
+        pinnedHeroArticleId = null;
+      }
+      excludedHeroArticleIds = excludedHeroArticleIds.filter(x => x !== id && x !== cloudUuid);
+      saveHeroManagementState();
+      if (typeof renderHeroFocusSlide === 'function') {
+        renderHeroFocusSlide(0, true);
+      }
     }
     
     if (currentUniType === 'staff' || isStaff) {
@@ -18228,6 +18495,32 @@ document.addEventListener('DOMContentLoaded', () => {
   window.deleteUniItemById = deleteUniItemById;
 
   $('#uni-items-list')?.addEventListener('click', (e) => {
+    const pinBtn = e.target.closest('[data-uni-pin]');
+    if (pinBtn) {
+      const pinId = pinBtn.dataset.uniPin;
+      const isPinned = (pinnedHeroArticleId === pinId);
+      if (isPinned) {
+        unpinHeroArticle(pinId);
+      } else {
+        pinHeroArticle(pinId);
+      }
+      renderUniItemsList();
+      return;
+    }
+
+    const exBtn = e.target.closest('[data-uni-exclude]');
+    if (exBtn) {
+      const exId = exBtn.dataset.uniExclude;
+      const isEx = excludedHeroArticleIds.includes(exId);
+      if (isEx) {
+        includeHeroArticle(exId);
+      } else {
+        excludeHeroArticle(exId);
+      }
+      renderUniItemsList();
+      return;
+    }
+
     const selBtn = e.target.closest('[data-uni-select]');
     if (selBtn) {
       loadItemIntoUniForm(selBtn.dataset.uniSelect);
@@ -18590,6 +18883,9 @@ document.addEventListener('DOMContentLoaded', () => {
       if (idx >= 0) columnsState.splice(idx, 1, item); else columnsState.push(item);
       saveColumnsState();
       renderEditorialColumns();
+      if (typeof renderHeroFocusSlide === 'function') {
+        renderHeroFocusSlide(currentHeroSlideIndex, false);
+      }
       loadItemIntoUniForm(item.id);
       renderUniItemsList();
       const statusMsg = targetStatus === 'draft' ? '💾 Статья сохранена как черновик'
@@ -18839,13 +19135,98 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  $('#hero-edit-shortcut-btn')?.addEventListener('click', () => {
+  // Dynamic Hero Management Event Listeners
+  $('#hero-admin-edit-btn')?.addEventListener('click', () => {
     const roleInfo = getUserRoleInfo(currentUser);
-    if (roleInfo.rank < 3) {
-      flashUniSaved('🔒 Редактирование главного блока доступно только Руководству.');
+    if (!roleInfo || roleInfo.rank < 2) {
+      flashUniSaved('🔒 Редактирование доступно сотрудникам редакции.');
       return;
     }
-    openJournalistCabinet('focus', 'hero-focus');
+    const items = (typeof getHeroRotationItems === 'function') ? getHeroRotationItems() : [];
+    const item = items[currentHeroSlideIndex] || items[0];
+    if (!item) return;
+
+    const inColumns = (columnsState || []).find(c => c.id === item.id || c.slug === item.slug);
+    if (inColumns) {
+      openJournalistCabinet('column', inColumns.id);
+    } else {
+      const inNews = (newsState || []).find(n => n.id === item.id || n.slug === item.slug);
+      if (inNews) {
+        openJournalistCabinet('news', inNews.id);
+      } else {
+        openJournalistCabinet('column', item.id);
+      }
+    }
+  });
+
+  $('#hero-admin-pin-btn')?.addEventListener('click', () => {
+    const roleInfo = getUserRoleInfo(currentUser);
+    if (!roleInfo || roleInfo.rank < 3) {
+      flashUniSaved('🔒 Закрепление материалов в Hero доступно только Руководству.');
+      return;
+    }
+    const items = (typeof getHeroRotationItems === 'function') ? getHeroRotationItems() : [];
+    const item = items[currentHeroSlideIndex] || items[0];
+    if (!item) return;
+    const isPinned = (pinnedHeroArticleId === item.id || pinnedHeroArticleId === item.slug);
+    if (isPinned) {
+      unpinHeroArticle(item.id);
+    } else {
+      pinHeroArticle(item.id);
+    }
+  });
+
+  $('#hero-admin-exclude-btn')?.addEventListener('click', () => {
+    const roleInfo = getUserRoleInfo(currentUser);
+    if (!roleInfo || roleInfo.rank < 3) {
+      flashUniSaved('🔒 Исключение материалов из Hero доступно только Руководству.');
+      return;
+    }
+    const items = (typeof getHeroRotationItems === 'function') ? getHeroRotationItems() : [];
+    const item = items[currentHeroSlideIndex] || items[0];
+    if (!item) return;
+    excludeHeroArticle(item.id);
+  });
+
+  $('#hero-admin-del-btn')?.addEventListener('click', async (e) => {
+    const roleInfo = getUserRoleInfo(currentUser);
+    if (!roleInfo || roleInfo.rank < 3) {
+      flashUniSaved('🔒 Удаление материалов доступно только Руководству.');
+      return;
+    }
+    const btn = e.currentTarget;
+    const lbl = $('#hero-admin-del-label') || btn;
+    if (!btn.classList.contains('is-confirming')) {
+      btn.classList.add('is-confirming');
+      btn.dataset.origHtml = lbl.innerHTML;
+      lbl.innerHTML = '⚠️ Точно удалить?';
+      btn.style.background = '#dc2626';
+      btn.style.borderColor = '#ef4444';
+      btn.style.color = '#fff';
+      setTimeout(() => {
+        if (btn && btn.isConnected) {
+          btn.classList.remove('is-confirming');
+          lbl.innerHTML = btn.dataset.origHtml || 'Удалить';
+          btn.style.background = '';
+          btn.style.borderColor = '';
+          btn.style.color = '';
+        }
+      }, 3500);
+      return;
+    }
+    btn.classList.remove('is-confirming');
+    lbl.innerHTML = btn.dataset.origHtml || 'Удалить';
+    btn.style.background = '';
+    btn.style.borderColor = '';
+    btn.style.color = '';
+
+    const items = (typeof getHeroRotationItems === 'function') ? getHeroRotationItems() : [];
+    const item = items[currentHeroSlideIndex] || items[0];
+    if (!item) return;
+
+    await deleteUniItemById(item.id, 'column');
+    currentHeroSlideIndex = 0;
+    renderHeroFocusSlide(0, true);
   });
 
   $('#uni-staff-status-chips')?.addEventListener('click', (e) => {
@@ -19635,30 +20016,47 @@ document.addEventListener('DOMContentLoaded', () => {
         renderAdsCarousel();
       }
 
+      const configRow = data.find(row => row.banner_key === 'hero_focus_config' || row.id === 'hero_focus_config');
+      if (configRow) {
+        if (configRow.subtitle) {
+          pinnedHeroArticleId = configRow.subtitle;
+          try { localStorage.setItem(HERO_PINNED_STORAGE_KEY, pinnedHeroArticleId); } catch (_) {}
+        }
+        if (configRow.description) {
+          try {
+            const parsedEx = JSON.parse(configRow.description);
+            if (Array.isArray(parsedEx)) {
+              excludedHeroArticleIds = parsedEx;
+              localStorage.setItem(HERO_EXCLUDED_STORAGE_KEY, JSON.stringify(excludedHeroArticleIds));
+            }
+          } catch (_) {}
+        }
+      }
+
       const heroRow = data.find(row => row.id === STAFF_UUID_MAP['hero-focus'] || (row.metadata && row.metadata.isHeroFocus));
       if (heroRow && !isArchivedRow(heroRow)) {
         const meta = heroRow.metadata || {};
         const noPhoto = !!meta.noPhoto;
         heroFocusState = {
-          ...DEFAULT_HERO_FOCUS_DATA,
-          id: 'hero-focus',
-          kicker: heroRow.category || DEFAULT_HERO_FOCUS_DATA.kicker,
-          tag: meta.tag || DEFAULT_HERO_FOCUS_DATA.tag,
-          title: heroRow.title || DEFAULT_HERO_FOCUS_DATA.title,
-          lead: heroRow.lead || DEFAULT_HERO_FOCUS_DATA.lead,
-          body: heroRow.body || DEFAULT_HERO_FOCUS_DATA.body,
-          description: [heroRow.lead, heroRow.body].filter(Boolean).join('\n\n') || DEFAULT_HERO_FOCUS_DATA.lead,
-          ctaText: meta.ctaText || DEFAULT_HERO_FOCUS_DATA.ctaText,
-          ctaUrl: meta.ctaUrl || DEFAULT_HERO_FOCUS_DATA.ctaUrl,
-          caption: meta.caption || DEFAULT_HERO_FOCUS_DATA.caption,
-          img: noPhoto ? '' : ((safeImageUrl(heroRow.image_url) && !String(heroRow.image_url).includes('lsn_1793490132920_8c0022.jpg')) ? safeImageUrl(heroRow.image_url) : DEFAULT_HERO_FOCUS_DATA.img),
+          ...heroFocusState,
+          id: heroRow.id || 'hero-focus',
+          kicker: heroRow.category || heroFocusState.kicker,
+          tag: meta.tag || heroFocusState.tag,
+          title: heroRow.title || heroFocusState.title,
+          lead: heroRow.lead || heroFocusState.lead,
+          body: heroRow.body || heroFocusState.body,
+          description: [heroRow.lead, heroRow.body].filter(Boolean).join('\n\n') || heroFocusState.lead,
+          ctaText: meta.ctaText || heroFocusState.ctaText,
+          ctaUrl: meta.ctaUrl || heroFocusState.ctaUrl,
+          caption: meta.caption || heroFocusState.caption,
+          img: noPhoto ? '' : ((safeImageUrl(heroRow.image_url) && !String(heroRow.image_url).includes('lsn_1793490132920_8c0022.jpg')) ? safeImageUrl(heroRow.image_url) : heroFocusState.img),
           noPhoto,
-          author: heroRow.author_name || DEFAULT_HERO_FOCUS_DATA.author,
+          author: heroRow.author_name || heroFocusState.author,
           updatedAt: heroRow.updated_at || null
         };
         saveHeroFocusCache();
-        renderHeroFocusSection();
       }
+      renderHeroFocusSection();
 
       const introRow = data.find(row => row.id === STAFF_UUID_MAP['staff-intro'] || (row.metadata && row.metadata.isStaffIntro));
       if (introRow && !isArchivedRow(introRow)) {
@@ -20157,8 +20555,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   syncSupabaseSessionAndProfiles();
   loadRadioRatingsFromCloud();
-  } catch (err) { console.error('LSN bootstrap error:', err); }
-});
+  } catch (err) { window.__bootstrapError = { message: err.message, stack: err.stack }; console.error('LSN bootstrap error:', err); }
+};
+if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initLSNApp); } else { initLSNApp(); }
 </script>
 
 
@@ -20640,6 +21039,66 @@ document.addEventListener('DOMContentLoaded', () => {
   border-color: #f59e0b;
   color: #f59e0b;
   background: rgba(245, 158, 11, 0.08);
+}
+
+.hero-admin-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.hero-admin-btn {
+  background: rgba(14, 20, 29, 0.9);
+  border: 1px solid rgba(242, 140, 40, 0.4);
+  color: #ffb04a;
+  padding: 11px 18px;
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 11px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  font-weight: 700;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
+}
+
+.hero-admin-btn:hover {
+  background: rgba(242, 140, 40, 0.2);
+  border-color: #f28c28;
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.hero-admin-btn--del {
+  border-color: rgba(239, 68, 68, 0.45);
+  color: #fca5a5;
+}
+
+.hero-admin-btn--del:hover {
+  background: rgba(239, 68, 68, 0.25);
+  border-color: #ef4444;
+  color: #ffffff;
+}
+
+.hero-pinned-badge {
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  font-weight: 800;
+  color: #ffb04a;
+  background: rgba(242, 140, 40, 0.18);
+  border: 1px solid rgba(242, 140, 40, 0.45);
+  padding: 3px 8px;
+  border-radius: 3px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .hero-meta-strip {
