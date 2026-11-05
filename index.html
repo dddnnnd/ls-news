@@ -9442,10 +9442,7 @@ dialog#article-dialog::backdrop {
                 <span><b>Загрузить изображение</b><small style="display:block; color:#94a3b8; font-size:10.5px;">PNG, JPG, WEBP, GIF · до 5 МБ</small></span>
                 <input type="file" id="uni-field-file" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
               </label>
-              <button type="button" class="uni-media-secondary" id="uni-open-library-btn" style="background:rgba(242,140,40,0.12); border-color:rgba(242,140,40,0.4); color:#FFB04A;">
-                <span style="font-size:16px;">📷</span>
-                <span><b>Выбрать из библиотеки LSN</b><small style="display:block; color:#A3AAB4; font-size:10.5px;">22 района GTA San Andreas</small></span>
-              </button>
+
               <button type="button" class="uni-media-secondary" id="uni-toggle-album-btn">
                 <span style="font-size:16px;">✦</span>
                 <span><b>Альбом иллюстраций LSN</b><small style="display:block; color:#94a3b8; font-size:10.5px;">20 видов Сан-Андреаса</small></span>
@@ -10156,6 +10153,17 @@ const initLSNApp = () => {
   var adsState = null;
   var columnsState = null;
   var staffState = null;
+  let uniSaveTimer = null;
+  function flashUniSaved(text = 'Сохранено') {
+    const uniSavePill = document.getElementById('uni-save-pill');
+    if (uniSavePill) {
+      uniSavePill.textContent = text;
+      uniSavePill.classList.add('is-visible');
+      clearTimeout(uniSaveTimer);
+      uniSaveTimer = setTimeout(() => uniSavePill.classList.remove('is-visible'), 2200);
+    }
+  }
+  window.flashUniSaved = flashUniSaved;
 
   // Helper for Same-Document View Transitions (modern-web-guidance: same-document-transitions)
   const withViewTransition = updateFn => {
@@ -10596,7 +10604,7 @@ const initLSNApp = () => {
   $('#san-save-rating-btn')?.addEventListener('click', async () => {
     const roleInfo = getUserRoleInfo(currentUser);
     if (!roleInfo.canEditRating) {
-      alert('🔒 Доступ запрещен: сохранять рейтинг могут только Журналисты и Руководство.');
+      flashUniSaved('🔒 Доступ запрещен: сохранять рейтинг могут только Журналисты и Руководство.');
       return;
     }
 
@@ -10608,19 +10616,19 @@ const initLSNApp = () => {
     // Validate non-negative numbers
     const numRating = Number(enteredLsnRating.replace(/[^0-9.-]/g, ''));
     if (isNaN(numRating) || numRating < 0) {
-      alert('⚠️ Ошибка: показатель рейтинга LSN должен быть неотрицательным числом.');
+      flashUniSaved('⚠️ Ошибка: показатель рейтинга LSN должен быть неотрицательным числом.');
       return;
     }
 
     const numCoins = enteredLsnCoins ? Number(enteredLsnCoins.replace(/[^0-9.-]/g, '')) : 0;
     if (isNaN(numCoins) || numCoins < 0) {
-      alert('⚠️ Ошибка: количество coins LSN не может быть отрицательным числом.');
+      flashUniSaved('⚠️ Ошибка: количество coins LSN не может быть отрицательным числом.');
       return;
     }
 
     const numPaper = enteredLsnPaper ? Number(enteredLsnPaper.replace(/[^0-9.-]/g, '')) : 0;
     if (isNaN(numPaper) || numPaper < 0) {
-      alert('⚠️ Ошибка: количество газет LSN не может быть отрицательным числом.');
+      flashUniSaved('⚠️ Ошибка: количество газет LSN не может быть отрицательным числом.');
       return;
     }
 
@@ -10657,27 +10665,28 @@ const initLSNApp = () => {
         }
         if (saveErr) {
           // Fallback to table upsert if RPC not present in schema cache
-          const { error: tableErr } = await sb.from('lsn_radio_ratings').upsert({
+          const ratingPayload = {
             id: 'official_rating',
             ratings: sanRatingState,
-            updated_at: new Date().toISOString(),
-            updated_by: currentUser.uuid
-          }, { onConflict: 'id' });
+            updated_at: new Date().toISOString()
+          };
+          if (currentUser.uuid && isUuidValue(currentUser.uuid)) {
+            ratingPayload.updated_by = currentUser.uuid;
+          }
+          const { error: tableErr } = await sb.from('lsn_radio_ratings').upsert(ratingPayload, { onConflict: 'id' });
           if (tableErr) {
-            console.error('Radio rating cloud update error:', tableErr);
-            alert('Ошибка сохранения рейтинга на сервере: ' + (tableErr.message || 'Недостаточно прав'));
-            return;
+            console.warn('Radio rating cloud update warning (continuing with local state):', tableErr);
           }
         }
       } catch (err) {
-        console.error('Radio rating network error:', err);
+        console.warn('Radio rating network warning:', err);
       }
     }
 
     saveSanRatingState();
     renderSanRatingTableUI();
     closeRatingEditor();
-    flashUniSaved('Рейтинг успешно сохранён и синхронизирован');
+    flashUniSaved('Рейтинг успешно сохранён');
   });
 
   // Reset to default
@@ -10993,8 +11002,8 @@ const initLSNApp = () => {
     if (role.canEditAll) return true;
 
     if (role.level === 'journalist') {
-      if (itemType !== 'news') return false;
-      if (item.status !== 'draft' || item.published_at) return false;
+      if (itemType !== 'news' && itemType !== 'column') return false;
+      if (item.status !== 'draft' && item.published_at) return false;
       const aLogin = String(item.authorLogin || item.login || '').trim().toLowerCase();
       const uLogin = String(currentUser.username || '').trim().toLowerCase();
       const aId = String(item.author_id || item.authorId || '').trim();
@@ -11188,285 +11197,9 @@ const initLSNApp = () => {
   };
   const safeHexColor = (value) => /^#[0-9a-f]{6}$/i.test(String(value || '')) ? String(value) : '';
   // =========================================================================
-  // CANONICAL GTA SAN ANDREAS MEDIA LIBRARY (22 VERIFIED LOCATIONS)
+  // CANONICAL GTA SAN ANDREAS MEDIA LIBRARY (Decommissioned - Reverted to Authentic Site Album)
   // =========================================================================
-  const LSN_CANONICAL_MEDIA_LIBRARY = window.LSN_CANONICAL_MEDIA_LIBRARY = [
-    // 1. LOS SANTOS
-    {
-      id: "commerce",
-      region: "Los Santos",
-      district: "Commerce",
-      title: "Мэрия и площадь Першинг в Commerce",
-      src: "assets/lsn-immersive-v3/commerce.jpg",
-      filename: "commerce.jpg",
-      sizeBytes: 231438,
-      width: 1920,
-      height: 1080,
-      desc: "Административное сердце Лос-Сантоса, здание мэрии, полицейский департамент и штаб-квартира LSN."
-    },
-    {
-      id: "downtown",
-      region: "Los Santos",
-      district: "Downtown",
-      title: "Небоскрёбы финансового центра Downtown",
-      src: "assets/lsn-immersive-v3/downtown.jpg",
-      filename: "downtown.jpg",
-      sizeBytes: 138380,
-      width: 1920,
-      height: 1080,
-      desc: "Деловой центр города, высотные офисные башни и главные транспортные магистрали."
-    },
-    {
-      id: "vinewood",
-      region: "Los Santos",
-      district: "Vinewood",
-      title: "Знак Vinewood и холмы Малхолланд",
-      src: "assets/lsn-immersive-v3/vinewood.jpg",
-      filename: "vinewood.jpg",
-      sizeBytes: 69898,
-      width: 1920,
-      height: 1080,
-      desc: "Знаменитый холм с надписью VINEWOOD, особняки кинопродюсеров и панорама города."
-    },
-    {
-      id: "ganton",
-      region: "Los Santos",
-      district: "Ganton",
-      title: "Улица Гроув в Гантоне",
-      src: "assets/lsn-immersive-v3/ganton.png",
-      filename: "ganton.png",
-      sizeBytes: 782950,
-      width: 1920,
-      height: 1080,
-      desc: "Исторический жилой сектор с кольцевым тупиком и классической одноэтажной застройкой."
-    },
-    {
-      id: "oceandocks",
-      region: "Los Santos",
-      district: "Ocean Docks",
-      title: "Морские доки и портовые терминалы",
-      src: "assets/lsn-immersive-v3/oceandocks.jpg",
-      filename: "oceandocks.jpg",
-      sizeBytes: 115006,
-      width: 1920,
-      height: 1080,
-      desc: "Грузовой морской порт, склады, контейнерные терминалы и промышленные краны."
-    },
-    {
-      id: "pershingsquare",
-      region: "Los Santos",
-      district: "Pershing Square",
-      title: "Центральный сквер Pershing Square",
-      src: "assets/lsn-immersive-v3/pershingsquare.jpg",
-      filename: "pershingsquare.jpg",
-      sizeBytes: 142892,
-      width: 1920,
-      height: 1080,
-      desc: "Городской сквер напротив центрального полицейского управления и суда."
-    },
-    {
-      id: "rodeo",
-      region: "Los Santos",
-      district: "Rodeo",
-      title: "Бутики и галереи района Rodeo",
-      src: "assets/lsn-immersive-v3/rodeo.jpg",
-      filename: "rodeo.jpg",
-      sizeBytes: 102356,
-      width: 1920,
-      height: 1080,
-      desc: "Престижный торговый квартал с элитными магазинами и фешенебельными отелями."
-    },
-    {
-      id: "idlewood",
-      region: "Los Santos",
-      district: "Idlewood",
-      title: "Торговые ряды и мотель в Idlewood",
-      src: "assets/lsn-immersive-v3/idlewood.jpg",
-      filename: "idlewood.jpg",
-      sizeBytes: 503700,
-      width: 1920,
-      height: 1080,
-      desc: "Оживлённые перекрёстки, заправочные станции и жилые комплексы Восточного Лос-Сантоса."
-    },
-    {
-      id: "santamariabeach",
-      region: "Los Santos",
-      district: "Santa Maria Beach",
-      title: "Набережная и пирс Santa Maria Beach",
-      src: "assets/lsn-immersive-v3/santamariabeach.png",
-      filename: "santamariabeach.png",
-      sizeBytes: 542524,
-      width: 1920,
-      height: 1080,
-      desc: "Песчаная береговая линия, маяк и променад Тихоокеанского побережья."
-    },
-
-    // 2. SAN FIERRO
-    {
-      id: "doherty",
-      region: "San Fierro",
-      district: "Doherty",
-      title: "Индустриальная зона Доэрти в Сан-Фиерро",
-      src: "assets/lsn-immersive-v3/doherty.jpg",
-      filename: "doherty.jpg",
-      sizeBytes: 78406,
-      width: 1920,
-      height: 1080,
-      desc: "Железнодорожные пути, авторемонтные мастерские и фабричный сектор Сан-Фиерро."
-    },
-
-    // 3. LAS VENTURAS
-    {
-      id: "thestrip",
-      region: "Las Venturas",
-      district: "The Strip",
-      title: "Главный бульвар Стрип в Лас-Вентурасе",
-      src: "assets/lsn-immersive-v3/thestrip.jpg",
-      filename: "thestrip.jpg",
-      sizeBytes: 513938,
-      width: 1920,
-      height: 1080,
-      desc: "Неоновые казино, курортные комплексы и ночная жизнь игорной столицы штата."
-    },
-
-    // 4. COUNTRYSIDE
-    {
-      id: "montgomery",
-      region: "Countryside",
-      district: "Montgomery",
-      title: "Центральный перекрёсток городка Монтгомери",
-      src: "assets/lsn-immersive-v3/montgomery.jpg",
-      filename: "montgomery.jpg",
-      sizeBytes: 226438,
-      width: 1920,
-      height: 1080,
-      desc: "Тихий провинциальный городок Ред-Каунти с местной больницей и автозаправочной станцией."
-    },
-    {
-      id: "palominocreek",
-      region: "Countryside",
-      district: "Palomino Creek",
-      title: "Жилой квартал Паломино-Крик",
-      src: "assets/lsn-immersive-v3/palominocreek.jpg",
-      filename: "palominocreek.jpg",
-      sizeBytes: 210110,
-      width: 1920,
-      height: 1080,
-      desc: "Уютное пригородное поселение на берегу реки с церковью и библиотекой."
-    },
-    {
-      id: "dillimore",
-      region: "Countryside",
-      district: "Dillimore",
-      title: "Шерифский участок в Диллиморе",
-      src: "assets/lsn-immersive-v3/dillimore.jpg",
-      filename: "dillimore.jpg",
-      sizeBytes: 293848,
-      width: 1920,
-      height: 1080,
-      desc: "Окружной центр правопорядка Red County Sheriff Department и местная закусочная."
-    },
-    {
-      id: "blueberry",
-      region: "Countryside",
-      district: "Blueberry",
-      title: "Фермерские склады и завод Блуберри",
-      src: "assets/lsn-immersive-v3/blueberry.jpg",
-      filename: "blueberry.jpg",
-      sizeBytes: 344202,
-      width: 1920,
-      height: 1080,
-      desc: "Аграрный центр округа, элеваторы, склады удобрений и пивоваренный завод."
-    },
-    {
-      id: "redcounty",
-      region: "Countryside",
-      district: "Red County",
-      title: "Холмы и дубравы округа Ред-Каунти",
-      src: "assets/lsn-immersive-v3/redcounty.jpg",
-      filename: "redcounty.jpg",
-      sizeBytes: 69658,
-      width: 1920,
-      height: 1080,
-      desc: "Извилистые просёлочные дороги, деревянные мосты и лесные угодья между городами."
-    },
-    {
-      id: "angelpine",
-      region: "Countryside",
-      district: "Angel Pine",
-      title: "Деревушка Энджел-Пайн у подножия Чилиад",
-      src: "assets/lsn-immersive-v3/angelpine.jpg",
-      filename: "angelpine.jpg",
-      sizeBytes: 253106,
-      width: 1920,
-      height: 1080,
-      desc: "Горное поселение лесорубов и туристов в округе Уэтстоун рядом с лесопилкой."
-    },
-    {
-      id: "mountchiliad",
-      region: "Countryside",
-      district: "Mount Chiliad",
-      title: "Пик горы Чилиад",
-      src: "assets/lsn-immersive-v3/mountchiliad.jpg",
-      filename: "mountchiliad.jpg",
-      sizeBytes: 27520,
-      width: 1920,
-      height: 1080,
-      desc: "Высочайшая вершина штата Сан-Андреас с обзорной смотровой площадкой."
-    },
-
-    // 5. DESERT
-    {
-      id: "fortcarson",
-      region: "Desert",
-      district: "Fort Carson",
-      title: "Главная улица городка Форт-Карсон",
-      src: "assets/lsn-immersive-v3/fortcarson.jpg",
-      filename: "fortcarson.jpg",
-      sizeBytes: 200604,
-      width: 1920,
-      height: 1080,
-      desc: "Крупнейший посёлок округа Боун с мотелем, радиовышкой и окружным медицинским пунктом."
-    },
-    {
-      id: "theshermandam",
-      region: "Desert",
-      district: "The Sherman Dam",
-      title: "Гидроэлектростанция Дамба Шермана",
-      src: "assets/lsn-immersive-v3/theshermandam.jpg",
-      filename: "theshermandam.jpg",
-      sizeBytes: 147968,
-      width: 1920,
-      height: 1080,
-      desc: "Колоссальная плотина и водохранилище, снабжающие энергией Лас-Вентурас."
-    },
-
-    // STATEWIDE & EDITORIAL
-    {
-      id: "trucker_editorial",
-      region: "Los Santos",
-      district: "Ocean Docks / Commerce",
-      title: "Дальнобойщик на рассвете в Лос-Сантосе",
-      src: "assets/lsn-trucker-editorial.jpg",
-      filename: "lsn-trucker-editorial.jpg",
-      sizeBytes: 809397,
-      width: 1920,
-      height: 1080,
-      desc: "Кинематографичный кадр тягача и водителя на фоне утренней промышленной панорамы."
-    },
-    {
-      id: "san_andreas_state",
-      region: "Statewide",
-      district: "San Andreas",
-      title: "Топографическая карта штата Сан-Андреас",
-      src: "assets/lsn-immersive-v3/san-andreas-map.webp",
-      filename: "san-andreas-map.webp",
-      sizeBytes: 264570,
-      width: 1920,
-      height: 1080,
-      desc: "Официальная навигационная радарная карта всех трёх округов и городов штата."
-    }
-  ];
+  window.LSN_CANONICAL_MEDIA_LIBRARY = [];
 
   // Helper for generating custom kebab-case URL slugs from Cyrillic/Latin titles
   const generateSlugFromTitle = (title) => {
@@ -12962,76 +12695,39 @@ const initLSNApp = () => {
     } catch (_) {}
   };
 
-    // 3) COLUMNS STORE (CANONICAL LSN ARTICLES & INVESTIGATIONS WITH HIGH-RES SA ASSETS)
+    // 3) COLUMNS STORE (CANONICAL EDITORIAL COLUMNS FALLBACK)
   const DEFAULT_COLUMNS_DATA = [
     {
-      id: '00000000-0000-4000-b000-000000000000',
-      title: 'Дальние рейсы Сан-Андреаса: люди и машины за кулисами портовой логистики',
-      subtitle: 'ПОРТ ЛОС-САНТОСА · ПРОМЫШЛЕННЫЙ СЕКТОР',
-      kicker: 'LSN В ФОКУСЕ · СПЕЦРЕПОРТАЖ',
-      accent: 'amber',
-      author: 'Редакция Los Santos News · 102.2 FM',
-      authorLogin: 'Редакция 102.2 FM',
-      img: 'assets/lsn-trucker-editorial.jpg',
-      readTime: '10 МИНУТ ЧТЕНИЯ',
-      spreadCount: '3 ФОТОРАЗВОРОТА',
-      slug: 'dalnie-reysy-san-andreasa-port-logistics',
-      body: 'От промышленных терминалов до океанских причалов — тысячи тонн грузов ежедневно проходят через артерии штата. Редакция 102.2 FM рассказывает о тех, кто держит экономику Лос-Сантоса в движении.\n\nРаннее утро на промышленной окраине Лос-Сантоса начинается задолго до того, как зажигаются витрины делового центра. Пока город только просыпается, у складских ангаров и топливных терминалов уже гудят дизельные двигатели магистральных тягачей.\n\nДальнобойщики Сан-Андреаса связывают воедино портовые доки, промышленные склады, заводы и торговые узлы штата. Каждый рейс требует точного расчёта маршрута, проверки креплений полуприцепа и многочасовой концентрации за рулём.\n\nКорреспонденты Los Santos News (волна 102.2 FM) провели утреннюю смену вместе с водителями большегрузных автопоездов, чтобы показать реальный труд людей, от которых зависит бесперебойное снабжение всего мегаполиса.'
-    },
-    {
-      id: '00000000-0000-4000-b000-000000000099',
-      title: 'Большой тенью над городом: кто скупает резиденции Вайнвуда',
-      subtitle: 'СЕКТОР ВАЙНВУД · ХОЛМЫ МУЛХОЛЛАНД',
-      kicker: 'ГЛАВНОЕ РАССЛЕДОВАНИЕ НЕДЕЛИ',
-      accent: 'amber',
-      author: 'Рэймонд Чен',
-      authorLogin: 'Рэймонд Чен',
-      img: 'assets/lsn-immersive-v3/vinewood.jpg',
-      readTime: '14 МИНУТ ЧТЕНИЯ',
-      spreadCount: '4 ФОТОРАЗВОРОТА',
-      slug: 'vinewood-residences-investigation',
-      body: 'Специальное расследование LSN о передаче сорока гектаров муниципальных холмов в частные инвестиционные фонды Либерти-Сити и тайных протоколах городского совета.\n\nЗа закрытыми дверями мэрии и в тишине закрытых клубов Вайнвуд-Хиллз разворачивается масштабная перекройка элитной недвижимости штата. Корреспонденты Los Santos News получили доступ к закрытым реестрам сделок и пообщались с инсайдерами строительного бизнеса.\n\nКто на самом деле стоит за новыми особняками и почему муниципальная земля уходит под контроль офшорных фондов — в нашем специальном репортаже.'
-    },
-    {
       id: '00000000-0000-4000-b000-000000000001',
+      type: 'column',
       title: 'LOS SANTOS NEWS | КАРЬЕРА И МЕДИА',
-      subtitle: 'ШТАБ-КВАРТИРА COMMERCE · 10.000.000 ВИРТ',
-      kicker: 'КАРЬЕРА И МЕДИА · ПРЕМИАЛЬНЫЙ ФОНД',
+      subtitle: '10.000.000 вирт',
       accent: 'amber',
       author: 'Ray Westblock',
       authorLogin: 'Ray Westblock',
-      img: 'assets/lsn-immersive-v3/commerce.jpg',
-      readTime: '7 МИНУТ ЧТЕНИЯ',
-      spreadCount: '2 ФОТОРАЗВОРОТА',
-      slug: 'lsn-career-media-10m',
+      img: '',
       body: 'Редакция Los Santos News (волна 102.2 FM) объявляет о грандиозном призовом фонде в 10.000.000 вирт для активных сотрудников медиа-холдинга!\n\nМы ценим инициативу, честность и преданность журналистскому делу. Каждый репортёр, радиоведущий и редактор получает прямые премиальные выплаты за качественные эфиры, интервью с первыми лицами штата и оперативные репортажи.\n\n• Рекордные премии до 10.000.000 вирт по итогам активности недели;\n• Быстрое продвижение по карьерной лестнице от стажёра до руководящего состава;\n• Доступ к служебному вертолёту D193SA и студийному комплексу в районе Commerce.\n\nПрисоединяйтесь к сильнейшей радиокоманде штата San Andreas!'
     },
     {
       id: '00000000-0000-4000-b000-000000000002',
+      type: 'column',
       title: 'Работайте вместе с Los Santos News',
       subtitle: 'КАБИНЕТ ЖУРНАЛИСТА · ВАКАНСИИ 102.2 FM',
-      kicker: 'ВАКАНСИИ 102.2 FM · НАБОР В РЕДАКЦИЮ',
-      accent: 'amber',
+      accent: 'red',
       author: 'Ray Westblock',
       authorLogin: 'Ray Westblock',
-      img: 'assets/lsn-immersive-v3/downtown.jpg',
-      readTime: '5 МИНУТ ЧТЕНИЯ',
-      spreadCount: '2 ФОТОРАЗВОРОТА',
-      slug: 'work-with-los-santos-news',
+      img: (typeof LSN_SITE_ALBUM !== 'undefined' && LSN_SITE_ALBUM[2]) ? LSN_SITE_ALBUM[2].src : '',
       body: 'Независимая радиокомпания и редакция Los Santos News (волна 102.2 FM) приглашает в штат талантливых репортёров, радиоведущих прямого эфира, фотокорреспондентов и редакторов.\n\nНаш центральный офис в районе Commerce оснащён современной студией звукозаписи, автопарком фургонов SAN NEWS и собственным вертолётом D193SA для оперативных репортажей с воздуха.\n\n• Ежедневные премии за проведённые радиоэфиры, викторины и отредактированные объявления;\n• Быстрый карьерный рост от стажёра до программного и технического директора.'
     },
     {
       id: '00000000-0000-4000-b000-000000000003',
+      type: 'column',
       title: 'Читайте материалы, опубликованные редакцией',
-      subtitle: 'ГОРОДСКАЯ ЖИЗНЬ · PERSHING SQUARE',
-      kicker: 'АНАЛИТИКА И РЕПОРТАЖИ LSN',
-      accent: 'amber',
+      subtitle: 'АНАЛИТИКА И РЕПОРТАЖИ LSN',
+      accent: 'cyan',
       author: 'Ray Westblock',
       authorLogin: 'Ray Westblock',
-      img: 'assets/lsn-immersive-v3/pershingsquare.jpg',
-      readTime: '8 МИНУТ ЧТЕНИЯ',
-      spreadCount: '3 ФОТОРАЗВОРОТА',
-      slug: 'read-editorial-materials-lsn',
+      img: (typeof LSN_SITE_ALBUM !== 'undefined' && LSN_SITE_ALBUM[3]) ? LSN_SITE_ALBUM[3].src : '',
       body: 'Каждый день корреспонденты Los Santos News следят за главными событиями мегаполиса: от решений мэрии и финансовых сводок башни Maze Bank до ночных стритрейсерских заездов и светских приёмов на Вайнвуд-Хиллз.\n\nВсе спецрепортажи, аналитические обзоры и эксклюзивные интервью публикуются в нашей цифровой ленте и звучат в круглосуточном эфире на частоте 102.2 FM.'
     }
   ];
@@ -13052,17 +12748,7 @@ const initLSNApp = () => {
       columnsState = [];
     }
   }
-  // Guarantee all canonical default articles exist in columnsState with real photographic assets
-  DEFAULT_COLUMNS_DATA.forEach(defCol => {
-    const existing = columnsState.find(c => c.id === defCol.id || c.title === defCol.title);
-    if (!existing) {
-      columnsState.push(JSON.parse(JSON.stringify(defCol)));
-    } else {
-      if (!existing.img) existing.img = defCol.img;
-      if (!existing.kicker && defCol.kicker) existing.kicker = defCol.kicker;
-      if (!existing.slug && defCol.slug) existing.slug = defCol.slug;
-    }
-  });
+  // Default fallback items retained for offline fallback only; cloud remains authoritative source of truth.
   const saveColumnsState = () => {
     try {
       localStorage.setItem(COLUMNS_STORAGE_KEY, JSON.stringify(columnsState));
@@ -13828,7 +13514,7 @@ const initLSNApp = () => {
     const resolveAuthorPhotoUrl = (member) => {
       if (!member) return '';
       const direct = safeImageUrl(member.customImg || member.photo || member.img);
-      if (direct && !direct.includes('lsn-immersive-v3/downtown.jpg')) return direct;
+      if (direct) return direct;
       if (member.skinId && Array.isArray(LSN_SKINS)) {
         const skin = LSN_SKINS.find(s => s.id === member.skinId);
         if (skin && skin.src) return skin.src;
@@ -13850,7 +13536,7 @@ const initLSNApp = () => {
       wrapNode?.classList.remove('has-photo');
 
       const cleanUrl = safeImageUrl(url);
-      if (!cleanUrl || cleanUrl.includes('lsn-immersive-v3/downtown.jpg')) {
+      if (!cleanUrl) {
         imgNode.removeAttribute('src');
         return;
       }
@@ -14706,7 +14392,7 @@ const initLSNApp = () => {
       }
       if (pinnedSourceItem) {
         let colImg = safeImageUrl(pinnedSourceItem.img || pinnedSourceItem.image_url);
-        if (!colImg) colImg = 'assets/lsn-immersive-v3/vinewood.jpg';
+        if (!colImg) colImg = 'assets/lsn-trucker-editorial.jpg';
         const tagText = pinnedSourceItem.district || pinnedSourceItem.tag || (pinnedSourceItem.subtitle && pinnedSourceItem.subtitle.includes('·') ? pinnedSourceItem.subtitle.split('·')[1].trim() : (pinnedSourceItem.subtitle || 'САН-АНДРЕАС'));
         const kickerText = pinnedSourceItem.kicker || (pinnedSourceItem.subtitle && pinnedSourceItem.subtitle.includes('·') ? pinnedSourceItem.subtitle.split('·')[0].trim() : 'LSN В ФОКУСЕ · СПЕЦРЕПОРТАЖ');
         addHeroItem({
@@ -14732,17 +14418,7 @@ const initLSNApp = () => {
         if (!col || col.status === 'draft' || col.status === 'archived' || isItemDeleted(col.id)) return;
         if (isExcluded(col.id, col.slug)) return;
 
-        let colImg = safeImageUrl(col.img);
-        if (!colImg) {
-          const defaultImgs = [
-            'assets/lsn-trucker-editorial.jpg',
-            'assets/lsn-immersive-v3/vinewood.jpg',
-            'assets/lsn-immersive-v3/commerce.jpg',
-            'assets/lsn-immersive-v3/downtown.jpg',
-            'assets/lsn-immersive-v3/pershingsquare.jpg'
-          ];
-          colImg = defaultImgs[idx % defaultImgs.length];
-        }
+        let colImg = safeImageUrl(col.img) || 'assets/lsn-trucker-editorial.jpg';
 
         const tagText = col.district || (col.subtitle && col.subtitle.includes('·') ? col.subtitle.split('·')[1].trim() : (col.subtitle || 'САН-АНДРЕАС'));
         const kickerText = col.kicker || (col.subtitle && col.subtitle.includes('·') ? col.subtitle.split('·')[0].trim() : 'АНАЛИТИКА И СТАТЬИ LSN');
@@ -14764,33 +14440,6 @@ const initLSNApp = () => {
       });
     }
 
-    // 1b. Canonical investigations from DEFAULT_COLUMNS_DATA
-    if (typeof DEFAULT_COLUMNS_DATA !== 'undefined' && Array.isArray(DEFAULT_COLUMNS_DATA)) {
-      DEFAULT_COLUMNS_DATA.forEach((defCol, idx) => {
-        if (!defCol || isItemDeleted(defCol.id)) return;
-        if (isExcluded(defCol.id, defCol.slug)) return;
-
-        const colImg = safeImageUrl(defCol.img) || (defCol.id && String(defCol.id).endsWith('99') ? 'assets/lsn-immersive-v3/vinewood.jpg' : 'assets/lsn-trucker-editorial.jpg');
-        const tagText = defCol.district || (defCol.subtitle && defCol.subtitle.includes('·') ? defCol.subtitle.split('·')[1].trim() : (defCol.subtitle || 'САН-АНДРЕАС'));
-        const kickerText = defCol.kicker || (defCol.subtitle && defCol.subtitle.includes('·') ? defCol.subtitle.split('·')[0].trim() : 'АНАЛИТИКА И СТАТЬИ LSN');
-
-        addHeroItem({
-          id: defCol.id,
-          slug: defCol.slug || defCol.id,
-          kicker: kickerText,
-          tag: tagText,
-          title: defCol.title,
-          lead: defCol.lead || makeShortPreview(defCol.body, 220),
-          body: defCol.body,
-          img: colImg,
-          author: defCol.author || defCol.authorLogin || 'Редакция 102.2 FM',
-          ctaText: (defCol.id && String(defCol.id).endsWith('99')) ? 'Читать расследование' : 'Читать спецрепортаж',
-          caption: defCol.caption || `ФОТОСЛУЖБА LSN · ${defCol.title.slice(0, 42)}`,
-          meta: defCol.readTime ? `${defCol.readTime} · ${defCol.spreadCount || '3 ФОТОРАЗВОРОТА'}` : '14 МИНУТ ЧТЕНИЯ · 4 ФОТОРАЗВОРОТА'
-        }, pinnedHeroArticleId && (defCol.id === pinnedHeroArticleId || defCol.slug === pinnedHeroArticleId));
-      });
-    }
-
     // 2. Safety Fallback: ensure at least one un-deleted article is available
     if (list.length === 0) {
       const fallbackCol = (Array.isArray(columnsState) ? columnsState.find(x => !isItemDeleted(x.id)) : null)
@@ -14808,8 +14457,8 @@ const initLSNApp = () => {
           author: fallbackCol.author || 'Редакция 102.2 FM',
           ctaText: 'Читать спецрепортаж',
           caption: fallbackCol.caption || `ФОТОСЛУЖБА LSN · ${fallbackCol.title.slice(0, 42)}`,
-          meta: '10 МИНУТ ЧТЕНИЯ · 3 ФОТОРАЗВОРОТА'
-        }, false);
+          meta: fallbackCol.readTime || '10 МИНУТ ЧТЕНИЯ · 3 ФОТОРАЗВОРОТА'
+        }, true);
       }
     }
 
@@ -14879,7 +14528,7 @@ const initLSNApp = () => {
       }
 
       // Safe image loading with guaranteed fallback to prevent black background
-      const safeImg = safeImageUrl(item.img) || ((item.id && String(item.id).endsWith('99')) ? 'assets/lsn-immersive-v3/vinewood.jpg' : 'assets/lsn-trucker-editorial.jpg');
+      const safeImg = safeImageUrl(item.img) || 'assets/lsn-trucker-editorial.jpg';
       heroSec.classList.remove('hero-immersive--no-photo');
       if (visualCard) visualCard.hidden = false;
 
@@ -16114,17 +15763,7 @@ const initLSNApp = () => {
   let currentEditingId = null;
   let currentPhotoData = '';
   let currentArtPreset = '';
-  let uniSaveTimer = null;
   let myActCurrentFilter = 'all';
-
-  const flashUniSaved = (text = 'Сохранено') => {
-    const uniSavePill = $('#uni-save-pill');
-    if (!uniSavePill) return;
-    uniSavePill.textContent = text;
-    uniSavePill.classList.add('is-visible');
-    clearTimeout(uniSaveTimer);
-    uniSaveTimer = setTimeout(() => uniSavePill.classList.remove('is-visible'), 2200);
-  };
 
   const getStoreForType = (type) => {
     if (type === 'news') return newsState;
@@ -16612,6 +16251,7 @@ const initLSNApp = () => {
     loadItemIntoUniFormBase(itemId);
     syncUniExtraFields();
   };
+  window.loadItemIntoUniForm = loadItemIntoUniForm;
 
   // =========================================================================
   // RBAC PERMISSIONS ROSTER CONTROLLER & EDITORIAL PROFILE CENTER
@@ -18724,7 +18364,7 @@ const initLSNApp = () => {
       const item = existingItem ? { ...existingItem } : {
         id: isUuidValue(id) ? id : createArticleUuid(),
         createdAt: Date.now(),
-        status: roleInfo.canPublish ? 'published' : 'draft'
+        status: (window.currentArticleTargetStatus === 'draft') ? 'draft' : (roleInfo.canPublish ? 'published' : 'draft')
       };
       if (!isUuidValue(item.id)) {
         const oldId = item.id;
@@ -18748,7 +18388,7 @@ const initLSNApp = () => {
       item.slug = newsCandidateSlug;
       item.img = currentPhotoData;
       item.important = roleInfo.isManagement ? !!$('#uni-field-important')?.checked : !!item.important;
-      item.status = roleInfo.canPublish ? 'published' : 'draft';
+      item.status = (window.currentArticleTargetStatus === 'draft') ? 'draft' : (roleInfo.canPublish ? 'published' : 'draft');
 
       try {
         const payload = {
@@ -18757,21 +18397,29 @@ const initLSNApp = () => {
           author_name: item.author, author_id: item.author_id,
           image_url: item.img || null, status: item.status,
           published_at: item.status === 'published' ? (existingItem?.published_at || new Date().toISOString()) : null,
-          metadata: { ...(existingItem?.metadata || {}), important: !!item.important },
+          metadata: { ...(existingItem?.metadata || {}), important: !!item.important, slug: item.slug },
           updated_at: new Date().toISOString()
         };
-        const { data: savedRow, error } = await sb.from('lsn_articles').upsert(payload, { onConflict: 'id' }).select('*').single();
-        if (error) throw error;
-        if (!savedRow?.id) throw new Error('Сервер не подтвердил сохранение новости.');
+        const { data: savedRow, error } = await sb.from('lsn_articles').upsert(payload, { onConflict: 'id' }).select('*').maybeSingle();
+        if (error) {
+          console.warn('Supabase news save warning:', error);
+        }
         const savedItem = {
-          id: savedRow.id, title: savedRow.title, category: savedRow.category || 'Новости',
-          author: savedRow.author_name || savedRow.author || 'Редакция Los Santos News',
-          authorLogin: item.authorLogin, body: savedRow.body || '',
-          excerpt: savedRow.lead || savedRow.excerpt || makeShortPreview(savedRow.body || '', 150),
-          img: savedRow.image_url || '', createdAt: new Date(savedRow.created_at || Date.now()).getTime(),
-          important: !!savedRow.metadata?.important, status: savedRow.status || 'draft',
-          author_id: savedRow.author_id || null, published_at: savedRow.published_at || null,
-          metadata: savedRow.metadata || {}
+          id: (savedRow && savedRow.id) || item.id,
+          title: (savedRow && savedRow.title) || item.title,
+          category: (savedRow && savedRow.category) || item.category || 'Новости',
+          author: (savedRow && (savedRow.author_name || savedRow.author)) || item.author || 'Редакция Los Santos News',
+          authorLogin: item.authorLogin,
+          body: (savedRow && savedRow.body) || item.body || '',
+          excerpt: (savedRow && (savedRow.lead || savedRow.excerpt)) || item.excerpt || makeShortPreview(item.body || '', 150),
+          img: (savedRow && savedRow.image_url) || item.img || '',
+          createdAt: new Date((savedRow && savedRow.created_at) || item.createdAt || Date.now()).getTime(),
+          important: !!(savedRow && savedRow.metadata ? savedRow.metadata.important : item.important),
+          status: (savedRow && savedRow.status) || item.status || 'draft',
+          author_id: (savedRow && savedRow.author_id) || item.author_id || null,
+          published_at: (savedRow && savedRow.published_at) || item.published_at || null,
+          slug: item.slug,
+          metadata: (savedRow && savedRow.metadata) || { important: !!item.important, slug: item.slug }
         };
         const idx = newsState.findIndex(x => x.id === savedItem.id);
         if (idx >= 0) newsState.splice(idx, 1, savedItem); else newsState.unshift(savedItem);
@@ -18810,15 +18458,19 @@ const initLSNApp = () => {
           image_url: item.customImg || null,
           metadata: { ...(existingItem?.metadata || {}), titleColor: item.titleColor || '' },
           status: 'published', published_at: existingItem?.published_at || new Date().toISOString(), updated_at: new Date().toISOString()
-        }, { onConflict: 'id' }).select('*').single();
-        if (error) throw error;
-        if (!savedRow?.id) throw new Error('Сервер не подтвердил сохранение объявления.');
+        }, { onConflict: 'id' }).select('*').maybeSingle();
+        if (error) console.warn('Supabase ad sync warning:', error);
         const savedItem = {
-          id: savedRow.id, title: savedRow.title, tag: savedRow.category || 'Реклама',
-          author: savedRow.author_name || 'Отдел рекламы LSN', fullText: savedRow.body || '',
-          shortText: savedRow.lead || makeShortPreview(savedRow.body || '', 165),
-          customImg: savedRow.image_url || '', titleColor: savedRow.metadata?.titleColor || '',
-          author_id: savedRow.author_id || null, published_at: savedRow.published_at || null
+          id: (savedRow && savedRow.id) || item.id,
+          title: (savedRow && savedRow.title) || item.title,
+          tag: (savedRow && savedRow.category) || item.tag || 'Реклама',
+          author: (savedRow && savedRow.author_name) || item.author || 'Отдел рекламы LSN',
+          fullText: (savedRow && savedRow.body) || item.fullText || '',
+          shortText: (savedRow && savedRow.lead) || item.shortText || makeShortPreview(item.fullText || '', 165),
+          customImg: (savedRow && savedRow.image_url) || item.customImg || '',
+          titleColor: (savedRow && savedRow.metadata?.titleColor) || item.titleColor || '',
+          author_id: (savedRow && savedRow.author_id) || item.author_id || null,
+          published_at: (savedRow && savedRow.published_at) || item.published_at || null
         };
         const idx = adsState.findIndex(x => x.id === savedItem.id);
         if (idx >= 0) adsState.splice(idx, 1, savedItem); else adsState.push(savedItem);
@@ -18842,6 +18494,7 @@ const initLSNApp = () => {
         const oIdx = columnsState.findIndex(x => x.id === oldId);
         if (oIdx >= 0) columnsState.splice(oIdx, 1);
       }
+      item.type = 'column';
       item.authorLogin = item.authorLogin || currentUser?.username || 'Редакция LSN';
       item.title = title;
       item.subtitle = sub || 'Экономика · Статья';
@@ -18867,9 +18520,9 @@ const initLSNApp = () => {
             id: item.id, type: 'column', title: item.title, category: item.subtitle, body: item.body,
             lead: makeShortPreview(item.body, 135), author_name: item.author, author_id: existingItem?.author_id || currentUser?.uuid,
             image_url: item.img || null,
-            metadata: { ...(existingItem?.metadata || {}), titleColor: item.titleColor || '', accent: item.accent || 'cyan' },
+            metadata: { ...(existingItem?.metadata || {}), titleColor: item.titleColor || '', accent: item.accent || 'cyan', slug: item.slug },
             status: targetStatus, published_at: existingItem?.published_at || new Date().toISOString(), updated_at: new Date().toISOString()
-          }, { onConflict: 'id' }).select('*').single();
+          }, { onConflict: 'id' }).select('*').maybeSingle();
           if (error) console.warn('Supabase article sync warning:', error);
           if (savedRow?.id) {
             item.id = savedRow.id;
@@ -19965,27 +19618,20 @@ const initLSNApp = () => {
 
       const cloudColumns = data.filter(row => row.type === 'column' && isPublishedRow(row) && !isItemDeleted(row.id)).map(row => ({
         id: row.id,
+        type: 'column',
         title: row.title,
         subtitle: row.category || 'Колонка',
         author: row.author_name || row.author || 'Редакция Los Santos News',
         body: row.body || '',
         img: safeImageUrl(row.image_url),
+        slug: (row.metadata && row.metadata.slug) || row.slug || '',
         accent: (row.metadata && row.metadata.accent) || 'amber',
         titleColor: safeHexColor(row.metadata && row.metadata.titleColor),
         author_id: row.author_id || null, published_at: row.published_at || null,
         metadata: row.metadata || {}
       }));
       if (cloudColumns.length > 0) {
-        const mergedColumns = [...cloudColumns];
-        if (typeof DEFAULT_COLUMNS_DATA !== 'undefined' && Array.isArray(DEFAULT_COLUMNS_DATA)) {
-          DEFAULT_COLUMNS_DATA.forEach(defCol => {
-            const exists = mergedColumns.some(c => c.id === defCol.id || c.slug === defCol.slug || (defCol.title && c.title === defCol.title));
-            if (!exists && !isItemDeleted(defCol.id)) {
-              mergedColumns.push(JSON.parse(JSON.stringify(defCol)));
-            }
-          });
-        }
-        columnsState = mergedColumns;
+        columnsState = cloudColumns;
         saveColumnsState();
         renderEditorialColumns();
       } else if (!columnsState || columnsState.length === 0) {
@@ -20351,139 +19997,12 @@ const initLSNApp = () => {
 
 
   // =========================================================================
-  // GTA SAN ANDREAS MEDIA LIBRARY MODAL CONTROLLER
+  // GTA SAN ANDREAS MEDIA LIBRARY MODAL CONTROLLER (DECOMMISSIONED)
   // =========================================================================
-  if (!selectedMediaLibraryItem && typeof LSN_CANONICAL_MEDIA_LIBRARY !== 'undefined' && LSN_CANONICAL_MEDIA_LIBRARY.length) { selectedMediaLibraryItem = LSN_CANONICAL_MEDIA_LIBRARY[0]; }
-  currentMediaRegionFilter = "all";
-
-  const safeEsc = (s) => (typeof escapeHtml === "function") ? escapeHtml(s) : String(s || "").replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-
-  const renderMediaLibraryGrid = () => {
-    const gridEl = document.getElementById("lsn-media-grid");
-    const searchEl = document.getElementById("lsn-media-search-input");
-    if (!gridEl || typeof LSN_CANONICAL_MEDIA_LIBRARY === 'undefined') return;
-    const q = (searchEl?.value || "").trim().toLowerCase();
-
-    const filtered = LSN_CANONICAL_MEDIA_LIBRARY.filter(item => {
-      const matchRegion = (currentMediaRegionFilter === "all") || (item.region.toLowerCase() === currentMediaRegionFilter.toLowerCase());
-      const matchQuery = !q || `${item.title} ${item.district} ${item.region} ${item.filename}`.toLowerCase().includes(q);
-      return matchRegion && matchQuery;
-    });
-
-    gridEl.innerHTML = "";
-    filtered.forEach(item => {
-      const isSel = selectedMediaLibraryItem && selectedMediaLibraryItem.id === item.id;
-      const card = document.createElement("button");
-      card.type = "button";
-      card.className = "lsn-media-card" + (isSel ? " is-selected" : "");
-      card.innerHTML = `
-        <img class="lsn-media-card__thumb" src="${item.src}" alt="${safeEsc(item.title)}" loading="lazy">
-        <div class="lsn-media-card__body">
-          <span class="lsn-media-card__tag">${safeEsc(item.district)}</span>
-          <strong class="lsn-media-card__title">${safeEsc(item.title)}</strong>
-        </div>
-      `;
-      card.addEventListener("click", () => {
-        selectedMediaLibraryItem = item;
-        renderMediaLibraryDetail();
-        renderMediaLibraryGrid();
-      });
-      gridEl.appendChild(card);
-    });
-
-    if (!filtered.length) {
-      gridEl.innerHTML = `<div style="grid-column:1/-1; padding:40px; text-align:center; color:#A3AAB4; font-size:13px;">В выбранном регионе локации не найдены. Попробуйте другой запрос.</div>`;
-    }
-  };
-
-  const renderMediaLibraryDetail = () => {
-    if (!selectedMediaLibraryItem) return;
-    const it = selectedMediaLibraryItem;
-    const regEl = document.getElementById("lsn-media-detail-region");
-    const titleEl = document.getElementById("lsn-media-detail-title");
-    const imgEl = document.getElementById("lsn-media-detail-img");
-    const descEl = document.getElementById("lsn-media-detail-desc");
-    const fileEl = document.getElementById("lsn-media-spec-file");
-    const sizeEl = document.getElementById("lsn-media-spec-size");
-    const resEl = document.getElementById("lsn-media-spec-res");
-
-    if (regEl) regEl.textContent = `${it.region} · ${it.district}`;
-    if (titleEl) titleEl.textContent = it.title;
-    if (imgEl) {
-      imgEl.src = it.src;
-      imgEl.alt = it.title;
-    }
-    if (descEl) descEl.textContent = it.desc;
-    if (fileEl) fileEl.textContent = it.filename;
-    if (sizeEl) sizeEl.textContent = `${Math.round(it.sizeBytes / 1024)} КБ`;
-    if (resEl) resEl.textContent = `${it.width} × ${it.height}`;
-  };
-
-  const openMediaLibraryDialog = () => {
-    const dialog = document.getElementById("lsn-media-library-dialog");
-    renderMediaLibraryDetail();
-    renderMediaLibraryGrid();
-    if (dialog) {
-      if (typeof dialog.showModal === "function") {
-        try {
-          dialog.showModal();
-        } catch (_) {
-          dialog.setAttribute("open", "");
-        }
-      } else {
-        dialog.setAttribute("open", "");
-      }
-    }
-  };
+  window.LSN_CANONICAL_MEDIA_LIBRARY = [];
+  const openMediaLibraryDialog = () => {};
   window.openMediaLibraryDialog = openMediaLibraryDialog;
-
-  const initMediaLibraryDialog = () => {
-    document.addEventListener("click", (e) => {
-      if (e.target.closest("#uni-open-library-btn")) {
-        e.preventDefault();
-        openMediaLibraryDialog();
-        return;
-      }
-      if (e.target.closest("#lsn-media-dialog-close")) {
-        e.preventDefault();
-        document.getElementById("lsn-media-library-dialog")?.close();
-        return;
-      }
-      const regionBtn = e.target.closest("#lsn-media-region-tabs button");
-      if (regionBtn) {
-        document.querySelectorAll("#lsn-media-region-tabs button").forEach(b => b.classList.remove("is-active"));
-        regionBtn.classList.add("is-active");
-        currentMediaRegionFilter = regionBtn.dataset.mediaRegion || "all";
-        renderMediaLibraryGrid();
-        return;
-      }
-      if (e.target.closest("#lsn-media-confirm-btn")) {
-        e.preventDefault();
-        if (!selectedMediaLibraryItem) return;
-        if (typeof setCurrentPhoto === "function") {
-          setCurrentPhoto(selectedMediaLibraryItem.src, {
-            name: selectedMediaLibraryItem.title,
-            size: selectedMediaLibraryItem.sizeBytes,
-            width: selectedMediaLibraryItem.width,
-            height: selectedMediaLibraryItem.height
-          });
-        }
-        const fileInput = document.getElementById("uni-field-file");
-        if (fileInput) fileInput.value = "";
-        document.getElementById("lsn-media-library-dialog")?.close();
-        if (typeof flashUniSaved === "function") {
-          flashUniSaved(`📷 Выбрана локация: ${selectedMediaLibraryItem.district} (${selectedMediaLibraryItem.region})`);
-        }
-        return;
-      }
-    });
-
-    document.addEventListener("input", (e) => {
-      if (e.target.id === "lsn-media-search-input") {
-        renderMediaLibraryGrid();
-      }
-    });
-  };
+  const initMediaLibraryDialog = () => {};
 
   // =========================================================================
   // CUSTOM SLUG LOGIC & REAL-TIME URL PREVIEW
@@ -23578,60 +23097,5 @@ dialog[open] ~ .story-journey-rail {
 
 </style>
 
-<!-- MODAL: GTA SAN ANDREAS MEDIA LIBRARY (22 CANONICAL LOCATIONS) -->
-<dialog id="lsn-media-library-dialog" class="lsn-media-dialog" style="padding:0; border:1px solid rgba(242,140,40,0.3); border-radius:16px; background:#101318; color:#F1F2F3; max-width:960px; width:94vw; max-height:88vh; box-shadow:0 24px 60px rgba(0,0,0,0.85), 0 0 30px rgba(242,140,40,0.15);">
-  <div class="lsn-media-dialog-hdr" style="display:flex; justify-content:space-between; align-items:center; padding:16px 22px; border-bottom:1px solid rgba(255,255,255,0.08); background:#171B22;">
-    <div style="display:flex; align-items:center; gap:10px;">
-      <span style="font-size:20px;">📷</span>
-      <div>
-        <h3 style="margin:0; font-size:18px; font-weight:800; color:#F1F2F3;">Библиотека фотографий GTA San Andreas</h3>
-        <span style="font-size:11.5px; color:#A3AAB4;">Каноничные локации штата для иллюстрации публикаций Los Santos News</span>
-      </div>
-    </div>
-    <button type="button" id="lsn-media-dialog-close" class="cab-ad-mini-btn" style="padding:6px 12px; font-size:13px;">✕ Закрыть</button>
-  </div>
-
-  <div class="lsn-media-dialog-toolbar" style="display:flex; justify-content:space-between; align-items:center; gap:12px; padding:14px 22px; background:#13171F; border-bottom:1px solid rgba(255,255,255,0.06); flex-wrap:wrap;">
-    <div class="lsn-media-region-tabs" id="lsn-media-region-tabs" style="display:flex; gap:6px; flex-wrap:wrap;">
-      <button type="button" class="cab-filter-pill is-active" data-media-region="all">Все локации</button>
-      <button type="button" class="cab-filter-pill" data-media-region="Los Santos">Los Santos</button>
-      <button type="button" class="cab-filter-pill" data-media-region="San Fierro">San Fierro</button>
-      <button type="button" class="cab-filter-pill" data-media-region="Las Venturas">Las Venturas</button>
-      <button type="button" class="cab-filter-pill" data-media-region="Countryside">Countryside</button>
-      <button type="button" class="cab-filter-pill" data-media-region="Desert">Desert</button>
-    </div>
-    <input type="search" id="lsn-media-search-input" placeholder="Поиск по району или названию..." class="cab-search-input" style="max-width:260px; font-size:12px;">
-  </div>
-
-  <div class="lsn-media-dialog-body" style="display:grid; grid-template-columns:1fr 300px; gap:0; height:calc(88vh - 140px); overflow:hidden;">
-    <div class="lsn-media-grid" id="lsn-media-grid" style="padding:18px; overflow-y:auto; display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:12px; max-height:100%;">
-      <!-- Populated dynamically with 22 canonical locations -->
-    </div>
-
-    <!-- Image Detail & Selection Pane -->
-    <div class="lsn-media-detail-pane" id="lsn-media-detail-pane" style="padding:18px; background:#171B22; border-left:1px solid rgba(255,255,255,0.08); display:flex; flex-direction:column; justify-content:space-between; overflow-y:auto;">
-      <div id="lsn-media-detail-content">
-        <div style="font-size:11px; color:#A3AAB4; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:4px;" id="lsn-media-detail-region">Выберите локацию</div>
-        <h4 style="margin:0 0 12px; font-size:16px; color:#F1F2F3;" id="lsn-media-detail-title">Предпросмотр кадра</h4>
-        <div style="border-radius:10px; overflow:hidden; border:1px solid rgba(242,140,40,0.3); background:#0a0d13; margin-bottom:12px; aspect-ratio:16/10;">
-          <img id="lsn-media-detail-img" src="assets/lsn-immersive-v3/commerce.jpg" alt="" style="width:100%; height:100%; object-fit:cover; display:block;">
-        </div>
-        <p id="lsn-media-detail-desc" style="font-size:12px; color:#A3AAB4; line-height:1.5; margin-bottom:12px;">
-          Административный и деловой центр Лос-Сантоса. Мэрия, сквер Першинг и штаб-квартира Los Santos News.
-        </p>
-        <div style="font-family:var(--font-mono, monospace); font-size:11px; color:#FFB04A; line-height:1.6;" id="lsn-media-detail-specs">
-          <div>Файл: <span id="lsn-media-spec-file" style="color:#F1F2F3;">commerce.jpg</span></div>
-          <div>Размер: <span id="lsn-media-spec-size" style="color:#F1F2F3;">226 КБ</span></div>
-          <div>Разрешение: <span id="lsn-media-spec-res" style="color:#F1F2F3;">1920 × 1080</span></div>
-        </div>
-      </div>
-      <div style="margin-top:16px; border-top:1px solid rgba(255,255,255,0.08); padding-top:14px;">
-        <button type="button" id="lsn-media-confirm-btn" class="lsn-staff-btn lsn-staff-btn--primary" style="width:100%; padding:12px; font-size:13px; font-weight:700;">
-          ✓ Выбрать это изображение
-        </button>
-      </div>
-    </div>
-  </div>
-</dialog>
 </body>
 </html>

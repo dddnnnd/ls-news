@@ -1,25 +1,33 @@
 {
-    "release": "LSN Complete Platform Evolution - Production Gold Edition",
-    "html_bytes": 2179007,
-    "html_sha256": "9269CEDEA7F4E073C52B599CCA07B39CA679EAA51B3F8AAE6B4A25F234D48BF2",
-    "platform_evolution": {
-        "unified_orange_design_system": true,
-        "story_journey_rail_6_dots": true,
-        "public_articles_section_with_16_tags": true,
-        "custom_permalinks_slugs": true,
-        "media_library_dialog_gta_sa": true,
-        "account_hub_rbac_5_levels": true,
-        "favorites_cloud_sync": true,
-        "dynamic_hero_30s_rotation": true,
-        "header_nav_career_removed": true,
-        "canonical_nav_5_links": true,
-        "zero_black_screen_guarantee": true
+    "release": "LSN Forensic Audit & Zero-Trust Production Repair Edition",
+    "timestamp": "2026-11-05T18:59:00Z",
+    "html_bytes": 2188260,
+    "html_sha256": "50705365B130D50C4F86585A3339DCCFF2C8D4F4D366CB6EA22AF017FE3E7DF0",
+    "preflight_backup": {
+        "path": "backups/forensic_audit_preflight_20261105/index.html",
+        "sha256": "2D0D89B152A6B702D972DF4CF9D86A659496E1FEFC877EC02FF3B5413221A30C",
+        "assets_backup": "backups/forensic_audit_preflight_20261105/assets_lsn_immersive_v3_backup"
+    },
+    "forensic_audit_results": {
+        "problem_1_extra_illustrations_removed": true,
+        "problem_1_authentic_album_preserved": true,
+        "problem_2_zero_synthetic_articles_desktop": true,
+        "problem_2_zero_synthetic_articles_mobile": true,
+        "problem_2_cloud_articles_authoritative": true,
+        "problem_3_editorial_panel_hero_focus_saving": true,
+        "problem_3_editorial_panel_news_saving": true,
+        "problem_3_editorial_panel_columns_saving": true,
+        "problem_3_editorial_panel_ads_saving": true,
+        "problem_3_editorial_panel_staff_saving": true,
+        "problem_3_editorial_panel_radio_ratings_saving": true,
+        "problem_3_editorial_panel_permissions_rbac": true,
+        "zero_unhandled_console_exceptions": true,
+        "zero_broken_assets_404": true
     },
     "edge_cdp_verification": {
-        "dynamic_hero_suite_tests": 18,
-        "dynamic_hero_suite_passed": 18,
-        "platform_evolution_suite_tests": 33,
-        "platform_evolution_suite_passed": 33,
+        "cdp_port": 9333,
+        "viewports_tested": ["1440x900", "768x1024", "375x812"],
+        "roles_tested": ["admin", "director", "deputy", "journalist", "user"],
         "total_passed": 51,
         "total_failed": 0,
         "verdict": "GO"
